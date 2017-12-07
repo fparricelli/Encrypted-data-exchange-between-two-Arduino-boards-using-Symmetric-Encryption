@@ -1,0 +1,4 @@
+1) Non abbiamo usato il pepper -> perché ci avrebbe costretti a creare una nostra crittografia
+2) Password con bcrypt -> perché in chiaro è da nabbi
+3) Non abbiamo usato scrypt -> perché non ha avuto abbastanza peer reviewing
+4) Abbiamo usato SSL -> perché altrimenti saremmo vulnerabili a snooping e attacchi MITM
