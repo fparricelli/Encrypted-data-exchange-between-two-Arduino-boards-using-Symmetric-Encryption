@@ -1,4 +1,4 @@
-package it.aldo.certificates;
+package it.certificates;
 
 import java.io.File;
 import java.io.FileInputStream;

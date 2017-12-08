@@ -1,4 +1,4 @@
-package it.luca.debug;
+package it.debug;
 
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -14,6 +14,11 @@ public class DebugBCrypt {
 		String password = "pizza100";
 		String hashed = BCrypt.hashpw(password, BCrypt.gensalt(log_rounds));
 		String hashed2 = BCrypt.hashpw(password, BCrypt.gensalt(log_rounds));
+		
+		/*
+		 * Mi assicuro che gli hash siano diversi: questo perché BCrypt genera da sè i salt
+		 */
+		System.out.println(!hashed.equals(hashed2));
 		/*
 		 * Provo a generare due hash bcrypt della stessa password per vedere se vengono riconosciuti
 		 * entrambi come hash della stessa password (mi attendo true, true alla fine)
