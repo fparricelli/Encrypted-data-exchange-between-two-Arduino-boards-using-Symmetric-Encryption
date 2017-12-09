@@ -24,6 +24,13 @@
 		<servlet-name>RegistrationServlet</servlet-name>
 		<servlet-class>it.registration.RegistrationServlet</servlet-class>
 	</servlet>
+	
+		<servlet>
+		<description />
+		<display-name>AuthenticationServlet</display-name>
+		<servlet-name>AuthenticationServlet</servlet-name>
+		<servlet-class>it.authentication.AuthenticationServlet</servlet-class>
+	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>CertificateServlet</servlet-name>
@@ -33,6 +40,10 @@
 	<servlet-mapping>
 		<servlet-name>RegistrationServlet</servlet-name>
 		<url-pattern>/register/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>AuthenticationServlet</servlet-name>
+		<url-pattern>/authenticate/*</url-pattern>
 	</servlet-mapping>
 	
 	<security-constraint>
@@ -50,6 +61,17 @@
 	<security-constraint>
 		<web-resource-collection>
 			<web-resource-name>RegistrationServlet</web-resource-name>
+			<url-pattern>/*</url-pattern>
+		</web-resource-collection>
+
+
+		<user-data-constraint>
+			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>AuthenticationServlet</web-resource-name>
 			<url-pattern>/*</url-pattern>
 		</web-resource-collection>
 

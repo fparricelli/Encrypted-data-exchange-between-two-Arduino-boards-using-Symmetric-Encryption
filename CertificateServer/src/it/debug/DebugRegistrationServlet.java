@@ -16,8 +16,8 @@ public static void main(String[] args) throws IOException {
 	HttpsURLConnection.setDefaultHostnameVerifier ((hostname, session) -> true);
 	 URL url = new URL("https://localhost:8443/CertificateServer/register");
      Map<String,Object> params = new LinkedHashMap<>();
-    params.put("username", "Untizio");
-    params.put("password", "pwd");
+    params.put("username", "Nome utente");
+    params.put("password", "password utente");
 
      StringBuilder postData = new StringBuilder();
      for (Map.Entry<String,Object> param : params.entrySet()) {
