@@ -5,3 +5,4 @@
 5) bcrypt è meglio di hash come sha256 perché è stato pensato esclusivamente per le password
 6) Varie robe su bcrypt (principalmente quantitative)
 7) L'immagine sui costi di cracking dei vari tipi di hash
+8) I prepared statement ci difendono dalle SQL Injection

@@ -1,7 +1,9 @@
 package it.registration;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Enumeration;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -9,10 +11,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 public class RegistrationServlet extends HttpServlet {
 
 	/**
-	 * 
+	 * Vi si accede : https://localhost:8443/CertificateServer/register/
 	 */
 	private static final long serialVersionUID = 3287889096339954784L;
 	private ServletConfig config;
@@ -25,29 +29,13 @@ public class RegistrationServlet extends HttpServlet {
 		this.config = config;
 	}
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-	{
-		String key = "";
-		String value = "";
-		System.out.println("Registrazione");
-		try {
-			debug(response);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) {
+
+		String username = request.getParameter("username");
+		String password = request.getParameter("password");
+		String bcrypted = BCrypt.hashpw(password, BCrypt.gensalt());
 		
-	
+		RegistrationLogic.store(username, bcrypted);
 	}
-	
-	protected void debug (HttpServletResponse res) throws IOException
-	{
-		res.setContentType("text/html");//setting the content type  
-		PrintWriter pw=res.getWriter();//get the stream to write the data  
-		//writing html in the stream  
-		pw.println("<html><body>");  
-		pw.println("Welcome to servlet");  
-		pw.println("</body></html>");  
-		pw.close();//closing the stream  
-	}
+
 }
