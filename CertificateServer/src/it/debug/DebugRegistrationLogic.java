@@ -5,7 +5,7 @@ import it.registration.RegistrationLogic;
 public class DebugRegistrationLogic {
 
 	public static void main(String[] args) {
-		RegistrationLogic.store("username", "password");
+		RegistrationLogic.store("wewe", "questaèunapassword");
 
 	}
 

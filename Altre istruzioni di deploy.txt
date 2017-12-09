@@ -1,0 +1,1 @@
+1) Spostare mysql-connector-java-5.1.10-bin in [Cartella di Installazione Tomcat]\lib
