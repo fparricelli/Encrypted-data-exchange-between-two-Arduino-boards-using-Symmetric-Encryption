@@ -8,6 +8,7 @@ import javax.crypto.spec.SecretKeySpec;
 import gnu.io.PortInUseException;
 import gnu.io.UnsupportedCommOperationException;
 import it.sm.exception.*;
+import it.sm.messages.EncryptedMessage;
 
 
 /* Classe che si occupa di astrarre un keystore HARDWARE di tipo AES,
@@ -35,6 +36,8 @@ import it.sm.exception.*;
  */
 public class AESHardwareKeystore implements MyAESKeystore{
 	
+	private static final int MAX_SIZE=32;
+	
 	private ArduinoSerial uno;
 	
 	public AESHardwareKeystore() {
@@ -42,12 +45,54 @@ public class AESHardwareKeystore implements MyAESKeystore{
 	};
 	
 	@Override
-	public String encrypt(String message) throws OutOfBoundEncrypt  {
+	public String requireTokenToShare() {
+		
+		/* Send Command -- Command ref da ridefinire */
+		uno.writeData("1");
+		System.out.println("[Arduino] - Requested Token...");
 
-		if(message.length() > 15) throw new OutOfBoundEncrypt();
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		while(!uno.available());
+		String token = uno.readData();	
+		closeConnection();
+		return token;
+		
+	}
+	
+	@Override
+	public boolean setTokenShared(String token) {
+		
+		/* Send Command -- Command ref da ridefinire */
+		uno.writeData("2");
+		System.out.println("[Arduino] - Setting Token...");
+
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		// Già in base64
+		uno.writeData(token);
+		
+		while(!uno.available());
+		String ris = new String(Base64.getDecoder().decode(uno.readData()));	
+		closeConnection();
+		if(ris.contains("OK")) return true;
+		return false;
+	}
+	
+	@Override
+	public EncryptedMessage encrypt(String message) throws OutOfBoundEncrypt  {
+
+		if(message.length() > MAX_SIZE-1) throw new OutOfBoundEncrypt();
 		initialize();
 		/* Send Command */
-		uno.writeData("1");
+		uno.writeData("3");
 		System.out.println("[Arduino] - Requested Encryption...");
 
 		try {
@@ -60,24 +105,35 @@ public class AESHardwareKeystore implements MyAESKeystore{
 		uno.writeData(message);
 		
 		while(!uno.available());
+		String msg_key = uno.readData();	
+		
+		while(!uno.available());
 		String msg = uno.readData();	
 		closeConnection();
-		return msg;
+		return new EncryptedMessage(msg_key, msg);
 	}
 
 	
 	@Override
-	public String decrypt(String message) throws Base64EncodedError {
+	public String decrypt(String message, String msg_key) throws Base64EncodedError {
 
 		if(!message.matches("^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$"))
 			throw new Base64EncodedError();
 		/* Send Command */
 		initialize();
 		System.out.println("[Arduino] - Requested Decryption...");
-		uno.writeData("2");
+		uno.writeData("4");
 		
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		uno.writeData(msg_key);
+		
+		try {
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -91,57 +147,6 @@ public class AESHardwareKeystore implements MyAESKeystore{
 		return new String(Base64.getDecoder().decode(msg));
 	}
 
-
-	@Override
-	public SecretKey getSecretKey(){
-		initialize();
-		/* Send Command */
-		uno.writeData("4");
-		System.out.println("[Arduino] - Requested Get-Key...");
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-		while(!uno.available());
-		String key = uno.readData();
-		
-		System.out.println("[Arduino] - Key Got!");
-		closeConnection();
-		// decode the base64 encoded string
-		byte[] decodedKey = Base64.getDecoder().decode(key);
-		// rebuild key using SecretKeySpec
-		return new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
-		
-	}
-
-
-
-	@Override
-	public void injectSecretKey(SecretKey s) {
-		
-		String key = Base64.getEncoder().encodeToString(s.getEncoded());
-		initialize();
-		/* Send Command */
-		uno.writeData("3");
-		System.out.println("[Arduino] - Requested Set-Key...");
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		/* Invio Messaggio */
-		
-		uno.writeData(key);
-		
-		while(!uno.available());
-		uno.readData();
-		
-		System.out.println("[Arduino] - Key Set");
-		closeConnection();
-
-	}
 	
 	public void closeConnection() {
 		uno.close();
@@ -158,5 +163,6 @@ public class AESHardwareKeystore implements MyAESKeystore{
 		//while(!uno.available());
 		//System.out.println("[DEBUG] "+uno.readData());
 	}
+
 
 }

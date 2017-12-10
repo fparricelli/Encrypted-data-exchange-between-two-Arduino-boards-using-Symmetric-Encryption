@@ -1,6 +1,6 @@
 package it.sm.keystore.aeskeystore;
 
-import javax.crypto.SecretKey;
+import it.sm.messages.EncryptedMessage;
 
 import it.sm.exception.Base64EncodedError;
 import it.sm.exception.OutOfBoundEncrypt;
@@ -14,9 +14,9 @@ import it.sm.exception.OutOfBoundEncrypt;
 
 public interface MyAESKeystore{
 	
-	public String encrypt(String message) throws OutOfBoundEncrypt;
-	public String decrypt(String message) throws Base64EncodedError;
-	public SecretKey getSecretKey();
-	public void injectSecretKey(SecretKey s);
+	public EncryptedMessage encrypt(String message) throws OutOfBoundEncrypt;
+	public String decrypt(String message,  String msg_key) throws Base64EncodedError;
+	public String requireTokenToShare();
+	public boolean setTokenShared(String token);
 
 }
