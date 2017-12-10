@@ -12,7 +12,7 @@ public class DebugAuthenticationLogic {
 		
 		boolean bool = AuthenticationLogic.authenticate("username", "password");
 		System.out.println(bool);
-		bool = AuthenticationLogic.authenticate("wewe", "questaèunapassword");
+		bool = AuthenticationLogic.authenticate("wewe2", "questaèunapassword2");
 		System.out.println(bool);
 		bool = !AuthenticationLogic.authenticate("Questo", "Questo");
 		System.out.println(bool);

@@ -30,10 +30,11 @@ public class RegistrationServlet extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) {
-		System.out.println("Debug ricevuta richiesta");
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
 		RegistrationLogic.store(username, password);
+		
+		
 	}
 
 }

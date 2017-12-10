@@ -1,0 +1,17 @@
+﻿README - Configurare chiave privata applicazione
+
+
+Usando il procedimento descritto nella configurazione di tomcat, estrarre dal keystore in secure_place il certificato
+(password keystore "changeit") e importarla nel cacerts della jre in uso.
+
+
+
+
+
+
+
+
+
+
+
+

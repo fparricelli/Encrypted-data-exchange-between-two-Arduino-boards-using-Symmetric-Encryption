@@ -1,13 +1,29 @@
 package it.utility;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.security.AlgorithmParameters;
+import java.security.spec.InvalidParameterSpecException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Vector;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import it.sm.keystore.rsakeystore.RSASoftwareKeystore;
+
 import java.sql.PreparedStatement;
 
 public class DatabaseUtility {
-	// TODO ATTENZIONE LA CLASSE È DA RENDERE SICURA!!!
+	// TODO PER AUMENTARE LE PRESTAZIONI FORSE CONVIENE ESTRARRE LE CREDENZIALI UNA
+	// SOLA VOLTA
 	private static DatabaseUtility instance;
 
 	public static DatabaseUtility getInstance() {
@@ -36,26 +52,22 @@ public class DatabaseUtility {
 	public Connection connect() {
 		Connection con = null;
 		try {
-			String url1 = "jdbc:mysql://localhost:3306/secure_messaging";
-			String url2 = "?verifyServerCertificate=true";
-			String url3 = "&useSSL=true";
-			String url4 = "&requireSSL=true";
-			String url = url1 + url2 + url3 + url4;
-			String user = "ssluser";
-			String password = "sslpassword";
+			Vector<String> parameters = readParameters();
+
+			String url = parameters.get(0);
+			String user = parameters.get(1);
+			String password = parameters.get(2);
 			con = DriverManager.getConnection(url, user, password);
 
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return con;
 	}
-	
-
 
 	public DatabaseTriple query(String command) {
-		Connection conn = null; 
+		Connection conn = null;
 		PreparedStatement statement = null;
 		ResultSet result = null;
 		try {
@@ -86,5 +98,45 @@ public class DatabaseUtility {
 	 * System.out.println(cleartext2); }
 	 * 
 	 */
+
+	public Vector<String> readParameters() throws Exception {
+		/*
+		 * In linea di principio "avremmo" sostituito una password harcoded con un'altra
+		 * password hardcoded: non sembrerebbe, a un primo sguardo, un modo sicuro di
+		 * programmare. Possiamo però ipotizzare che tale password sia prelevata a sua
+		 * volta da un mezzo elettronico sicuro (smartcard o equivalente), evitando
+		 * quindi l'hardcoding.
+		 * 
+		 */
+
+		String name = null, password = null, url = null;
+		RSASoftwareKeystore rsa = new RSASoftwareKeystore(".\\secure_place\\app_keystore.keystore", "secure_messaging",
+				"changeit"); // changeit dovrebbe essere una password generata da qualcosa ma non hardcoded
+		FileInputStream fileIn = new FileInputStream("./other_place/config.dat");
+		ObjectInputStream objectIn = new ObjectInputStream(fileIn);
+		Vector<byte[]> vector = (Vector<byte[]>) objectIn.readObject();
+		byte[] enc_user = vector.get(0);
+		byte[] enc_pwd = vector.get(1);
+		byte[] encrypted_session_key = vector.get(2);
+		byte[] iv = vector.get(3);
+		byte[] url_enc = vector.get(4);
+		Vector<String> parameters = new Vector<String>();
+		AlgorithmParameters parms = AlgorithmParameters.getInstance("AES");
+		parms.init(new IvParameterSpec(iv));
+		byte[] decrypted_session_key = rsa.decrypt(encrypted_session_key);
+		SecretKey sessionKey = new SecretKeySpec(decrypted_session_key, 0, decrypted_session_key.length, "AES");
+		Cipher aesCipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+		aesCipher.init(Cipher.DECRYPT_MODE, sessionKey, parms);
+		name = (new String(aesCipher.doFinal(enc_user)));
+		password = (new String(aesCipher.doFinal(enc_pwd)));
+		url = new String(aesCipher.doFinal(url_enc));
+		parameters.add(url);
+		parameters.add(name);
+		parameters.add(password);
+
+		objectIn.close();
+		fileIn.close();
+		return parameters;
+	}
 
 }
