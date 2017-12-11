@@ -3,7 +3,6 @@ package it.debug;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import it.utility.DatabaseTriple;
 import it.utility.DatabaseUtility;

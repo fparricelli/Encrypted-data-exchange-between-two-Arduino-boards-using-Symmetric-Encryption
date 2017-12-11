@@ -1,15 +1,13 @@
 package it.utility;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.security.AlgorithmParameters;
-import java.security.spec.InvalidParameterSpecException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Vector;
 
 import javax.crypto.Cipher;
@@ -17,9 +15,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import it.sm.keystore.rsakeystore.RSADevice;
 import it.sm.keystore.rsakeystore.RSASoftwareKeystore;
-
-import java.sql.PreparedStatement;
 
 public class DatabaseUtility {
 	// TODO PER AUMENTARE LE PRESTAZIONI FORSE CONVIENE ESTRARRE LE CREDENZIALI UNA
@@ -110,8 +107,7 @@ public class DatabaseUtility {
 		 */
 
 		String name = null, password = null, url = null;
-		RSASoftwareKeystore rsa = new RSASoftwareKeystore(".\\secure_place\\app_keystore.keystore", "secure_messaging",
-				"changeit"); // changeit dovrebbe essere una password generata da qualcosa ma non hardcoded
+		RSADevice rsa = RSADevice.getInstance();
 		FileInputStream fileIn = new FileInputStream("./other_place/config.dat");
 		ObjectInputStream objectIn = new ObjectInputStream(fileIn);
 		Vector<byte[]> vector = (Vector<byte[]>) objectIn.readObject();

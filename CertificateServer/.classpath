@@ -13,6 +13,12 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
-	<classpathentry kind="lib" path="E:/Documenti/Progetto-Finale-SSD/CertificateServer/lib/mysql-connector-java-5.1.10-bin.jar"/>
+	<classpathentry exported="true" kind="lib" path="E:/Documenti/Progetto-Finale-SSD/CertificateServer/lib/mysql-connector-java-5.1.10-bin.jar"/>
+	<classpathentry exported="true" kind="lib" path="E:/Documenti/Progetto-Finale-SSD/CertificateServer/lib/jackson-core-2.9.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="E:/Documenti/Progetto-Finale-SSD/CertificateServer/lib/bcprov-jdk15on-1.58.jar"/>
+	<classpathentry exported="true" kind="lib" path="E:/Documenti/Progetto-Finale-SSD/CertificateServer/lib/commons-codec-1.11.jar"/>
+	<classpathentry exported="true" kind="lib" path="E:/Documenti/Progetto-Finale-SSD/CertificateServer/lib/java-jwt-3.1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="E:/Documenti/Progetto-Finale-SSD/CertificateServer/lib/jackson-databind-2.9.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="E:/Documenti/Progetto-Finale-SSD/CertificateServer/lib/jackson-annotations-2.9.3.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

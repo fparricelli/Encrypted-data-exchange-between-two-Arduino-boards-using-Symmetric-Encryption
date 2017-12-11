@@ -19,9 +19,16 @@ public class AuthenticationServlet extends HttpServlet {
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 	{
+		try {
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
 		Boolean authenticated = AuthenticationLogic.authenticate(username, password);
+		if(authenticated) {
+		String authenticationToken = AuthenticationLogic.generateToken(username);
+		}}
+		catch (Exception e){
+			e.printStackTrace();
+		}
 		//codice di risposta 
 	}
 

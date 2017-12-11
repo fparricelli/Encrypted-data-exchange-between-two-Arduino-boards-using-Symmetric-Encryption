@@ -2,12 +2,10 @@ package it.debug;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.security.AlgorithmParameters;
 import java.util.Arrays;
-import java.util.Scanner;
 import java.util.Vector;
 
 import javax.crypto.Cipher;
@@ -15,8 +13,6 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-
-import com.sun.crypto.provider.RSACipher;
 
 import it.sm.keystore.rsakeystore.RSASoftwareKeystore;
 import it.utility.DatabaseUtility;

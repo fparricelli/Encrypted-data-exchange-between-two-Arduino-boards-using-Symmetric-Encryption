@@ -7,8 +7,12 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.cert.Certificate;
+import java.security.interfaces.RSAKey;
 
 import javax.crypto.Cipher;
+
+import com.auth0.jwt.JWTCreator.Builder;
+import com.auth0.jwt.algorithms.Algorithm;
 
 /* Classe che si occupa di astrarre un keystore Software di tipo RSA.
  * Fornisce metodi per effettuare cifratura, de-cifratura e firma
@@ -113,5 +117,15 @@ public class RSASoftwareKeystore implements MyRSAKeystore {
 		PublicKey publicKey = cert.getPublicKey();
 		return publicKey;
 	}
+	
+	public String signToken (Builder clearToken) throws IllegalArgumentException, Exception
+	{
+		String cypherToken = null;
+		Algorithm algorithm = Algorithm.RSA512((RSAKey) extractPrivateKey());
+		cypherToken = clearToken.sign(algorithm);
+		return cypherToken;
+	}
+	
+
 
 }
