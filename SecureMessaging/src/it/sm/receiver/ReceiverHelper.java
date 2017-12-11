@@ -203,8 +203,8 @@ public class ReceiverHelper{
 		
 		System.out.println("[Ricevente - Handshake] In attesa della SecureKey...");
 		
-		//Leggo l'oggetto SecureKey inviatomi dal client mittente, in cui sarà contenuta
-		//l'identità del mittente (necessaria per ricavarne il certificato), la firma e la cifratura della chiave AES.
+		//Leggo l'oggetto SecureKey inviatomi dal client mittente, in cui sarï¿½ contenuta
+		//l'identitï¿½ del mittente (necessaria per ricavarne il certificato), la firma e la cifratura della chiave AES.
 		SecureKey secKey = (SecureKey)ois.readObject();
 		
 		System.out.println("[Ricevente - Handshake] Ho ricevuto la SecureKey.");
@@ -235,11 +235,13 @@ public class ReceiverHelper{
 			System.out.println("[Ricevente - Handshake] Chiave AES ottenuta dal mittente: "+new String(Base64.encode(decryptedAESKey)));
 			System.out.println("[Ricevente - Handshake] Handshake terminato.");
 			
-			//Se la verifica è andata a buon fine, posso fidarmi della chiave AES che ho ricevuto
+			//Se la verifica ï¿½ andata a buon fine, posso fidarmi della chiave AES che ho ricevuto
 			//E iniettarla nel mio hardware keystore AES, in modo da usarla per le successive
 			//comunicazioni con quel mittente
-			SecretKey sKey = new SecretKeySpec(decryptedAESKey, "AES");
-			AESKeystore.injectSecretKey(sKey);
+			
+			/* Commento perchÃ© cambiata l'API*/
+			//SecretKey sKey = new SecretKeySpec(decryptedAESKey, "AES");
+			//AESKeystore.injectSecretKey(sKey);
 			
 			//Invio il messaggio di ACK al mittente che lo attendeva
 			dos.writeUTF("ACK");
@@ -273,7 +275,7 @@ public class ReceiverHelper{
 	 */
 	public void receiveMessage() throws Exception {
 		
-		//Se la socket di comunicazione non è attiva..
+		//Se la socket di comunicazione non ï¿½ attiva..
 		if(clientSocket == null) {
 			//Lancia una nuova eccezione
 			throw new Exception("[Ricevente] Socket non inizializzata, effettuare Handshake!");
@@ -300,9 +302,12 @@ public class ReceiverHelper{
 		System.out.println("[Ricevente] ACK finale inviato.");
 		
 		//Decifro il messaggior ricevuto usando la chiave AES precedentemente concordata
-		String decryptedMessage = AESKeystore.decrypt(m.getEncryptedMessage());
+		
+		/* Commento perchÃ¨ Ã¨ cambiata l'API */
+		
+		//String decryptedMessage = AESKeystore.decrypt(m.getEncryptedMessage());
 
-		System.out.println("[Ricevente] Messaggio decifrato (AES): "+decryptedMessage);
+		//System.out.println("[Ricevente] Messaggio decifrato (AES): "+decryptedMessage);
 		
 	}
 	

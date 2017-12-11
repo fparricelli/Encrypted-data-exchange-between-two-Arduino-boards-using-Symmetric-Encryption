@@ -105,7 +105,9 @@ public class SenderHelper{
 	private void initSign() throws Exception{
 		//Inizializzo l'oggetto secKey con la firma della chiave AES,
 		//ottenuta usando il mio software keystore RSA e l'algoritmo di hashing MD5
-		secKey.setKeySignature(RSAKeystore.sign(AESKeystore.getSecretKey().getEncoded(), "MD5"));
+		
+		/* Cambiata API */
+		//secKey.setKeySignature(RSAKeystore.sign(AESKeystore.getSecretKey().getEncoded(), "MD5"));
 	}
 	
 	/* Procedura che si occupa di inizializzare il certificato del ricevente.
@@ -124,7 +126,7 @@ public class SenderHelper{
 		
 		File f = new File(downloadPath);
 		
-		//Se il certificato è già presente sul File System, lo utilizzo così com'è...
+		//Se il certificato ï¿½ giï¿½ presente sul File System, lo utilizzo cosï¿½ com'ï¿½...
 		if(f.exists()) {
 			
 			System.out.println("[Mittente - Handshake] Certificato ricevente presente sul file system!");
@@ -133,7 +135,7 @@ public class SenderHelper{
 		    FileInputStream fis = new FileInputStream (f);
 		    X509Certificate cert = (X509Certificate) fact.generateCertificate(fis);
 		    
-		    //Verifico la validità del certificato; se non è valido, lo riscarico
+		    //Verifico la validitï¿½ del certificato; se non ï¿½ valido, lo riscarico
 		    Date actualDate = new Date();
 		    
 		    if(actualDate.after(cert.getNotAfter())) {
@@ -146,7 +148,7 @@ public class SenderHelper{
 		    	printCertificateInfo();
 		    }
 			
-		//...se il certificato non è presente, allora devo necessariamente scaricarlo
+		//...se il certificato non ï¿½ presente, allora devo necessariamente scaricarlo
 		}else {
 			
 			System.out.println("[Mittente - Handshake] Certificato non trovato, devo scaricarlo dal server.");
@@ -210,11 +212,14 @@ public class SenderHelper{
 		
 		Cipher c = Cipher.getInstance("RSA");
 		c.init(Cipher.ENCRYPT_MODE, pKey);
-		byte[] s = AESKeystore.getSecretKey().getEncoded();
+		
+		/* Cambiata API */
+		
+		//byte[] s = AESKeystore.getSecretKey().getEncoded();
 		
 		//Cifro la chiave AES con la chiave pubblica e inizializzo la variabile membro secKey
-		System.out.println("[Mittente - Handshake] Chiave AES scelta per la comunicazione: "+new String(Base64.encode(s)));
-		secKey.setEncryptedKey(c.doFinal(s));
+		//System.out.println("[Mittente - Handshake] Chiave AES scelta per la comunicazione: "+new String(Base64.encode(s)));
+		//secKey.setEncryptedKey(c.doFinal(s));
 	}
 	
 	
@@ -297,7 +302,7 @@ public class SenderHelper{
 	 */
 	public void sendMessage(String message) throws Exception{
 		
-		//Se la socket di comunicazione non è inizializzata, non posso invare messaggi
+		//Se la socket di comunicazione non ï¿½ inizializzata, non posso invare messaggi
 		if(commSocket == null) {
 			throw new Exception("[Mittente] Socket non inizializzata, effettua prima l'handshake!");
 		}
@@ -309,13 +314,17 @@ public class SenderHelper{
 		System.out.println("[Mittente] Messaggio originale: "+message);
 		
 		//Cifro il messaggio da inviare usando la chiave AES precedentemente concordata
-		String encryptedMessage = AESKeystore.encrypt(message);
+		/* Cambiata API */
+		//String encryptedMessage = AESKeystore.encrypt(message);
 		
-		System.out.println("[Mittente] Messaggio cifrato (AES): "+encryptedMessage);
+		//System.out.println("[Mittente] Messaggio cifrato (AES): "+encryptedMessage);
 		
 		
 		//Invio del messaggio cifrato con la chiave AES precedentemente scambiata
-		EncryptedMessage m = new EncryptedMessage(encryptedMessage);
+		//EncryptedMessage m = new EncryptedMessage(encryptedMessage);
+		
+		//Commentare questa dopo
+		EncryptedMessage m =null;
 		
 		ObjectOutputStream oos = new ObjectOutputStream(os);
 		
@@ -337,7 +346,7 @@ public class SenderHelper{
 			closeActiveCommunication();
 			throw new Exception("[Mittente] Errore : Messaggio di Ack non ricevuto.");
 		}else {
-			//...altrimenti la comunicazione è andata a buon fine!
+			//...altrimenti la comunicazione ï¿½ andata a buon fine!
 			System.out.println("[Mittente] Ricevuto ultimo Ack.");
 			
 		}
