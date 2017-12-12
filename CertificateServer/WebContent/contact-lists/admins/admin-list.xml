@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<AdminContactList>
+	<admin>
+		<nome>Aldo</nome>
+		<cognome>Strofaldi</cognome>
+		<numero>200</numero>
+	</admin>
+	<admin>
+		<nome>Peppe</nome>
+		<cognome>Barra</cognome>
+		<numero>204</numero>
+	</admin>
+</AdminContactList>

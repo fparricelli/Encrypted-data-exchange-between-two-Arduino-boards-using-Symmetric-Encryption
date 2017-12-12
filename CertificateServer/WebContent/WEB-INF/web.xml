@@ -80,4 +80,44 @@
 			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
 		</user-data-constraint>
 	</security-constraint>
+	
+	
+	<filter>
+    <display-name>ContactListFilter</display-name>
+    <filter-name>ContactListFilter</filter-name>
+    <filter-class>it.authorization.ContactListFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>ContactListFilter</filter-name>
+    <url-pattern>/contact-lists/*</url-pattern>
+  </filter-mapping>
+  
+   <filter>
+    <display-name>InterceptorFilter</display-name>
+    <filter-name>InterceptorFilter</filter-name>
+    <filter-class>it.authorization.InterceptorFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>InterceptorFilter</filter-name>
+    <url-pattern>/policy/*</url-pattern>
+  </filter-mapping>
+  
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>WholeProtection</web-resource-name>
+      <url-pattern>/*</url-pattern>
+    </web-resource-collection>
+    <user-data-constraint>
+      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+    </user-data-constraint>
+  </security-constraint>
+	
+	
+	
+	
+	
+	
+	
+	
+	
 </web-app>

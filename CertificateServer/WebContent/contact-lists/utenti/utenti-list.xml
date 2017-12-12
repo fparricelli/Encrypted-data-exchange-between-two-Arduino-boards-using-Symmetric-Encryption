@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<UtentiContactList>
+	<utente>
+		<nome>Donald</nome>
+		<cognome>Duck</cognome>
+		<numero>210</numero>
+	</utente>
+	<utente>
+		<nome>Mickey</nome>
+		<cognome>Mouse</cognome>
+		<numero>211</numero>
+	</utente>
+</UtentiContactList>

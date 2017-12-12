@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<TecniciContactList>
+	<tecnico>
+		<nome>Bob</nome>
+		<cognome>Aggiustatutto</cognome>
+		<numero>205</numero>
+	</tecnico>
+	<tecnico>
+		<nome>Linus</nome>
+		<cognome>Torvalds</cognome>
+		<numero>207</numero>
+	</tecnico>
+</TecniciContactList>
