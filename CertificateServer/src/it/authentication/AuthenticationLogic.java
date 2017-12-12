@@ -24,6 +24,7 @@ public class AuthenticationLogic {
 
 	public static boolean authenticate(String username, String password) throws NoSuchUserException {
 		boolean authenticated = false;
+	
 		String bcrypted = DAOUsers.load_hash(username);
 
 		if (BCrypt.checkpw(password, bcrypted)) {

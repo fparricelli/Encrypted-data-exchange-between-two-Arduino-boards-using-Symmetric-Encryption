@@ -1,0 +1,5 @@
+Creare una variabile di ambiente chiamata
+
+SECURE_MESSAGING_HOME
+
+e far sì che punti nella cartella .... / CertificateServer

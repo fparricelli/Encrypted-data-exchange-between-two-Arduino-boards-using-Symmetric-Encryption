@@ -1,5 +1,7 @@
 package it.sm.keystore.rsakeystore;
 
+import java.io.IOException;
+
 import it.utility.database.DatabaseUtility;
 
 public class RSADevice extends RSASoftwareKeystore {
@@ -16,14 +18,21 @@ public class RSADevice extends RSASoftwareKeystore {
 				RSADevice inst = instance;
 				if (inst == null) {
 					synchronized (DatabaseUtility.class) {
-
-						instance = new RSADevice("E:\\Documenti\\Progetto-Finale-SSD\\CertificateServer\\secure_place\\app_keystore.keystore", "secure_messaging",
-								"changeit");
+						
+							String current = new String(System.getenv("SECURE_MESSAGING_HOME"));
+							current = current.concat("\\secure_place\\app_keystore.keystore");
+							instance = new RSADevice(current, "secure_messaging",
+									"changeit");
+										
+							
+							// TODO Auto-generated catch block
+						}
+						
 
 					}
 				}
 			}
-		}
+		
 		return instance;
 
 	}

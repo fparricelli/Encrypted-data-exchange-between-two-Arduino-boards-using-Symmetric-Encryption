@@ -27,8 +27,9 @@ public class DebugAuthenticationLogic {
 			//tryToken();
 			//tokenExample();
 			tokenExample2();
-			String current = new java.io.File( "./other_place" ).getCanonicalPath();
-	        System.out.println("Current dir:"+current);
+	
+	   
+	
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

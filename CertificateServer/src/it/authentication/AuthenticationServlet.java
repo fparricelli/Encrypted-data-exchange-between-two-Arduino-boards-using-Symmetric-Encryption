@@ -47,7 +47,8 @@ public class AuthenticationServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) {
 		Integer httpCode = null;
-
+		String current=null;
+	
 		try {
 			OutputStream out = response.getOutputStream();
 			String username = request.getParameter("username");
@@ -59,6 +60,7 @@ public class AuthenticationServlet extends HttpServlet {
 				response.setContentType("application/octet-stream");
 				response.setContentLength(authenticationToken.length());
 				out.write(authenticationToken.getBytes());
+				
 			} else {
 				httpCode = HTTP_UNAUTHORIZED;
 			}

@@ -102,10 +102,12 @@ public class DatabaseUtility {
 		 * quindi l'hardcoding.
 		 * 
 		 */
+	
 
 		String name = null, password = null, url = null;
 		RSADevice rsa = RSADevice.getInstance();
-		FileInputStream fileIn = new FileInputStream("E:\\Documenti\\Progetto-Finale-SSD\\CertificateServer\\other_place\\config.dat");
+		String  path= System.getenv("SECURE_MESSAGING_HOME");
+		FileInputStream fileIn = new FileInputStream(path + "\\other_place\\config.dat");
 		ObjectInputStream objectIn = new ObjectInputStream(fileIn);
 		Vector<byte[]> vector = (Vector<byte[]>) objectIn.readObject();
 		byte[] enc_user = vector.get(0);
