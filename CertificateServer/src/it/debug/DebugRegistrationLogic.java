@@ -1,11 +1,14 @@
 package it.debug;
 
+import java.sql.SQLException;
+
+import it.exception.registration.UserAlreadyExistsException;
 import it.registration.RegistrationLogic;
 
 public class DebugRegistrationLogic {
 
-	public static void main(String[] args) {
-		RegistrationLogic.store("wewe3", "questaèunapassword3");
+	public static void main(String[] args) throws SQLException, UserAlreadyExistsException {
+		RegistrationLogic.store("wewe4", "questaèunapassword4");
 
 	}
 

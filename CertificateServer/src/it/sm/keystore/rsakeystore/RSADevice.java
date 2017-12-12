@@ -1,6 +1,6 @@
 package it.sm.keystore.rsakeystore;
 
-import it.utility.DatabaseUtility;
+import it.utility.database.DatabaseUtility;
 
 public class RSADevice extends RSASoftwareKeystore {
 	private static RSADevice instance;
@@ -17,7 +17,7 @@ public class RSADevice extends RSASoftwareKeystore {
 				if (inst == null) {
 					synchronized (DatabaseUtility.class) {
 
-						instance = new RSADevice(".\\secure_place\\app_keystore.keystore", "secure_messaging",
+						instance = new RSADevice("E:\\Documenti\\Progetto-Finale-SSD\\CertificateServer\\secure_place\\app_keystore.keystore", "secure_messaging",
 								"changeit");
 
 					}

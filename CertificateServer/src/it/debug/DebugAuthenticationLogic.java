@@ -14,6 +14,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import it.authentication.AuthenticationLogic;
+import it.exception.authentication.NoSuchUserException;
 import it.sm.keystore.rsakeystore.RSADevice;
 import it.sm.keystore.rsakeystore.RSASoftwareKeystore;
 
@@ -26,6 +27,8 @@ public class DebugAuthenticationLogic {
 			//tryToken();
 			//tokenExample();
 			tokenExample2();
+			String current = new java.io.File( "./other_place" ).getCanonicalPath();
+	        System.out.println("Current dir:"+current);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -34,12 +37,12 @@ public class DebugAuthenticationLogic {
 	}
 	public static void tokenExample2 () throws Exception
 	{
-		String token = AuthenticationLogic.generateToken("username");
+		String token = AuthenticationLogic.generateToken("username",10);
 		System.out.println(AuthenticationLogic.isValidToken(token, new HashMap<>()));
 	}
 	public static void tokenExample () throws Exception
 	{
-	String  token = AuthenticationLogic.generateToken("username");
+	String  token = AuthenticationLogic.generateToken("username",10);
 		String alias = "secure_messaging";
 		Algorithm algo = Algorithm.RSA512((RSAKey) RSADevice.getInstance().extractPublicKey());
 		
@@ -51,12 +54,14 @@ public class DebugAuthenticationLogic {
 		System.out.println(jwt.getClaims().get("username").asString());
 	}
 
+	@SuppressWarnings("unchecked")
 	public static void tryToken() throws Exception {
 		String username = "username";
 		String token = null;
 		String alias = "secure_messaging";
 		String password = "changeit";
 		String keystorePath = ".\\secure_place\\app_keystore.keystore";
+		@SuppressWarnings("rawtypes")
 		Map<String,Object> attributes = new HashMap();
 		FileInputStream fis = new FileInputStream(keystorePath);
 		KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -83,13 +88,20 @@ public class DebugAuthenticationLogic {
 		 * stessi valori, altrimenti non funziona
 		 */
 
-		boolean bool = AuthenticationLogic.authenticate("username", "password");
-		System.out.println(bool);
-		bool = AuthenticationLogic.authenticate("wewe2", "questaèunapassword2");
-		System.out.println(bool);
-		bool = !AuthenticationLogic.authenticate("Questo", "Questo");
-		System.out.println(bool);
-		bool = !AuthenticationLogic.authenticate("wewe", "passwordacaso");
-		System.out.println(bool);
+		boolean bool;
+		try {
+			bool = AuthenticationLogic.authenticate("username", "password");
+			System.out.println(bool);
+			bool = AuthenticationLogic.authenticate("wewe2", "questaèunapassword2");
+			System.out.println(bool);
+			bool = !AuthenticationLogic.authenticate("Questo", "Questo");
+			System.out.println(bool);
+			bool = !AuthenticationLogic.authenticate("wewe", "passwordacaso");
+			System.out.println(bool);
+		} catch (NoSuchUserException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
 	}
 }

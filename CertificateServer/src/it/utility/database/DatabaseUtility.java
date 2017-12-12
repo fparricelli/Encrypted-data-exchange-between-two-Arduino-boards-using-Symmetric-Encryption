@@ -1,4 +1,4 @@
-package it.utility;
+package it.utility.database;
 
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
@@ -63,18 +63,15 @@ public class DatabaseUtility {
 		return con;
 	}
 
-	public DatabaseTriple query(String command) {
+	public DatabaseTriple query(String command) throws SQLException {
 		Connection conn = null;
 		PreparedStatement statement = null;
 		ResultSet result = null;
-		try {
+		
 			conn = this.connect();
 			statement = conn.prepareStatement(command);
 			result = statement.executeQuery();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		 
 		return new DatabaseTriple(conn, statement, result);
 	}
 
@@ -108,7 +105,7 @@ public class DatabaseUtility {
 
 		String name = null, password = null, url = null;
 		RSADevice rsa = RSADevice.getInstance();
-		FileInputStream fileIn = new FileInputStream("./other_place/config.dat");
+		FileInputStream fileIn = new FileInputStream("E:\\Documenti\\Progetto-Finale-SSD\\CertificateServer\\other_place\\config.dat");
 		ObjectInputStream objectIn = new ObjectInputStream(fileIn);
 		Vector<byte[]> vector = (Vector<byte[]>) objectIn.readObject();
 		byte[] enc_user = vector.get(0);

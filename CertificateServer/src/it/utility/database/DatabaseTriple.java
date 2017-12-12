@@ -1,4 +1,4 @@
-package it.utility;
+package it.utility.database;
 
 import java.sql.*;
 

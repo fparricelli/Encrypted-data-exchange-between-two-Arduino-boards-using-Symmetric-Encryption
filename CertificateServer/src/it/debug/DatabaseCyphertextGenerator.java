@@ -15,7 +15,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import it.sm.keystore.rsakeystore.RSASoftwareKeystore;
-import it.utility.DatabaseUtility;
+import it.utility.database.DatabaseUtility;
 
 public class DatabaseCyphertextGenerator {
 	public static byte[] enc_user_1;

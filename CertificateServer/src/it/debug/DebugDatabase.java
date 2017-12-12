@@ -4,16 +4,16 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import it.utility.DatabaseTriple;
-import it.utility.DatabaseUtility;
+import it.utility.database.DatabaseTriple;
+import it.utility.database.DatabaseUtility;
 
 public class DebugDatabase {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws SQLException {
 		debugResult();
 	}
 
-	public static void debugResult() {
+	public static void debugResult() throws SQLException {
 		for (int i = 0; i < 100; i++) {
 
 			DatabaseTriple triple = DatabaseUtility.getInstance().query("SELECT * FROM USERS");
