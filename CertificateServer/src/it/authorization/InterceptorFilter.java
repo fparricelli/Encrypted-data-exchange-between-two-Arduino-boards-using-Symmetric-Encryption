@@ -10,6 +10,10 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpServletResponse;
+
+import it.utility.network.HTTPCodesClass;
+import it.utility.network.HTTPCommonMethods;
 
 
 public class InterceptorFilter implements Filter {
@@ -26,10 +30,9 @@ public class InterceptorFilter implements Filter {
 
 	
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+			
+			HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.UNAUTHORIZED);
 		
-		PrintWriter out = response.getWriter();
-		response.setContentType("text/plain");
-		out.println("Accesso Negato!");
 	}
 
 	/**

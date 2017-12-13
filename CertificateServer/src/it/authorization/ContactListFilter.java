@@ -31,6 +31,11 @@ import com.sun.xacml.finder.PolicyFinder;
 import com.sun.xacml.finder.impl.CurrentEnvModule;
 import com.sun.xacml.finder.impl.FilePolicyModule;
 
+import it.exception.authorizaton.InvalidListException;
+import it.exception.authorizaton.InvalidRoleException;
+import it.utility.network.HTTPCodesClass;
+import it.utility.network.HTTPCommonMethods;
+
 
 
 
@@ -52,9 +57,16 @@ public class ContactListFilter implements Filter {
 		//necessario controllo: se non hai inserito le credenziali (ovvero: non sei stato autenticato)
 		//ti rimando da qualche altra parte
 		
+	try {
+		
+		
 		String list = ((HttpServletRequest)request).getParameter("list");
 		String ruolo = ((HttpServletRequest)request).getParameter("ruolo");
-
+		
+		checkList(list);
+		checkRuolo(ruolo);
+		
+		
 		System.out.println("[ContactListFilter] Ho trovato i seguenti parametri:");
 		System.out.println("List:"+list);
 		System.out.println("Ruolo:"+ruolo);
@@ -84,7 +96,7 @@ public class ContactListFilter implements Filter {
         attrModules.add(envModule);
         attrFinder.setModules(attrModules);
 		
-        try {
+        
         	
         
         RequestCtx XACMLrequest = RequestBuilder.createXACMLRequest((HttpServletRequest)request);
@@ -101,6 +113,7 @@ public class ContactListFilter implements Filter {
         while (it.hasNext()) {
             ris = (Result) it.next();
         }
+        
         int dec = ris.getDecision();
 
         if (dec == 0) {//permit
@@ -109,26 +122,25 @@ public class ContactListFilter implements Filter {
         	
         } else if (dec == 1) {//deny
         	System.out.println("DENY");
-        	PrintWriter out = response.getWriter();
-        	((HttpServletResponse)response).setContentType("text/plain");
-        	out.println("Accesso negato!");
-        	out.close();
+        	HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.UNAUTHORIZED);
         	
         } else if (dec == 2||dec==3) {//not applicable o indeterminate
         	
         	System.out.println("NOT APPLICABLE");
-        	PrintWriter out = response.getWriter();
-        	((HttpServletResponse)response).setContentType("text/plain");
-        	out.println("Errore di policy!");
-        	out.close();
+        	HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.CONFLICT);
         }
 	
-        }catch(Exception e) {
-        	e.printStackTrace();
+    }catch(InvalidListException | InvalidRoleException e) {
+        	
+        System.out.println(e.getMessage());
+        HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.BAD_REQUEST);
+
+    }catch(Exception ex) {
+        ex.printStackTrace();
+        	
         }
         
 		
-	
 	}
 
 	
@@ -143,21 +155,21 @@ public class ContactListFilter implements Filter {
 		try {
 		ServletContext context = ((HttpServletRequest)request).getServletContext();
 		String list = ((HttpServletRequest)request).getParameter("list");
-		System.out.println("SendRequestedList, parametro:"+list);
+		
 		
 		File reqList = null;
 		
 		if(list.equals("admins")) {
-			System.out.println("Prendo lista admin");
+			
 			String path = context.getRealPath("/contact-lists/admins/admin-list.xml");
 			reqList = new File(path);
 			
 		}else if(list.equals("utenti")){
-			System.out.println("Prendo lista users");
+			
 			String path = context.getRealPath("/contact-lists/utenti/utenti-list.xml");
 			reqList = new File(path);
 		
-		}else {
+		}else{
 			
 			System.out.println("Prendo lista tecnici");
 			String path = context.getRealPath("/contact-lists/tecnici/tecnici-list.xml");
@@ -178,6 +190,7 @@ public class ContactListFilter implements Filter {
 		        outs.write(buffer, 0, length);
 		    }
 		}
+		
 		outs.flush();
 		
 		
@@ -187,5 +200,22 @@ public class ContactListFilter implements Filter {
 		
 		
 	}
+	
+	
+	private void checkList(String list) throws InvalidListException {
+		if(!(list.equals("admins") || list.equals("utenti") || list.equals("tecnici"))) {
+			throw new InvalidListException();
+		}
+	}
+	
+	private void checkRuolo(String ruolo) throws InvalidRoleException {
+		if(!(ruolo.equals("admin") || ruolo.equals("utente") || ruolo.equals("tecnico"))) {
+			throw new InvalidRoleException();
+		}
+	}
+	
+	
+	
+	
 
 }
