@@ -17,6 +17,10 @@ public class Messaggio implements Serializable{
 		this.sender = sn;
 		this.msg = m;
 	}
+	
+	public Messaggio(String m) {
+		this.msg = m;
+	}
 
 	public int getSenderPort() {
 		return senderPort;

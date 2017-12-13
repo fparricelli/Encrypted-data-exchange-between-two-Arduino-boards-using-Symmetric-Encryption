@@ -23,6 +23,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import it.chat.helpers.MessagingHelper;
+
 
 public class ContactFrame {
 
@@ -42,9 +44,10 @@ public class ContactFrame {
 	private File contactList;
 	private String contactType;
 	private String currentUser;
-
 	
-	/* Frame che mostra la lista contatti che è stata richiesta nel Landing Frame,
+	private static final int STARTER = 1;
+	
+	/* Frame che mostra la lista contatti che ï¿½ stata richiesta nel Landing Frame,
 	 * sotto forma di tabella.
 	 * Consente di scegliere tra i diversi contatti disponibili per iniziare 
 	 * una nuova chat.
@@ -197,7 +200,7 @@ public class ContactFrame {
         			int destPort = Integer.valueOf((String)rubricaList.getValueAt(row, 2));
         			
         			//Apro un nuovo chat frame per gestire la chat con il soggetto selezionato
-        			ChatFrame cf = new ChatFrame(getCurrentUser(),identity,destPort);
+        			ChatFrame cf = new ChatFrame(getCurrentUser(),identity,destPort, STARTER);
         			frame.dispose();
         			cf.setVisible(true);
         			

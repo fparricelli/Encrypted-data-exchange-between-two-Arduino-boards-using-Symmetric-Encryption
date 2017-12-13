@@ -13,7 +13,7 @@ public class MainSender {
 		
 		try {
 		//Inizializzo il mio hardware keystore AES (arduino)
-		MyAESKeystore mAES = new AESHardwareKeystore();
+		MyAESKeystore mAES = new AESHardwareKeystore(1);
 		
 		//Definisco il path in cui conservo il mio RSA software keystore
 		String rsaPath = "certificates/ClientSender/keystore.jks";
@@ -21,7 +21,7 @@ public class MainSender {
 		//Inizializzo il mio software keystore RSA
 		MyRSAKeystore mRSA = new RSASoftwareKeystore(rsaPath, "clientsend", "password");
 		
-		//Inizializzo l'oggetto SenderHelper che mi consentirà di contattare il destinatario
+		//Inizializzo l'oggetto SenderHelper che mi consentirï¿½ di contattare il destinatario
 		SenderHelper sh = new SenderHelper("Aldo Strofaldi", mRSA, mAES);
 		
 		//Avvio l'handshake con il destinatario

@@ -12,7 +12,7 @@ public class MainReceiver {
 		try {
 			
 			//Inizializzo il mio keystore hardware AES
-			MyAESKeystore mAES = new AESHardwareKeystore();
+			MyAESKeystore mAES = new AESHardwareKeystore(2);
 			
 			//Definisco il path del mio RSA software keystore
 			String rsaPath = "./certificates/ClientReceiver/keystore.jks";
@@ -20,7 +20,7 @@ public class MainReceiver {
 			//Inizializzo il mio RSA software keystore
 			MyRSAKeystore mRSA = new RSASoftwareKeystore(rsaPath, "clientreceiver", "password");
 			
-			//Inizializzo l'oggetto ReceiverHelper che mi permetterà di ricevere messaggi
+			//Inizializzo l'oggetto ReceiverHelper che mi permetterï¿½ di ricevere messaggi
 			ReceiverHelper rh = new ReceiverHelper(mRSA, mAES, 3456);
 			
 			//Mi metto in attesa di essere contattato per l'handshake

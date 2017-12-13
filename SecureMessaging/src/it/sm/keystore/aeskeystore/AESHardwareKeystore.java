@@ -40,8 +40,8 @@ public class AESHardwareKeystore implements MyAESKeystore{
 	
 	private ArduinoSerial uno;
 	
-	public AESHardwareKeystore() {
-		uno = new ArduinoSerial();
+	public AESHardwareKeystore(int client_type) {
+		uno = new ArduinoSerial(client_type);
 	};
 	
 	@Override

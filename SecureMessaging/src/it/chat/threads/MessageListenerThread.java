@@ -1,15 +1,19 @@
 package it.chat.threads;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.PipedOutputStream;
+import java.net.Socket;
 import java.net.SocketException;
 import it.chat.activechat.ActiveChat;
 import it.chat.gui.ChatFrame;
 import it.chat.helpers.MessagingHelper;
+import it.sm.keystore.aeskeystore.AESHardwareKeystore;
+import it.sm.keystore.aeskeystore.MyAESKeystore;
 import it.sm.messages.Messaggio;
 
 public class MessageListenerThread extends Thread{
 	
-	/* Thread che viene attivato quando avviamo la comunicazione: è specifico per una singola chat.
+	/* Thread che viene attivato quando avviamo la comunicazione: ï¿½ specifico per una singola chat.
 	 * Si occupa di gestire la ricezione dei messaggi dall'interlocutore e di spedirli
 	 * all'updater thread per la visualizzazione.
 	 * 
@@ -18,8 +22,24 @@ public class MessageListenerThread extends Thread{
 	
 	private ActiveChat actChat;
 	private int countMsg;
+	private MyAESKeystore aesKeystore;
+	private static final int STARTER = 1;
+	private static final int NO_STARTER = 2;
+	private int c_type;
+
+	
+	//Dati per l'handshake
+	
+	private String first_token;
 	
 	//Costruttore: prende in ingresso la ActiveChat a cui il thread deve essere associato.
+	public MessageListenerThread(ActiveChat ac, int c) {
+		this.c_type = c;
+		this.actChat = ac;
+		if(c_type == STARTER) this.countMsg = 1; else this.countMsg = 0;
+		
+	}
+	
 	public MessageListenerThread(ActiveChat ac) {
 		this.countMsg = 0;
 		this.actChat = ac;
@@ -28,7 +48,7 @@ public class MessageListenerThread extends Thread{
 	
 	public void run() {
 		
-		System.out.println("[MsgListenerThread] Attivato MsgListener\n");
+		System.out.println("[MsgListenerThread] Attivato MsgListener " +c_type);
 		
 		PipedOutputStream pos = null;
 		DataOutputStream dos = null;
@@ -50,51 +70,81 @@ public class MessageListenerThread extends Thread{
 				//Mi metto in attesa di messaggi sulla socket settata nella active chat
 				msg = (Messaggio)this.actChat.getOIS().readObject();
 		
-				//Se il messaggio che ricevo è diverso da null..
+				//Se il messaggio che ricevo ï¿½ diverso da null..
 				if(msg!=null) {
 					
 					//Aumento il conteggio di messaggi
 					countMsg++;
-		
-					//Se il messaggio che ho ricevuto è il primo messaggio..
+					
+					//Se il primo messaggio che ricevo allora devo inviare il mio token
 					if(countMsg == 1) {
-				
-						//Prendo la porta (numero di telefono) del mittente
-						//e la setto nella active chat
+												
 						int destPort = msg.getSenderPort();
+						
 						this.actChat.setDest(destPort);
-				
-						//Essendo il primo messaggio che ricevo, devo anche attivare 
-						//il chat frame
+						
 						if(this.actChat.getFrame()==null) {
 							
 							//"" da sostituire con il currentuser, informazione da prendere sul DB
-							ChatFrame cf = new ChatFrame("",msg.getSender(),this.actChat.getDest());
+							ChatFrame cf = new ChatFrame("",msg.getSender(),this.actChat.getDest(),NO_STARTER);
 							this.actChat.setFrame(cf);
-							cf.setVisible(true);
+							//cf.setVisible(true); visibile dopo
 						}
-				
-					//Avendo inizializzato il chat frame, devo anche attivare gli updates per poter
-					//visualizzare i messaggi nel chatBox
-					mh.startUpdates(this.actChat.getDest());
-				
-			}
-			
-				//Scrivo il contenuto del messaggio sulla pipe che è connessa all'updater thread, cosi
+						
+						System.out.println(this.actChat.getFrame().getCurrentUser()+"Â - Handshake avviato - Token Ricevuto");
+
+						String token_to_send = "POPO";// aesKeystore.requireTokenToShare();
+						
+						first_token = msg.getMsg();
+
+						mh.sendMessage(this.actChat.getFrame().getCurrentUser(), destPort, token_to_send, this.actChat.getFrame());
+					
+						System.out.println(this.actChat.getFrame().getCurrentUser()+" - Token Inoltrato");
+						
+						System.out.println(this.actChat.getFrame().getCurrentUser()+" - Derivo Chiave");
+
+						/*if(aesKeystore.setTokenShared(first_token)) {
+							mh.startUpdates(this.actChat.getDest());
+							this.actChat.getFrame().setVisible(true);
+						};*/
+						mh.startUpdates(this.actChat.getDest());
+
+					}
+					else if (countMsg == 2 && c_type == STARTER) {
+												
+						System.out.println("Token Ricevuto");
+						
+						first_token = msg.getMsg();
+						
+						System.out.println(this.actChat.getFrame().getCurrentUser()+" - Derivo Chiave");
+
+						/*if(aesKeystore.setTokenShared(first_token)) {
+							mh.startUpdates(this.actChat.getDest());
+						};*/
+					}
+		
+		
+					else {
+						mh.startUpdates(this.actChat.getDest());		
+
+						if(c_type == NO_STARTER)
+							this.actChat.getFrame().setVisible(true);
+
+				//Scrivo il contenuto del messaggio sulla pipe che ï¿½ connessa all'updater thread, cosi
 				//che possa mostrarli sul chatBox
 				dos.writeUTF(msg.getMsg());
 		
 				//Risveglio l'updater thread, che era in attesa sul semaforo
 				this.actChat.getChatSem().release();
-			
+			}
 		
 		}else{
 			//Se ricevo un msg null, vuol dire che l'interlocutore ha chiuso la chat
 			//Quindi devo chiuderla anche io
 			System.out.println("[MsgListenerThread] Msg = null, chiudo!");
 			
-			//CloseChat lo chiamo con nullSend = false, perchè come detto
-			//effettuo una chiusura 'passiva', e non c'è bisogno che invio
+			//CloseChat lo chiamo con nullSend = false, perchï¿½ come detto
+			//effettuo una chiusura 'passiva', e non c'ï¿½ bisogno che invio
 			//un messaggio = null all'interlocutore per notificargli la chiusura della chat
 			mh.closeChat(this.actChat.getDest(), false);
 			
@@ -110,8 +160,8 @@ public class MessageListenerThread extends Thread{
 		}catch(SocketException e) {
 			
 			//Quando il chatframe viene chiuso, automaticamente andiamo a chiudere anche la socket
-			//su cui il thread sta facendo readObject: di conseguenza verrà lanciata una SocketException,
-			//che farà uscire dal while(true) il thread
+			//su cui il thread sta facendo readObject: di conseguenza verrï¿½ lanciata una SocketException,
+			//che farï¿½ uscire dal while(true) il thread
 			if(e.getMessage().contains("closed")) {
 				System.out.println("[MsgListenerThread] Esco, socket chiusa");
 			}else {
@@ -141,5 +191,6 @@ public class MessageListenerThread extends Thread{
 		
 		
 	}
+	
 
 }

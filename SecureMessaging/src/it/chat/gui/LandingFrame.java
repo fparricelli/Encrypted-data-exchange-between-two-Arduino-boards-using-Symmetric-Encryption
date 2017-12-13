@@ -43,10 +43,12 @@ public class LandingFrame {
 	private String currentRole;
 	private int currentNumber;
 	
-	/* Frame 'home', dalla quale l'utente corrente può contattare
+	int client_type;
+	
+	/* Frame 'home', dalla quale l'utente corrente puï¿½ contattare
 	 * gli altri utenti secondo i permessi accordati.
 	 * 
-	 * Il main prende in ingresso (args) tre parametri: identità, ruolo (utente, tecnico, admin) e porta di ascolto
+	 * Il main prende in ingresso (args) tre parametri: identitï¿½, ruolo (utente, tecnico, admin) e porta di ascolto
 	 * (dev'essere scelta in accordo con le liste contatti in formato xml presenti sul server)
 	 * ad esempio, apri due terminali e lanci nel primo:
 	 * java -classpath (...) it.chat.gui.LandingFrame Donald utente 210
@@ -164,7 +166,7 @@ public class LandingFrame {
 		btnAdmin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
-				//Prima controllo se l'utente ha chat già aperte
+				//Prima controllo se l'utente ha chat giï¿½ aperte
 				MessagingHelper mh = MessagingHelper.getInstance();
 				boolean hac = mh.hasActiveChats();
 				
@@ -174,7 +176,7 @@ public class LandingFrame {
 				}else {
 				
 				//Altrimenti gli consento di procedere..
-				//..richiedendo la lista contatti admin, che verrà (o meno) recuperata a seconda dei permessi
+				//..richiedendo la lista contatti admin, che verrï¿½ (o meno) recuperata a seconda dei permessi
 				//previsti per l'utente corrente.
 					
 					ServerHelper sh = new ServerHelper();
@@ -232,7 +234,7 @@ public class LandingFrame {
 				}else {
 					
 					//Altrimenti gli consento di procedere..
-					//..richiedendo la lista contatti tecnici, che verrà (o meno) recuperata a seconda dei permessi
+					//..richiedendo la lista contatti tecnici, che verrï¿½ (o meno) recuperata a seconda dei permessi
 					//previsti per l'utente corrente.
 					ServerHelper sh = new ServerHelper();
 					int res = sh.getContactList("tecnici", currentRole);
@@ -290,7 +292,7 @@ public class LandingFrame {
 				}else {
 				
 					//Altrimenti gli consento di procedere..
-					//..richiedendo la lista contatti utenti, che verrà (o meno) recuperata a seconda dei permessi
+					//..richiedendo la lista contatti utenti, che verrï¿½ (o meno) recuperata a seconda dei permessi
 					//previsti per l'utente corrente.
 					ServerHelper sh = new ServerHelper();
 					int res = sh.getContactList("utenti", currentRole);
@@ -429,14 +431,14 @@ public class LandingFrame {
 	//Inizializza l'ascolto sulla porta specificata.
 	//In questo modo, all'apertura del Landing Frame l'utente si mette in ascolto di richieste di comunicazione
 	//Sulla porta specificata all'avvio del main
-	//(Nello scenario reale, la porta di ascolto corrisponderà al "numero di telefono" del soggetto, e verrà settata
+	//(Nello scenario reale, la porta di ascolto corrisponderï¿½ al "numero di telefono" del soggetto, e verrï¿½ settata
 	//All'atto dell'autenticazione dell'utente (recuperando tale info dal db)
 	private void initializeMessageListening() {
 		
 		MessagingHelper mh = MessagingHelper.getInstance();
 		boolean res = mh.startListening(this.currentNumber);
 		
-		//Se l'inizializzazione dell'ascolto non va a buon fine (ad es: porta già occupata) allora mostro dialog
+		//Se l'inizializzazione dell'ascolto non va a buon fine (ad es: porta giï¿½ occupata) allora mostro dialog
 		if(!res) {
 			JOptionPane.showMessageDialog(frame.getContentPane(), "Errore in ascolto messaggi, riprovare.","Errore!",JOptionPane.ERROR_MESSAGE);
 		}

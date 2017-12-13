@@ -4,6 +4,14 @@ package it.chat.gui;
 import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.net.Socket;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -17,6 +25,10 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
 import it.chat.helpers.MessagingHelper;
+import it.chat.threads.MessageListenerThread;
+import it.sm.keystore.aeskeystore.AESHardwareKeystore;
+import it.sm.keystore.aeskeystore.MyAESKeystore;
+import it.sm.messages.Messaggio;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -37,6 +49,12 @@ public class ChatFrame {
 	private String currentUser;
 	private String chatter;
 	private int destPort;
+	
+	private MyAESKeystore aesKeyStore;
+	private boolean handshake_res;
+	private static final int STARTER = 1; //type = 1 starter
+
+	private int client_type; //type = 1 starter
 
 	//Main di test, da usare per lanciare autonomamente il frame
 	/*
@@ -57,10 +75,12 @@ public class ChatFrame {
 
 
 	//Costruttore: prende il current user, il soggetto con cui chattare, e il numero di porta del soggetto da contattare
-	public ChatFrame(String cu, String c, int p) {
+	public ChatFrame(String cu, String c, int p, int type) {
 		this.currentUser = cu;
 		this.chatter = c;
 		this.destPort = p;
+		this.client_type = type;
+		aesKeyStore = new AESHardwareKeystore(client_type);
 		initialize();
 	}
 
@@ -69,6 +89,8 @@ public class ChatFrame {
 		
 		setLookAndFeel();
 		initializeFrame();
+		if(client_type == STARTER)
+			handshake();
 		initializeTopPanel();
 		initializeChatBox();
 		initializeButtons();
@@ -151,7 +173,7 @@ public class ChatFrame {
 					chatBox.setText(chatBox.getText().concat("[Me] "+messageBox.getText()+"\n"));
 					messageBox.setText("");
 				
-				//Altrimenti mostro un dialog di errore, nel caso in cui sia impossibile contattare l'utente specificato (ad es: non è online)
+				//Altrimenti mostro un dialog di errore, nel caso in cui sia impossibile contattare l'utente specificato (ad es: non ï¿½ online)
 				}else {
 	    			JOptionPane.showMessageDialog(frame.getContentPane(), "Errore: impossibile contattare l'utente specificato, riprova!","Errore!",JOptionPane.ERROR_MESSAGE);
 	    			mh.closeChat(getDestPort(),true);
@@ -178,7 +200,7 @@ public class ChatFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				
 				
-				//Quando clicco su chiudi, l'effetto è lo stesso di quello definito per la chiusura della finestra
+				//Quando clicco su chiudi, l'effetto ï¿½ lo stesso di quello definito per la chiusura della finestra
 				
 				frame.dispose();
 				
@@ -227,6 +249,22 @@ public class ChatFrame {
 			}
 	}
 	
+	/**
+	 * Funzione che si occupa di effettuare l'handshke per lo scambio della chiave 
+	 * */
+	
+	private void handshake() {
+		System.out.println("[STARTER] Handshake avviato...");
+		
+		MessagingHelper mh = MessagingHelper.getInstance();
+		
+		String token_to_send = "PO";//aesKeyStore.requireTokenToShare();
+
+		mh.sendMessage(getCurrentUser(),getDestPort(), token_to_send, getChatFrame());
+		
+	}
+		
+	
 	
 	private int getDestPort() {
 		return this.destPort;
@@ -235,6 +273,11 @@ public class ChatFrame {
 	public void setVisible(boolean f) {
 		this.frame.setVisible(true);
 	}
+	
+		public void handshakeError() {
+			JOptionPane.showMessageDialog(frame.getContentPane(), "Errore nella fase di handshake!","Attenzione!",JOptionPane.INFORMATION_MESSAGE);
+			this.frame.dispose();
+		}
 	
 	//Metodo utilizzato quando l'altro interlocutore interrompe la comunicazione.
 	public void interruptCommunication() {
@@ -254,7 +297,7 @@ public class ChatFrame {
 		return this.chatBox;
 	}
 	
-	private String getCurrentUser() {
+	public String getCurrentUser() {
 		return this.currentUser;
 	}
 }

@@ -13,11 +13,14 @@ import it.chat.helpers.MessagingHelper;
  */
 public class ListenerThread extends Thread{
 	
+	int client_type;
+	
 	private ServerSocket ss;
 	
 	
 	public ListenerThread(ServerSocket s) {
 		this.ss = s;
+		
 	}
 	
 	public void run() {
@@ -39,9 +42,9 @@ public class ListenerThread extends Thread{
 			//Creo una nuova ActiveChat, passando la socket che ho appena ottenuto dalla accept()
 			//Passo inoltre un valore di destinationPort (ovvero la porta dell'utente con cui sto parlando, il suo 'numero di telefono')
 			//pari a 0:
-			//lo faccio perchè in questo momento non conosco la sua identità in termini di 'numero di telefono'
-			//da cui mi sta chiamando, ma successivamente quando riceverò il primo messaggio questo porterà
-			//con se anche la porta (numero di telefono) del mittente, e a quel punto setterò il campo
+			//lo faccio perchï¿½ in questo momento non conosco la sua identitï¿½ in termini di 'numero di telefono'
+			//da cui mi sta chiamando, ma successivamente quando riceverï¿½ il primo messaggio questo porterï¿½
+			//con se anche la porta (numero di telefono) del mittente, e a quel punto setterï¿½ il campo
 			//della active chat corrispondente.
 			ActiveChat ac = new ActiveChat(0,s);
 			
@@ -55,9 +58,9 @@ public class ListenerThread extends Thread{
 			
 			System.out.println("[ListenerThread] Aggiunto nuova active chat!");
 			
-			//Dopo aver creato la nuova active chat, avvio il MessageListenerThread che si occuperà di gestire
+			//Dopo aver creato la nuova active chat, avvio il MessageListenerThread che si occuperï¿½ di gestire
 			//la ricezione dei messaggi sulla active chat appena creata
-			MessageListenerThread t = new MessageListenerThread(ac);
+			MessageListenerThread t = new MessageListenerThread(ac, 2);
 			t.start();
 			
 			
@@ -66,8 +69,8 @@ public class ListenerThread extends Thread{
 			
 			
 		} catch (SocketException e) {
-			//Quando chiamo il metodo stopListening, chiuderò la socket su cui è in ascolto il thread,
-			//e questo causerà una SocketException, che gestisco normalmente
+			//Quando chiamo il metodo stopListening, chiuderï¿½ la socket su cui ï¿½ in ascolto il thread,
+			//e questo causerï¿½ una SocketException, che gestisco normalmente
 			if(e.getMessage().contains("closed")) {
 				System.out.println("[ListenerThread] Ascolto terminato (socket chiusa)");
 			}else {

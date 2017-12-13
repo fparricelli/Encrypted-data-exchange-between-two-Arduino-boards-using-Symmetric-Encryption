@@ -22,8 +22,7 @@ public class UpdaterThread extends Thread{
 	public UpdaterThread(JTextPane j, PipedInputStream pis, Semaphore sem) {
 		this.sem = sem;
 		this.j = j;
-		this.dis = new DataInputStream(pis);
-		
+		this.dis = new DataInputStream(pis);		
 	}
 	
 	public void run() {
@@ -36,10 +35,10 @@ public class UpdaterThread extends Thread{
 				
 				//Mi metto in attesa di acquire()..
 				sem.acquire();
-				//Quando esco dall'acquire, vuol dire che c'è uno (o più) messaggi sulla pipe
+				//Quando esco dall'acquire, vuol dire che c'ï¿½ uno (o piï¿½) messaggi sulla pipe
 				String msg = dis.readUTF();
 				//Visualizzo tali messaggi sul textpane
-				j.setText(j.getText().concat("[Ricevuto]:"+msg+"\n"));
+				j.setText(j.getText().concat("[Ricevuto]: "+msg+"\n"));
 				
 			}	
 				

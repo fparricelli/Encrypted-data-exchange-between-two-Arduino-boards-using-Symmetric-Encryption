@@ -33,9 +33,8 @@ public class MessagingHelper {
 	
 	private int listeningPort;
 	
+	private static final int STARTER = 1;
 	
-	
-
 	public static MessagingHelper getInstance() {
 		if (instance == null) {
 
@@ -46,12 +45,12 @@ public class MessagingHelper {
 	return instance;
 
 	}
+
 	
 	private MessagingHelper() {
 		this.listeningPort = 0;
 		this.chats = new ArrayList<ActiveChat>();
 	}
-	
 	
 	
 	//Metodo che viene chiamato all'apertura del LandingFrame, con il quale il soggetto si mette in ascolto
@@ -70,7 +69,7 @@ public class MessagingHelper {
 			//Avvio il thread
 			lt.start();
 			
-			//Restituisco true, visto che la procedura di ascolto è stata inizializzata correttamente
+			//Restituisco true, visto che la procedura di ascolto ï¿½ stata inizializzata correttamente
 			return true;
 			
 		}catch(IOException e) {
@@ -108,7 +107,7 @@ public class MessagingHelper {
 		
 		try {
 			
-			//Controllo se ci sono chat già attive con l'interlocutore richiesto (destinationPort)
+			//Controllo se ci sono chat giï¿½ attive con l'interlocutore richiesto (destinationPort)
 			ActiveChat ac = findActiveChat(destinationPort);
 			
 			//Se non trovo chat con l'interlocutore vuol dire che sto scambiando con lui
@@ -117,7 +116,7 @@ public class MessagingHelper {
 				
 				System.out.println("[Send Message] Non ho trovato chat attive con la porta:"+destinationPort);
 				
-				//Creo la socket che verrà usata per la comunicazione con l'interlocutore
+				//Creo la socket che verrï¿½ usata per la comunicazione con l'interlocutore
 				Socket s = new Socket("localhost",destinationPort);
 				s.setKeepAlive(true);
 				
@@ -125,10 +124,10 @@ public class MessagingHelper {
 				//A questo oggetto fornisco innanzitutto la socket appena creata, e la porta del destinatario con cui
 				//voglio comunicare
 				ac = new ActiveChat(destinationPort,s);
-				//Dopodichè inizializzo gli stream della socket, settando le variabili membro specifiche
+				//Dopodichï¿½ inizializzo gli stream della socket, settando le variabili membro specifiche
 				ac.setOOS(new ObjectOutputStream(s.getOutputStream()));
 				ac.setOIS(new ObjectInputStream(s.getInputStream()));
-				
+								
 				//Inizializzo il chatFrame di riferimento per questa chat, passato come input
 				ac.setFrame(cf);
 				
@@ -138,8 +137,8 @@ public class MessagingHelper {
 				//Dopo aver creato l'oggetto ActiveChat, devo mettermi in ascolto dei messaggi che
 				//saranno inviati dall'interlocutore sulla socket che ho creato precedentemente
 				//Passo tutte le informazioni precedentemente settate ad un MessageListenerThread,
-				//Che si occuperà di ricevere i messaggi dall'interlocutore 
-				MessageListenerThread mlt = new MessageListenerThread(ac);
+				//Che si occuperï¿½ di ricevere i messaggi dall'interlocutore 
+				MessageListenerThread mlt = new MessageListenerThread(ac, STARTER);
 				mlt.start();
 				
 				
@@ -148,7 +147,7 @@ public class MessagingHelper {
 				startUpdates(destinationPort);
 				
 			}else {
-				//Ho già una chat attiva con l'interlocutore, quindi evito l'inizializzazione
+				//Ho giï¿½ una chat attiva con l'interlocutore, quindi evito l'inizializzazione
 				System.out.println("[Send Message] Ho trovato una chat attiva con la porta:"+destinationPort);
 				
 			}
@@ -156,7 +155,7 @@ public class MessagingHelper {
 			
 			//A questo punto sono sicuro di avere una active chat con l'interlocutore.
 			
-			//Creo l'oggetto messaggio da inviare, passando la mia identità (sender string e mia porta di origine) insieme
+			//Creo l'oggetto messaggio da inviare, passando la mia identitï¿½ (sender string e mia porta di origine) insieme
 			//al messaggio da inviare
 			Messaggio msgg = new Messaggio(this.listeningPort,sender,msg);
 			
@@ -196,7 +195,7 @@ public class MessagingHelper {
 		
 	}
 	
-	/* Metodo che viene chiamato quando chiudiamo il chat frame che è attivo:
+	/* Metodo che viene chiamato quando chiudiamo il chat frame che ï¿½ attivo:
 	 * se chiudo la chat devo infatti interrompere l'updater thread che spara i messaggi ricevuti sul chat box.
 	 * Si occupa di chiamare un metodo interrupt() sull'updater thread associato alla chat.
 	 */
@@ -206,9 +205,9 @@ public class MessagingHelper {
 		if(ac!=null) {
 			//Se trovo una chat attiva, allora chiamo interrupt() sull'updater thread
 			ac.getUpdaterThread().interrupt();
-			//Dopodichè rimuovo l'active chat dalla lista delle chat attive, poichè lo stopUpdates()
-			//è l'ultimo metodo che viene chiamato in caso di chiusura della chat
-			//e di conseguenza è responsabile di 'chiudere la porta' rimuovendo la entry dell'arraylist
+			//Dopodichï¿½ rimuovo l'active chat dalla lista delle chat attive, poichï¿½ lo stopUpdates()
+			//ï¿½ l'ultimo metodo che viene chiamato in caso di chiusura della chat
+			//e di conseguenza ï¿½ responsabile di 'chiudere la porta' rimuovendo la entry dell'arraylist
 			chats.remove(ac);
 		}else {
 			System.out.println("[stopUpdates] Active chat non trovata per porta:"+destPort+", non posso fermare gli updates!");
@@ -221,9 +220,9 @@ public class MessagingHelper {
 			
 	/* Metodo che viene invocato tutte le volte che chiudiamo la chatFrame della chat attualmente attiva.
 	 * Si occupa di chiudere/rilasciare tutte le risorse associate alla active chat.
-	 * Utilizza un parametro booleano nullSend che specifica se l'azione di chiusura chat è intenzionale
-	 * (ovvero: ho chiuso io il chat frame, e in quel caso nullSend = true poichè devo inviare un messaggio
-	 * speciale all'interlocutore per dirgli che ho chiuso la chat) oppure se è 'passiva' (quindi nullSend = false,
+	 * Utilizza un parametro booleano nullSend che specifica se l'azione di chiusura chat ï¿½ intenzionale
+	 * (ovvero: ho chiuso io il chat frame, e in quel caso nullSend = true poichï¿½ devo inviare un messaggio
+	 * speciale all'interlocutore per dirgli che ho chiuso la chat) oppure se ï¿½ 'passiva' (quindi nullSend = false,
 	 * il che vuol dire che non ho chiuso io la chat ma ho ricevuto un messaggio speciale che mi notificava
 	 * la chiusura della chat da parte dell'altro interlocutore).
 	 * 	
@@ -251,7 +250,7 @@ public class MessagingHelper {
 				chats.get(i).getSocket().close();
 				chats.get(i).getUpdatesPipe().close();
 				
-				//Controllo se il chatFrame associato alla acive chat che sto chiudendo è ancora
+				//Controllo se il chatFrame associato alla acive chat che sto chiudendo ï¿½ ancora
 				//visibile: in caso affermativo, lo chiudo mostrando un messaggio (vedi dettagli
 				//metodo interruptCommunication())
 				if(chats.get(i).getFrame().isVisible()) {
