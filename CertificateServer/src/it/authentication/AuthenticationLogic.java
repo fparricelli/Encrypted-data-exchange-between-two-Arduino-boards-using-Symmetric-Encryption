@@ -13,6 +13,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import it.dao.DAOLogins;
 import it.dao.DAOUsers;
 import it.exception.authentication.InvalidHopException;
 import it.exception.authentication.NoSuchUserException;
@@ -109,4 +110,13 @@ public class AuthenticationLogic {
 		return newToken;
 	}
 
+	public static void handleFailedLogin (String username, String ip) throws SQLException
+	{
+	 DAOLogins.handleFailedLogin(username, ip);
+	}
+	
+	public static void deleteFailedLogins (String username, String ip ) throws SQLException
+	{
+		DAOLogins.deleteFailedLogin(username, ip);
+	}
 }

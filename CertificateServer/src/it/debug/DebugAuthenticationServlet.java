@@ -23,10 +23,18 @@ import it.sm.keystore.rsakeystore.RSADevice;
 public class DebugAuthenticationServlet {
 	public static void main(String[] args) throws Exception {
 		//authenticationExample();
-		blockedExample();
-		
+		//blockedExample();
+		causeALockDown();
 		
 
+	}
+	
+	public static void causeALockDown () throws Exception
+	{
+		for (int i=0; i<5; i++)
+		{
+			testServlet("wewe","passwordanchesbagliata");
+		}
 	}
 	
 	public static void blockedExample() throws Exception

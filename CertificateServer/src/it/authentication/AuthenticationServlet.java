@@ -64,6 +64,7 @@ public class AuthenticationServlet extends HttpServlet {
 			}
 			Boolean authenticated = AuthenticationLogic.authenticate(username, password);
 			if (authenticated) {
+				AuthenticationLogic.deleteFailedLogins(username, request.getRemoteAddr());
 				String authenticationToken = AuthenticationLogic.generateAuthenticationToken(username);
 				httpCode = HTTP_SUCCESS;
 				response.setContentType("application/octet-stream");
@@ -71,6 +72,8 @@ public class AuthenticationServlet extends HttpServlet {
 				out.write(authenticationToken.getBytes());
 				
 			} else {
+				AuthenticationLogic.handleFailedLogin(username, request.getRemoteAddr());
+				
 				httpCode = HTTP_UNAUTHORIZED;
 			}
 			response.setStatus(httpCode);
