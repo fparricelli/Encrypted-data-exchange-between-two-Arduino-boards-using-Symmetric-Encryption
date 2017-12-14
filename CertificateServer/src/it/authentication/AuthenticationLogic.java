@@ -1,6 +1,7 @@
 package it.authentication;
 
 import java.security.interfaces.RSAKey;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -22,7 +23,7 @@ public class AuthenticationLogic {
 	private final static String issuer = "secure_messaging";
 	private final static Integer maximumHops = 10;
 
-	public static boolean authenticate(String username, String password) throws NoSuchUserException {
+	public static boolean authenticate(String username, String password) throws NoSuchUserException, SQLException {
 		boolean authenticated = false;
 	
 		String bcrypted = DAOUsers.load_hash(username);

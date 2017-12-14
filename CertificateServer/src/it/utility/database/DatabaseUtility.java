@@ -16,7 +16,6 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import it.sm.keystore.rsakeystore.RSADevice;
-import it.sm.keystore.rsakeystore.RSASoftwareKeystore;
 
 public class DatabaseUtility {
 	// TODO PER AUMENTARE LE PRESTAZIONI FORSE CONVIENE ESTRARRE LE CREDENZIALI UNA
@@ -109,6 +108,7 @@ public class DatabaseUtility {
 		String  path= System.getenv("SECURE_MESSAGING_HOME");
 		FileInputStream fileIn = new FileInputStream(path + "\\other_place\\config.dat");
 		ObjectInputStream objectIn = new ObjectInputStream(fileIn);
+		@SuppressWarnings("unchecked")
 		Vector<byte[]> vector = (Vector<byte[]>) objectIn.readObject();
 		byte[] enc_user = vector.get(0);
 		byte[] enc_pwd = vector.get(1);
