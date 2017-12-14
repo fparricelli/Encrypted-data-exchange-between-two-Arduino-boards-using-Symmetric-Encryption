@@ -37,7 +37,7 @@ public class AuthenticationLogic {
 
 	public static String generateToken(String username, Integer hops)
 			throws IllegalArgumentException, InvalidHopException, Exception {
-		if (hops > maximumHops || hops < 1) {
+		if (hops > maximumHops || hops < 0) {
 			throw new InvalidHopException();
 		}
 		Builder tokenBuilder = JWT.create();
@@ -63,7 +63,6 @@ public class AuthenticationLogic {
 
 	public static boolean isValidToken(String token, HashMap<String, Object> parameters) {
 		boolean valid = false;
-		long interval = tokenDurationMinutes * 60 * 1000;
 		long issuedAt, expiresAt;
 		Integer hops;
 
@@ -82,10 +81,8 @@ public class AuthenticationLogic {
 			}
 
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
