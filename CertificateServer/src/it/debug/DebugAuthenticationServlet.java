@@ -22,20 +22,45 @@ import it.sm.keystore.rsakeystore.RSADevice;
 
 public class DebugAuthenticationServlet {
 	public static void main(String[] args) throws Exception {
-		authenticationExample();
-		
+		//authenticationExample();
+		//blockedExample();
+		//causeALockDown();
+		almostLockDown();
 
 	}
 	
+	public static void almostLockDown () throws Exception
+	{
+		for (int i=0; i<4; i++)
+		{
+			testServlet("username","passworddiscretamentesbagliata");
+		}
+		testServlet("username","password");
+	}
+	
+	public static void causeALockDown () throws Exception
+	{
+		for (int i=0; i<5; i++)
+		{
+			testServlet("wewe","passwordanchesbagliata");
+		}
+	}
+	
+	public static void blockedExample() throws Exception
+	{
+		testServlet("wewe","passwordanchesbagliata");
+	}
 	public static void authenticationExample () throws Exception
 	{
+		
 		HashMap<String,Object> map= new HashMap<String,Object>();
 		String token;
 		token = testServlet("username", "password");
 		System.out.println(token);
 		System.out.println(AuthenticationLogic.isValidToken(token, map ));
 		System.out.println("USER: " + map.get("username") + " HOPS: " + map.get("hops"));
-		testServlet("useracaso", "passwordchenondovrebbeesseregiusta");
+	testServlet("useracaso", "passwordchenondovrebbeesseregiusta");
+		testServlet("wewe","passwordanchesbagliata");
 	}
 	
 	public static void decryptToken (String token) throws IllegalArgumentException, Exception
@@ -80,6 +105,7 @@ public static String testServlet (String usr, String pwd) throws Exception
 		conn.setRequestProperty("Content-Length", String.valueOf(postDataBytes.length));
 		conn.setDoOutput(true);
 		conn.getOutputStream().write(postDataBytes);
+		
 		System.out.println("HTTP CODE :" + conn.getResponseCode());
 		if(conn.getResponseCode()==200)
 		{

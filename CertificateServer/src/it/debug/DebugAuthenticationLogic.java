@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.interfaces.RSAKey;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -83,7 +84,7 @@ public class DebugAuthenticationLogic {
 		//System.out.println(token);
 	}
 
-	public static void checkBCrypt() {
+	public static void checkBCrypt() throws SQLException {
 		/*
 		 * Assicurarsi di aver importato il database.sql e che sia popolato con gli
 		 * stessi valori, altrimenti non funziona

@@ -14,7 +14,15 @@ public class DAOUsers {
 	private static DatabaseUtility db = DatabaseUtility.getInstance();
 	public static boolean usernameAlreadyTaken (String u) throws SQLException
 	{
-	return db.query("SELECT USERNAME FROM USERS WHERE USERNAME =\"" + u + "\";").getResultSet().next();
+	String query = "SELECT USERNAME FROM USERS WHERE USERNAME = ?";
+	DatabaseTriple triple = new DatabaseTriple(db.connect());
+	Boolean alreadyTaken = false;
+	triple.setPreparedStatement(triple.getConn().prepareStatement(query));
+	triple.getPreparedStatement().setString(1, u);
+	triple.setResultSet(triple.getPreparedStatement().executeQuery());
+	alreadyTaken = triple.getResultSet().next();
+	triple.closeAll();
+	return alreadyTaken;
 	}
 	
 	
@@ -37,14 +45,14 @@ public class DAOUsers {
 		
 	}
 	
-	public static String load_hash(String username) throws NoSuchUserException
+	public static String load_hash(String username) throws NoSuchUserException, SQLException
 	{
 		String hash = null;
 		String query1= "SELECT PASSWORD FROM USERS ";
 		String query2= "WHERE USERNAME=?";
 		String query = query1+query2;
 		DatabaseTriple triple = new DatabaseTriple(db.connect());
-		try {
+	
 		triple.setPreparedStatement(triple.getConn().prepareStatement(query));	
 		triple.getPreparedStatement().setString(1, username);
 		triple.setResultSet(triple.getPreparedStatement().executeQuery());
@@ -57,14 +65,10 @@ public class DAOUsers {
 		{
 			throw new NoSuchUserException();
 		}
-		}
+		
 		
 	
 		
-		catch (SQLException e)
-		{
-		e.printStackTrace();	
-		}
 	
 				
 		return hash;
