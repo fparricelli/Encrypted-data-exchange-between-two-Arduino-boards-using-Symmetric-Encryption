@@ -7,7 +7,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import it.dao.DAOLogins;
+import it.dao.DAOUsers;
 import it.exception.authentication.InvalidHopException;
+import it.exception.authentication.LockedUser;
 import it.exception.authentication.NoSuchUserException;
 import it.utility.network.HTTPCodesClass;
 import it.utility.network.HTTPCommonMethods;
@@ -34,11 +37,12 @@ public class AuthenticationServlet extends HttpServlet {
 	 * 
 	 * Il server manda:
 	 * 
-	 * 200 OK + token <=> user e password sono corretti 401 unauthorized ->
-	 * combinazione user e password non corretti 500
-	 * INTERNAL_SERVER_ERROR se si è
-	 * verificato un errore interno al server 400 BAD_REQUEST se si usa un token non
-	 * valido NIENTE: errore IOException, non posso aprire l'OutputStream e quindi
+	 * 200 OK + token <=> user e password sono corretti 
+	 * 401 unauthorized -> combinazione user e password non corretti 
+	 * 403 forbidden -> c'è un account lockdown su (user,ip)
+	 * 500 INTERNAL_SERVER_ERROR se si è verificato un errore interno al server 
+	 * 400 BAD_REQUEST se si usa un token non valido 
+	 * NIENTE: errore IOException, non posso aprire l'OutputStream e quindi
 	 * non posso comunicare (non-Javadoc)
 	 * 
 	 * @see
@@ -53,6 +57,11 @@ public class AuthenticationServlet extends HttpServlet {
 			OutputStream out = response.getOutputStream();
 			String username = request.getParameter("username");
 			String password = request.getParameter("password");
+			if(DAOLogins.isLockedout(username, request.getRemoteAddr()))
+			{
+				System.out.println("Account is locked");
+				throw new LockedUser();
+			}
 			Boolean authenticated = AuthenticationLogic.authenticate(username, password);
 			if (authenticated) {
 				String authenticationToken = AuthenticationLogic.generateAuthenticationToken(username);
@@ -70,6 +79,15 @@ public class AuthenticationServlet extends HttpServlet {
 		}
 
 		// codice di risposta
+		catch(LockedUser e)
+		{
+			httpCode = e.getHttpCode();
+		   try {
+			HTTPCommonMethods.sendReplyHeaderOnly(response, httpCode);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		}
 		catch (NoSuchUserException e) {
 			httpCode = e.getHttpCode();
 			try {

@@ -14,7 +14,15 @@ public class DAOUsers {
 	private static DatabaseUtility db = DatabaseUtility.getInstance();
 	public static boolean usernameAlreadyTaken (String u) throws SQLException
 	{
-	return db.query("SELECT USERNAME FROM USERS WHERE USERNAME =\"" + u + "\";").getResultSet().next();
+	String query = "SELECT USERNAME FROM USERS WHERE USERNAME = ?";
+	DatabaseTriple triple = new DatabaseTriple(db.connect());
+	Boolean alreadyTaken = false;
+	triple.setPreparedStatement(triple.getConn().prepareStatement(query));
+	triple.getPreparedStatement().setString(1, u);
+	triple.setResultSet(triple.getPreparedStatement().executeQuery());
+	alreadyTaken = triple.getResultSet().next();
+	triple.closeAll();
+	return alreadyTaken;
 	}
 	
 	
