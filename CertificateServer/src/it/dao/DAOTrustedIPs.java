@@ -3,6 +3,7 @@ package it.dao;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
+import it.utility.MutableBoolean;
 import it.utility.database.DatabaseTriple;
 import it.utility.database.DatabaseUtility;
 
@@ -32,10 +33,11 @@ public class DAOTrustedIPs {
 	}
 	
 	
-	public static boolean validCodeExists (String username, String ip, Boolean onceSent) throws SQLException
+	public static boolean validCodeExists (String username, String ip, MutableBoolean onceSent) throws SQLException
 	{
 		Boolean validCode = false;
 		Timestamp codeTimestamp;
+		onceSent.setFlag(false);
 		String query = "SELECT * FROM MAIL_CODES WHERE USERNAME=? AND IP = ?";
 		DatabaseTriple triple = new DatabaseTriple(db.connect());
 		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
@@ -44,7 +46,7 @@ public class DAOTrustedIPs {
 		triple.setResultSet(triple.getPreparedStatement().executeQuery());
 		if(triple.getResultSet().next())
 		{
-			onceSent = true;
+			onceSent.setFlag(true);
 			codeTimestamp = triple.getResultSet().getTimestamp(3);
 			if(System.currentTimeMillis() < codeTimestamp.getTime() + CODE_DURATION * MINUTES_TO_MILLISECONDS)
 			{

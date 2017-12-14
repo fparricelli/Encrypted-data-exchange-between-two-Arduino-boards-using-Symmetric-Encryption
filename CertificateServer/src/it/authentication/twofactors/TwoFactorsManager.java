@@ -4,6 +4,7 @@ import java.sql.SQLException;
 
 import it.dao.DAOTrustedIPs;
 import it.dao.DAOUsers;
+import it.utility.MutableBoolean;
 import it.utility.RandomStringGenerator;
 import it.utility.mail.MailUtility;
 
@@ -14,12 +15,13 @@ public class TwoFactorsManager {
 
 	public static void sendMail (String username, String ip) throws Exception
 	{
-		boolean  onceSent = false;
+		
+	MutableBoolean  onceSent = new MutableBoolean(false);
 	String mail = 	DAOUsers.getUserMail(username);
 	String randomCode;
 	if(!DAOTrustedIPs.validCodeExists(username, ip, onceSent))
 	{randomCode = RandomStringGenerator.randomString(codeLength);
-		if(!onceSent)
+		if(!onceSent.isFlag())
 		{
 			DAOTrustedIPs.insertCode(username, ip, randomCode);
 			MailUtility.sendMail(mail, TWO_FACTORS_SUBJECT, TWO_FACTORS_BODY + randomCode);
