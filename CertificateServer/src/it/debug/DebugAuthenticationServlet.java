@@ -24,9 +24,18 @@ public class DebugAuthenticationServlet {
 	public static void main(String[] args) throws Exception {
 		//authenticationExample();
 		//blockedExample();
-		causeALockDown();
-		
+		//causeALockDown();
+		almostLockDown();
 
+	}
+	
+	public static void almostLockDown () throws Exception
+	{
+		for (int i=0; i<4; i++)
+		{
+			testServlet("username","passworddiscretamentesbagliata");
+		}
+		testServlet("username","password");
 	}
 	
 	public static void causeALockDown () throws Exception
