@@ -37,7 +37,7 @@ CREATE TABLE `account_lockdown` (
 
 LOCK TABLES `account_lockdown` WRITE;
 /*!40000 ALTER TABLE `account_lockdown` DISABLE KEYS */;
-INSERT INTO `account_lockdown` VALUES ('wewe','127.0.0.1','2017-12-14 15:26:01'),('wewe','140.0.0.1','2017-12-14 15:02:48');
+INSERT INTO `account_lockdown` VALUES ('wewe','127.0.0.1','2017-12-14 15:26:01'),('wewe','140.0.0.1','2017-12-14 15:02:48'),('wewe2','127.0.0.1','2017-12-14 15:45:03'),('wewe3','127.0.0.1','2017-12-14 15:47:05');
 /*!40000 ALTER TABLE `account_lockdown` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -52,7 +52,7 @@ CREATE TABLE `failed_logins` (
   `username_failed` varchar(100) NOT NULL,
   `ip` varchar(45) NOT NULL,
   `attempts` int(11) NOT NULL,
-  `first_attempt` date NOT NULL,
+  `first_attempt` datetime NOT NULL,
   PRIMARY KEY (`username_failed`,`ip`),
   CONSTRAINT `username` FOREIGN KEY (`username_failed`) REFERENCES `users` (`username`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -64,7 +64,7 @@ CREATE TABLE `failed_logins` (
 
 LOCK TABLES `failed_logins` WRITE;
 /*!40000 ALTER TABLE `failed_logins` DISABLE KEYS */;
-INSERT INTO `failed_logins` VALUES ('wewe','127.0.0.1',4,'2017-12-14');
+INSERT INTO `failed_logins` VALUES ('wewe','127.0.0.1',4,'2017-12-14 00:00:00'),('wewe2','127.0.0.1',5,'2017-12-14 00:00:00'),('wewe3','127.0.0.1',5,'2017-12-14 16:46:50');
 /*!40000 ALTER TABLE `failed_logins` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -101,4 +101,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-12-14 16:34:13
+-- Dump completed on 2017-12-14 16:48:07

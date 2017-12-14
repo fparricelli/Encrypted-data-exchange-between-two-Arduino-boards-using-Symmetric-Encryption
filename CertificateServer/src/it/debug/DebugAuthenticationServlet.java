@@ -25,8 +25,16 @@ public class DebugAuthenticationServlet {
 		//authenticationExample();
 		//blockedExample();
 		//causeALockDown();
-		almostLockDown();
+		//almostLockDown();
+		createFailedLogins();
 
+	}
+	public static void createFailedLogins () throws Exception
+	{
+		for (int i=0; i<3;i++)
+		{
+			testServlet("wewe3","passworddiscretamentesbagliata");
+		}
 	}
 	
 	public static void almostLockDown () throws Exception
