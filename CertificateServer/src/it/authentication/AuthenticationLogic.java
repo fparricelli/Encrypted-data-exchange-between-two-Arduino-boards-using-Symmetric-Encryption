@@ -14,6 +14,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import it.dao.DAOLogins;
+import it.dao.DAOTrustedIPs;
 import it.dao.DAOUsers;
 import it.exception.authentication.InvalidHopException;
 import it.exception.authentication.NoSuchUserException;
@@ -124,4 +125,10 @@ public class AuthenticationLogic {
 	{
 		return DAOLogins.isLockedOut(username, ip);
 	}
+	public static boolean isTrusted (String username, String ip) throws SQLException
+	{
+		return DAOTrustedIPs.isTrusted(username, ip);
+	}
+
+	
 }

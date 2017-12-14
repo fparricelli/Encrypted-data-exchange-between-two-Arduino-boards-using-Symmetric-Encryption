@@ -11,9 +11,18 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import it.utility.mail.MailUtility;
+
 public class DebugTwoFactors {
-	public static void main(String[] args) {
-		sendMail("luca.pirozzi2@gmail.com","OGGETTO DELLA MAIL","Codice: " + randomString(10));
+	public static void main(String[] args) throws Exception {
+		//sendMail("luca.pirozzi2@gmail.com","OGGETTO DELLA MAIL","Codice: " + randomString(10));
+	sendMail2("luca.pirozzi2@gmail.com","Conferma accesso", "Codice " + randomString(10));
+	}
+	
+	public static void sendMail2(String receiver, String object, String content) throws Exception
+	{
+		String[] receivers = {receiver};
+		MailUtility.getInstance().sendMail(receivers, object, content);
 	}
 	static final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 	static SecureRandom rnd = new SecureRandom();
@@ -27,7 +36,7 @@ public class DebugTwoFactors {
 	
 	public static void sendMail (String receiver, String subject, String content)
 	{
-		  String USER_NAME = "securemessagingssd@gmail.com";  // GMail user name (just the part before "@gmail.com")
+		  String USER_NAME = "securemessagingssd";  // GMail user name (just the part before "@gmail.com")
 		   String PASSWORD = "progettofinalessd"; // GMail password
 		   String[] to = {receiver};
 				   Properties props = System.getProperties();

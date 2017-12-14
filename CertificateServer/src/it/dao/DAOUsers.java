@@ -73,4 +73,24 @@ public class DAOUsers {
 				
 		return hash;
 	}
+	
+	public static String getUserMail(String username) throws SQLException
+	{
+		String mail = null;
+		String query1= "SELECT EMAIL FROM USERS ";
+		String query2= "WHERE USERNAME=?";
+		String query = query1+query2;
+		DatabaseTriple triple = new DatabaseTriple(db.connect());
+
+		triple.setPreparedStatement(triple.getConn().prepareStatement(query));	
+		triple.getPreparedStatement().setString(1, username);
+		triple.setResultSet(triple.getPreparedStatement().executeQuery());
+		if(triple.getResultSet().next())
+		{
+			mail =triple.getResultSet().getString(1);
+			
+		}
+		return mail;
+		
+	}
 }

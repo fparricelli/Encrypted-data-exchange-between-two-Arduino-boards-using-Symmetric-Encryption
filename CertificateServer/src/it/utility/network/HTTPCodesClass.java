@@ -10,7 +10,7 @@ public class HTTPCodesClass {
 	public static final Integer BAD_REQUEST = 400;
 	public static final Integer TIMEOUT = 408;
 	public static final Integer FORBIDDEN = 403;
-	
+	public static final Integer TEMPORARY_REDIRECT = 307;
 	/*
 	 * Linee guida:
 	 * 200 - Tutto a buon fine

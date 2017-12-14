@@ -27,7 +27,7 @@ public class DebugAuthenticationServlet {
 		//causeALockDown();
 		//almostLockDown();
 	//	createFailedLogins();
-testServlet("wewe","questaèunapassword");
+testServlet("Luca","Pirozzi");
 	}
 	public static void createFailedLogins () throws Exception
 	{
