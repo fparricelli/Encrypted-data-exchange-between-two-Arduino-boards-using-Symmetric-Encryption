@@ -19,7 +19,6 @@ public class DAOLogins {
 	{
 		boolean locked = false;
 		Timestamp startinglockout;
-		SimpleDateFormat format =  new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		long timestamp;
 		System.out.println(ip);
 		String query = "SELECT * FROM ACCOUNT_LOCKDOWN WHERE LOCKDOWN_USERNAME = ? AND IP = ?";
