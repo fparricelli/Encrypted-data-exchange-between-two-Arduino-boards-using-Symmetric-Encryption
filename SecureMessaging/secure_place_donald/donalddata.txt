@@ -1,0 +1,2 @@
+alias=donaldk
+password=donaldkeystore

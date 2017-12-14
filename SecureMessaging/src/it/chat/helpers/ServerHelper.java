@@ -153,11 +153,10 @@ public class ServerHelper {
 	
 	public File getCertificate(String nome, String cognome, String downloadPath) throws IOException, CertificateNotFoundException, ServerErrorException {
 		
-		//Prima di scaricare il certificato, verifico se è già presente
-		String dPath = StringUtils.chop(downloadPath);
-		File fc = checkCertificate(nome,cognome,dPath);
+		trustLocalhost();
+		File fc = null;
 		
-		if(fc==null) {
+		
 			System.out.println("Certificato non trovato, lo scarico!");
 			String httpsURL = "https://localhost:8443/CertificateServer/getCertificate";
 
@@ -208,59 +207,10 @@ public class ServerHelper {
 			}else{
 				throw new ServerErrorException();
 			}
-		
-		}else {
-			System.out.println("Certificato trovato!");
-			return fc;
-		}
-		
 	}
 	
 	
-	private File checkCertificate(String nome, String cognome, String path) {
-		
-		
-		File cer = null;
-	   
-	try {
-    	
-    	CertificateFactory fact = CertificateFactory.getInstance("X.509");
-    	File certDir = new File(path);
-    	
-    		
-    	File [] certs = certDir.listFiles();
-    		
-    	FileInputStream fis = null;
-    		
-    	for(int i = 0;i<certs.length;i++) {
-    		
-    		fis = new FileInputStream(certs[i]);
-    		X509Certificate cert = (X509Certificate) fact.generateCertificate(fis);
-    		X500Name x500name = new JcaX509CertificateHolder(cert).getSubject();
-    		RDN cn = x500name.getRDNs(BCStyle.CN)[0];
-
-    		String identity = IETFUtils.valueToString(cn.getFirst().getValue()).toLowerCase();
-    			
-    		String inputIdentity = nome+" "+cognome;
-    			
-    		if(identity.equals(inputIdentity)) {
-    			fis.close();
-    			cer = certs[i];
-    			break;
-    		}else {
-    			fis.close();
-    		}
-    			
-    	}
-    	
-    }catch(Exception e) {
-		e.printStackTrace();
-	}
-		
-		return cer;
-    	
-    		
-	}
+	
 	
 
 }

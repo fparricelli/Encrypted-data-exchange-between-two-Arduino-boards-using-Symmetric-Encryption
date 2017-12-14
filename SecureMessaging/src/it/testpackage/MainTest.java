@@ -19,7 +19,7 @@ public class MainTest {
 		//KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
 		try {
 		
-		BufferedReader br = new BufferedReader(new FileReader("./secure_place_bob/bobdata.txt"));
+		BufferedReader br = new BufferedReader(new FileReader("./secure_place_donald/donalddata.txt"));
 		String line1 = br.readLine();
 		String line2 = br.readLine();
 		
@@ -42,7 +42,7 @@ public class MainTest {
 		ks.load(null, bytePassword);
 
 		// Store away the keystore.
-		FileOutputStream fos = new FileOutputStream("./secure_place_bob/bob_truststore/bob_truststore.keystore");
+		FileOutputStream fos = new FileOutputStream("./secure_place_donald/donald_truststore/donald_truststore.keystore");
 		ks.store(fos, bytePassword);
 		
 		

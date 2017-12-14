@@ -46,8 +46,8 @@ public class ChatFrame {
 	private JButton btnChiudi;
 	private JLabel chatWith;
 	
-	private String currentUser;
-	private String chatter;
+	private String currentIdentity;
+	private String chattingTarget;
 	private int destPort;
 	
 	private MyAESKeystore aesKeyStore;
@@ -76,8 +76,8 @@ public class ChatFrame {
 
 	//Costruttore: prende il current user, il soggetto con cui chattare, e il numero di porta del soggetto da contattare
 	public ChatFrame(String cu, String c, int p, int type) {
-		this.currentUser = cu;
-		this.chatter = c;
+		this.currentIdentity = cu;
+		this.chattingTarget= c;
 		this.destPort = p;
 		this.client_type = type;
 		aesKeyStore = new AESHardwareKeystore(client_type);
@@ -142,7 +142,7 @@ public class ChatFrame {
 		frame.getContentPane().add(topPanel);
 		topPanel.setLayout(null);
 		
-		chatWith = new JLabel("Chatti con: "+this.chatter);
+		chatWith = new JLabel("Chatti con: "+this.chattingTarget);
 		chatWith.setHorizontalAlignment(SwingConstants.CENTER);
 		chatWith.setBounds(0, 0, 414, 25);
 		topPanel.add(chatWith);
@@ -168,7 +168,7 @@ public class ChatFrame {
 				MessagingHelper mh = MessagingHelper.getInstance();
 				
 				//Invio il messaggio chiamando il metodo sendMessage
-				boolean res = mh.sendMessage(getCurrentUser(),getDestPort(), messageBox.getText(), getChatFrame());	
+				boolean res = mh.sendMessage(currentIdentity,getDestPort(), messageBox.getText(), getChatFrame());	
 				
 				//Se l'invio va a buon fine, mostro il messaggio all'interno del chat box
 				if(res) {
@@ -264,7 +264,7 @@ public class ChatFrame {
 		
 		System.out.println("[ChatFrame - STARTER] Avvio Handshake con token:"+token_to_send);
 		
-		mh.sendMessage(getCurrentUser(),getDestPort(), token_to_send, getChatFrame());
+		mh.sendMessage(currentIdentity,getDestPort(), token_to_send, getChatFrame());
 		
 		
 	}
@@ -302,7 +302,4 @@ public class ChatFrame {
 		return this.chatBox;
 	}
 	
-	public String getCurrentUser() {
-		return this.currentUser;
-	}
 }

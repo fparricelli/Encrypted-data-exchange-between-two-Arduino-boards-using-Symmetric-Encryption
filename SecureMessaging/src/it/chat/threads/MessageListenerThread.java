@@ -6,7 +6,9 @@ import java.net.Socket;
 import java.net.SocketException;
 import it.chat.activechat.ActiveChat;
 import it.chat.gui.ChatFrame;
+import it.chat.helpers.CertificateHelper;
 import it.chat.helpers.MessagingHelper;
+import it.sm.exception.CertificateNotFoundException;
 import it.sm.keystore.aeskeystore.AESHardwareKeystore;
 import it.sm.keystore.aeskeystore.MyAESKeystore;
 import it.sm.messages.Messaggio;
@@ -82,18 +84,26 @@ public class MessageListenerThread extends Thread{
 					countMsg++;
 					
 					//Se è il primo messaggio che ricevo allora devo inviare il mio token
+					//Se ho ricevuto il messaggio, vuol dire che il soggetto con cui sto parlando è trusted.
+					//Di conseguenza, devo inserire il suo certificato nel mio trust-store
 					if(countMsg == 1) {
 												
 						int destPort = msg.getSenderPort();
 						
 						this.actChat.setDest(destPort);
+						CertificateHelper ch = CertificateHelper.getInstance();
+						String [] ids = msg.getSender().split(" ");
+						
+						String targetNome = ids[0];
+						String targetCognome = ids[1];
+						
+						ch.getCertificate(targetNome, targetCognome);
 						
 						if(this.actChat.getFrame()==null) {
 							
-							//"" da sostituire con il currentuser, informazione da prendere sul DB
-							ChatFrame cf = new ChatFrame("",msg.getSender(),this.actChat.getDest(),NO_STARTER);
+							ChatFrame cf = new ChatFrame(this.actChat.getCurrentIdentity(),msg.getSender(),this.actChat.getDest(),NO_STARTER);
 							this.actChat.setFrame(cf);
-							//cf.setVisible(true); visibile dopo
+							
 						}
 						
 						System.out.println("[MsgListenerThread] Ricevuto primo token:"+msg.getMsg()+", avvio handshake");
@@ -102,7 +112,7 @@ public class MessageListenerThread extends Thread{
 						
 						first_token = msg.getMsg();
 
-						mh.sendMessage(this.actChat.getFrame().getCurrentUser(), this.actChat.getDest(), token_to_send, this.actChat.getFrame());
+						mh.sendMessage(this.actChat.getCurrentIdentity(), this.actChat.getDest(), token_to_send, this.actChat.getFrame());
 					
 						System.out.println("[MsgListenerThread] Token "+token_to_send+" inviato");
 						

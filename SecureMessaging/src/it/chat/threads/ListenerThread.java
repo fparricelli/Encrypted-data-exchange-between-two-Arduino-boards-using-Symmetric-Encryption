@@ -19,10 +19,11 @@ public class ListenerThread extends Thread{
 	int client_type;
 	
 	private SSLServerSocket ss;
+	private String currentIdentity;
 	
-	
-	public ListenerThread(SSLServerSocket s) {
+	public ListenerThread(SSLServerSocket s, String ci) {
 		this.ss = s;
+		this.currentIdentity = ci;
 		
 	}
 	
@@ -30,7 +31,7 @@ public class ListenerThread extends Thread{
 		
 		try {
 		
-		System.out.println("[Listener Thread] In ascolto sulla porta:"+this.ss.getLocalPort());
+		System.out.println("[Listener Thread] "+this.currentIdentity+" in ascolto sulla porta:"+this.ss.getLocalPort());
 		
 		//Ciclo..
 		while(true) {
@@ -54,6 +55,9 @@ public class ListenerThread extends Thread{
 			//Inizializzo gli stream della socket
 			ac.setOOS(new ObjectOutputStream(s.getOutputStream()));
 			ac.setOIS(new ObjectInputStream(s.getInputStream()));
+			
+			
+			ac.setCurrentIdentity(this.currentIdentity);
 			
 			//Aggiungo la active chat alla lista
 			MessagingHelper mh = MessagingHelper.getInstance();

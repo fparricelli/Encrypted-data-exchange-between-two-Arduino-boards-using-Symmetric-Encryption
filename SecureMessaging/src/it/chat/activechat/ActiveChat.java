@@ -17,6 +17,9 @@ public class ActiveChat {
 	 * 
 	 */
 	
+	//Indica il nome dell'utente locale.
+	private String currentIdentity;
+	
 	//Indica il 'numero di telefono' dell'interlocutore con cui sto parlando.
 	private int dest;
 	
@@ -97,6 +100,14 @@ public class ActiveChat {
 	
 	public ObjectInputStream getOIS() {
 		return this.ois;
+	}
+	
+	public String getCurrentIdentity() {
+		return this.currentIdentity;
+	}
+	
+	public void setCurrentIdentity(String c) {
+		this.currentIdentity = c;
 	}
 
 }

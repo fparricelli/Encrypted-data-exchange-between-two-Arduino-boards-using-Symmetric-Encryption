@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
@@ -62,24 +63,24 @@ public class MessagingHelper {
 	
 	//Metodo che viene chiamato all'apertura del LandingFrame, con il quale il soggetto si mette in ascolto
 	//sul proprio "numero di telefono", ovvero sulla porta specificata come parametro di input.
-	public boolean startListening(int port) {
+	public boolean startListening(int port, String currentIdentity) {
 		
 		try {
 		
 			//Creo ServerSocket
-			SSLServerSocketFactory sslserversocketfactory = (SSLServerSocketFactory)SSLServerSocketFactory.getDefault();
+			SSLServerSocketFactory sslserversocketfactory = (SSLServerSocketFactory)SSLContext.getDefault().getServerSocketFactory();
 			this.listeningSocket = (SSLServerSocket)sslserversocketfactory.createServerSocket(port);
 			this.listeningPort = port;
 			
 			//Avvio thread di ascolto sulla socket precedentemente creata
-			ListenerThread lt = new ListenerThread(this.listeningSocket);
+			ListenerThread lt = new ListenerThread(this.listeningSocket, currentIdentity);
 			//Avvio il thread
 			lt.start();
 			
 			//Restituisco true, visto che la procedura di ascolto ï¿½ stata inizializzata correttamente
 			return true;
 			
-		}catch(IOException e) {
+		}catch(Exception e) {
 			e.printStackTrace();
 			
 			//In caso di errori (ad es: porta occupata), restituisco false
@@ -134,7 +135,7 @@ public class MessagingHelper {
 			
 			try {
 				
-				SSLSocketFactory sslsocketfactory = (SSLSocketFactory)SSLSocketFactory.getDefault();
+				SSLSocketFactory sslsocketfactory = (SSLSocketFactory)SSLContext.getDefault().getSocketFactory();
 			    s = (SSLSocket)sslsocketfactory.createSocket("localhost", destinationPort);
 				s.setKeepAlive(true);
 				
@@ -166,7 +167,7 @@ public class MessagingHelper {
 				//Richiamo la sendMessage, ora che la active chat è presente
 				sendMessage(sender,destinationPort,msg,cf);
 				
-			}catch (IOException e1) {
+			}catch (Exception e1) {
 				e1.printStackTrace();
 				
 			}
@@ -222,7 +223,9 @@ public class MessagingHelper {
 		try {
 			
 			ActiveChat ac = findActiveChat(destPort);
-			ac.getUpdaterThread().interrupt();
+			if(ac.getUpdaterThread() != null) {
+					ac.getUpdaterThread().interrupt();
+			}
 			removeActiveChat(ac);
 			
 		} catch (ActiveChatNotFoundException e) {

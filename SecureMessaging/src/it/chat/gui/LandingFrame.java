@@ -45,7 +45,8 @@ public class LandingFrame {
 	private JButton btnLogout;
 	
 	
-	private String currentUser;
+	private String currentNome;
+	private String currentCognome;
 	private String currentRole;
 	private int currentNumber;
 	
@@ -57,10 +58,10 @@ public class LandingFrame {
 	 * Il main prende in ingresso (args) tre parametri: identit�, ruolo (utente, tecnico, admin) e porta di ascolto
 	 * (dev'essere scelta in accordo con le liste contatti in formato xml presenti sul server)
 	 * ad esempio, apri due terminali e lanci nel primo:
-	 * java -classpath (...) it.chat.gui.LandingFrame Donald utente 210
+	 * java -classpath (...) it.chat.gui.LandingFrame Donald Duck utente 210
 	 * 
 	 * e nel secondo:
-	 * java -classpath (...) it.chat.gui.LandingFrame Bob tecnico 205
+	 * java -classpath (...) it.chat.gui.LandingFrame Bob Aggiustatutto tecnico 205
 	 */
 	
 	
@@ -70,8 +71,8 @@ public class LandingFrame {
 			public void run() {
 				
 				try {
-					System.out.println("Sei "+args[0]+",hai scelto ruolo:"+args[1]+ " e porta:"+args[2]);
-					LandingFrame window = new LandingFrame(args[0],args[1], Integer.valueOf(args[2]));
+					System.out.println("Sei "+args[0]+" "+args[1]+",hai scelto ruolo:"+args[2]+ " e porta:"+args[3]);
+					LandingFrame window = new LandingFrame(args[0],args[1], args[2],Integer.valueOf(args[3]));
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -81,8 +82,9 @@ public class LandingFrame {
 	}
 
 	
-	public LandingFrame(String nome,String role, int num) {
-		this.currentUser = nome;
+	public LandingFrame(String nome,String cognome,String role, int num) {
+		this.currentNome = nome;
+		this.currentCognome = cognome;
 		this.currentRole = role;
 		this.currentNumber = num;
 		initialize();
@@ -109,7 +111,7 @@ public class LandingFrame {
 		welcomePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		welcomePanel.setLayout(null);
 		
-		lblWelcome = new JLabel("Benvenuto, "+currentUser+" - ["+currentRole+"]");
+		lblWelcome = new JLabel("Benvenuto, "+currentNome+" "+currentCognome+" - ["+currentRole+"]");
 		lblWelcome.setHorizontalAlignment(SwingConstants.LEFT);
 		lblWelcome.setBounds(10, 11, 295, 29);
 		welcomePanel.add(lblWelcome);
@@ -189,7 +191,8 @@ public class LandingFrame {
 						
 						ServerHelper sh = new ServerHelper();
 						File cList = sh.getContactList("admins", currentRole);
-						ContactFrame cf = new ContactFrame(currentUser,"Admins",cList);
+						String identity = currentNome+" "+currentCognome;
+						ContactFrame cf = new ContactFrame(identity,"Admins",cList);
 						cf.setVisible(true);
 					
 					}catch(AccessDeniedException e) {
@@ -260,7 +263,8 @@ public class LandingFrame {
 						
 						ServerHelper sh = new ServerHelper();
 						File cList = sh.getContactList("tecnici", currentRole);
-						ContactFrame cf = new ContactFrame(currentUser,"Tecnici",cList);
+						String identity = currentNome+" "+currentCognome;
+						ContactFrame cf = new ContactFrame(identity,"Tecnici",cList);
 						cf.setVisible(true);
 					
 					}catch(AccessDeniedException e1) {
@@ -328,7 +332,8 @@ public class LandingFrame {
 						
 						ServerHelper sh = new ServerHelper();
 						File cList = sh.getContactList("utenti", currentRole);
-						ContactFrame cf = new ContactFrame(currentUser,"Utenti",cList);
+						String identity = currentNome+" "+currentCognome;
+						ContactFrame cf = new ContactFrame(identity,"Utenti",cList);
 						cf.setVisible(true);
 					
 					}catch(AccessDeniedException e) {
@@ -381,7 +386,8 @@ public class LandingFrame {
 	private void initializeMessageListening() {
 		
 		MessagingHelper mh = MessagingHelper.getInstance();
-		boolean res = mh.startListening(this.currentNumber);
+		String currIdentity = this.currentNome+" "+this.currentCognome;
+		boolean res = mh.startListening(this.currentNumber, currIdentity);
 		
 		//Se l'inizializzazione dell'ascolto non va a buon fine (ad es: porta gi� occupata) allora mostro dialog
 		if(!res) {
@@ -390,13 +396,11 @@ public class LandingFrame {
 	
 	}
 	
-	private String getCurrentUser() {
-		return this.currentUser;
-	}
+	
 	
 	private void initializeStores() {
 		CertificateHelper ch = CertificateHelper.getInstance();
-		ch.init(currentUser);
+		ch.init(currentNome);
 	}
 	
 	

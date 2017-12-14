@@ -47,7 +47,7 @@ public class ContactFrame {
 	
 	private File contactList;
 	private String contactType;
-	private String currentUser;
+	private String currentIdentity;
 	
 	private static final int STARTER = 1;
 	
@@ -79,7 +79,7 @@ public class ContactFrame {
 	//Costruttore: prende il current user, il tipo di contact list da trattare e il File che punta alla contact list (xml)
 	//che mostreremo nel frame
 	public ContactFrame(String cu,String ctype, File cList) {
-		this.currentUser = cu;
+		this.currentIdentity = cu;
 		this.contactType = ctype;
 		this.contactList = cList;
 		initialize();
@@ -198,15 +198,21 @@ public class ContactFrame {
         		}else {
         			
         			//Ricavo i dati dalla riga selezionata
-        			String nome = (String)rubricaList.getValueAt(row, 0);
-        			String cognome = (String)rubricaList.getValueAt(row, 1);
-        			String identity = nome+" "+cognome;
+        			String targetNome = (String)rubricaList.getValueAt(row, 0);
+        			String targetCognome = (String)rubricaList.getValueAt(row, 1);
+        			String targetIdentity = targetNome+" "+targetCognome;
         			int destPort = Integer.valueOf((String)rubricaList.getValueAt(row, 2));
         			
         			CertificateHelper ch = CertificateHelper.getInstance();
         			
         			try {
-						ch.getCertificate(nome, cognome);
+						ch.getCertificate(targetNome, targetCognome);
+						
+						//Apro un nuovo chat frame per gestire la chat con il soggetto selezionato
+	        			ChatFrame cf = new ChatFrame(currentIdentity,targetIdentity,destPort, STARTER);
+	        			frame.dispose();
+	        			cf.setVisible(true);
+	        			
 					
         			} catch (CertificateNotFoundException e1) {
 						System.out.println(e1.getMessage());
@@ -218,10 +224,6 @@ public class ContactFrame {
 					}
         			
         			
-        			/*//Apro un nuovo chat frame per gestire la chat con il soggetto selezionato
-        			ChatFrame cf = new ChatFrame(getCurrentUser(),identity,destPort, STARTER);
-        			frame.dispose();
-        			cf.setVisible(true);*/
         			
         			
         		}
@@ -308,7 +310,5 @@ public class ContactFrame {
 	
 	
 	
-	private String getCurrentUser() {
-		return this.currentUser;
-	}
+	
 }
