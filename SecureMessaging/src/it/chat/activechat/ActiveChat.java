@@ -5,6 +5,8 @@ import java.io.PipedInputStream;
 import java.net.Socket;
 import java.util.concurrent.Semaphore;
 
+import javax.net.ssl.SSLSocket;
+
 import it.chat.gui.ChatFrame;
 import it.chat.threads.UpdaterThread;
 
@@ -19,7 +21,7 @@ public class ActiveChat {
 	private int dest;
 	
 	//Socket di comunicazione, con gli stream associati.
-	private Socket s;
+	private SSLSocket s;
 	private ObjectOutputStream oos;
 	private ObjectInputStream ois;
 	
@@ -31,7 +33,7 @@ public class ActiveChat {
 	private PipedInputStream updatesPipe;
 	private UpdaterThread ut;
 	
-	public ActiveChat(int d, Socket so) {
+	public ActiveChat(int d, SSLSocket so) {
 		
 		this.dest = d;
 		this.s = so;
@@ -49,11 +51,11 @@ public class ActiveChat {
 		this.dest = dest;
 	}
 
-	public Socket getSocket() {
+	public SSLSocket getSocket() {
 		return s;
 	}
 
-	public void setSocket(Socket s) {
+	public void setSocket(SSLSocket s) {
 		this.s = s;
 	}
 	

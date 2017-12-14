@@ -63,7 +63,7 @@ public static String testServlet (String usr, String pwd) throws Exception
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put("username", usr);
 		params.put("password", pwd);
-String token = null;
+		String token = null;
 		StringBuilder postData = new StringBuilder();
 		for (Map.Entry<String, Object> param : params.entrySet()) {
 			if (postData.length() != 0)

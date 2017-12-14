@@ -9,8 +9,13 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
+import it.chat.helpers.CertificateHelper;
 import it.chat.helpers.MessagingHelper;
 import it.chat.helpers.ServerHelper;
+import it.sm.exception.AccessDeniedException;
+import it.sm.exception.InvalidParametersException;
+import it.sm.exception.PolicyConflictException;
+import it.sm.exception.ServerErrorException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -18,6 +23,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
 import java.awt.event.ActionEvent;
 public class LandingFrame {
 
@@ -84,6 +90,7 @@ public class LandingFrame {
 
 	
 	private void initialize() {
+		initializeStores();
 		setLookAndFeel();
 		initializeFrame();
 		initializeWelcomePanel();
@@ -176,24 +183,37 @@ public class LandingFrame {
 				}else {
 				
 				//Altrimenti gli consento di procedere..
-				//..richiedendo la lista contatti admin, che verrï¿½ (o meno) recuperata a seconda dei permessi
+				//..richiedendo la lista contatti admin, che verrà (o meno) recuperata a seconda dei permessi
 				//previsti per l'utente corrente.
-					
-					ServerHelper sh = new ServerHelper();
-					int res = sh.getContactList("admins", currentRole);
-					//Accesso consentito..
-					if(res == 0) {
-						ContactFrame cf = new ContactFrame(getCurrentUser(),"Admins", new File(sh.getContactListPath()+"/"+"admins-list.xml"));
+					try {
+						
+						ServerHelper sh = new ServerHelper();
+						File cList = sh.getContactList("admins", currentRole);
+						ContactFrame cf = new ContactFrame(currentUser,"Admins",cList);
 						cf.setVisible(true);
-					//Accesso negato..
-					}else if(res == -1) {
+					
+					}catch(AccessDeniedException e) {
+						
+						System.out.println(e.getMessage());
 						JOptionPane.showMessageDialog(frame.getContentPane(), "Accesso Negato!", "Errore", JOptionPane.ERROR_MESSAGE);
-					//Errore di applicazione policy..
-					}else if(res == -2) {
-						JOptionPane.showMessageDialog(frame.getContentPane(), "Errore di applicazione permessi, riprova!", "Errore", JOptionPane.ERROR_MESSAGE);
-					//Errore di comunicazione..
-					}else{
-						JOptionPane.showMessageDialog(frame.getContentPane(), "Errore di comunicazione!", "Errore", JOptionPane.ERROR_MESSAGE);
+					
+					}catch(PolicyConflictException e1) {
+						
+						System.out.println(e1.getMessage());
+						JOptionPane.showMessageDialog(frame.getContentPane(), "Errore di applicazione permessi, eseguire nuovamente il login e riprovare.", "Errore", JOptionPane.ERROR_MESSAGE);
+					
+					}catch(InvalidParametersException | ServerErrorException e2) {
+						
+						System.out.println(e2.getMessage());
+						
+						if(e2 instanceof InvalidParametersException) {
+							System.out.println("Parametri errati:"+((InvalidParametersException) e2).getListParameter()+", "+((InvalidParametersException) e2).getRoleParameter());
+						}
+						
+						JOptionPane.showMessageDialog(frame.getContentPane(), "Impossibile recuperare la lista contatti, riprova.", "Errore", JOptionPane.ERROR_MESSAGE);
+					
+					}catch(IOException e3) {
+						e3.printStackTrace();
 					}
 					
 					
@@ -234,24 +254,34 @@ public class LandingFrame {
 				}else {
 					
 					//Altrimenti gli consento di procedere..
-					//..richiedendo la lista contatti tecnici, che verrï¿½ (o meno) recuperata a seconda dei permessi
+					//..richiedendo la lista contatti tecnici, che verrà (o meno) recuperata a seconda dei permessi
 					//previsti per l'utente corrente.
-					ServerHelper sh = new ServerHelper();
-					int res = sh.getContactList("tecnici", currentRole);
-					//Accesso consentito..
-					if(res == 0) {
-						ContactFrame cf = new ContactFrame(getCurrentUser(),"Tecnici", new File(sh.getContactListPath()+"/"+"tecnici-list.xml"));
+					try {
+						
+						ServerHelper sh = new ServerHelper();
+						File cList = sh.getContactList("tecnici", currentRole);
+						ContactFrame cf = new ContactFrame(currentUser,"Tecnici",cList);
 						cf.setVisible(true);
-					//Accesso negato..
-					}else if(res == -1) {
+					
+					}catch(AccessDeniedException e1) {
+						
+						System.out.println(e1.getMessage());
 						JOptionPane.showMessageDialog(frame.getContentPane(), "Accesso Negato!", "Errore", JOptionPane.ERROR_MESSAGE);
-					//Errore di applicazione policy..
-					}else if(res == -2) {
-						JOptionPane.showMessageDialog(frame.getContentPane(), "Errore di applicazione permessi, riprova!", "Errore", JOptionPane.ERROR_MESSAGE);
-					//Errore di comunicazione..
-					}else{
-						JOptionPane.showMessageDialog(frame.getContentPane(), "Errore di comunicazione!", "Errore", JOptionPane.ERROR_MESSAGE);
+					
+					}catch(PolicyConflictException e2) {
+						
+						System.out.println(e2.getMessage());
+						JOptionPane.showMessageDialog(frame.getContentPane(), "Errore di applicazione permessi, eseguire nuovamente il login e riprovare.", "Errore", JOptionPane.ERROR_MESSAGE);
+					
+					}catch(InvalidParametersException | ServerErrorException e3) {
+						
+						System.out.println(e3.getMessage());
+						JOptionPane.showMessageDialog(frame.getContentPane(), "Impossibile recuperare la lista contatti, riprova.", "Errore", JOptionPane.ERROR_MESSAGE);
+					
+					}catch(IOException e4) {
+						e4.printStackTrace();
 					}
+					
 					
 				}
 				
@@ -292,24 +322,34 @@ public class LandingFrame {
 				}else {
 				
 					//Altrimenti gli consento di procedere..
-					//..richiedendo la lista contatti utenti, che verrï¿½ (o meno) recuperata a seconda dei permessi
+					//..richiedendo la lista contatti utenti, che verrà (o meno) recuperata a seconda dei permessi
 					//previsti per l'utente corrente.
-					ServerHelper sh = new ServerHelper();
-					int res = sh.getContactList("utenti", currentRole);
-					//Accesso consentito..
-					if(res == 0) {
-						ContactFrame cf = new ContactFrame(getCurrentUser(),"Utenti", new File(sh.getContactListPath()+"/"+"utenti-list.xml"));
+					try {
+						
+						ServerHelper sh = new ServerHelper();
+						File cList = sh.getContactList("utenti", currentRole);
+						ContactFrame cf = new ContactFrame(currentUser,"Utenti",cList);
 						cf.setVisible(true);
-					//Accesso negato..
-					}else if(res == -1) {
+					
+					}catch(AccessDeniedException e) {
+						
+						System.out.println(e.getMessage());
 						JOptionPane.showMessageDialog(frame.getContentPane(), "Accesso Negato!", "Errore", JOptionPane.ERROR_MESSAGE);
-					//Errore di applicazione policy..
-					}else if(res == -2) {
-						JOptionPane.showMessageDialog(frame.getContentPane(), "Errore di applicazione permessi, riprova!", "Errore", JOptionPane.ERROR_MESSAGE);
-					//Errore di comunicazione..
-					}else{
-						JOptionPane.showMessageDialog(frame.getContentPane(), "Errore di comunicazione!", "Errore", JOptionPane.ERROR_MESSAGE);
+					
+					}catch(PolicyConflictException e1) {
+						
+						System.out.println(e1.getMessage());
+						JOptionPane.showMessageDialog(frame.getContentPane(), "Errore di applicazione permessi, eseguire nuovamente il login e riprovare.", "Errore", JOptionPane.ERROR_MESSAGE);
+					
+					}catch(InvalidParametersException | ServerErrorException e2) {
+						
+						System.out.println(e2.getMessage());
+						JOptionPane.showMessageDialog(frame.getContentPane(), "Impossibile recuperare la lista contatti, riprova.", "Errore", JOptionPane.ERROR_MESSAGE);
+					
+					}catch(IOException e3) {
+						e3.printStackTrace();
 					}
+					
 				}
 			}
 		});
@@ -333,101 +373,6 @@ public class LandingFrame {
 	}
 	
 	
-	
-/*	private boolean sendPost(String list) {
-		
-		HttpsURLConnection.setDefaultHostnameVerifier(
-			    new HostnameVerifier(){
-
-			        public boolean verify(String hostname, SSLSession sslSession) {
-			            if (hostname.equals("localhost")) {
-			                return true;
-			            }
-			            return false;
-			        }
-			    });
-
-		try {
-			
-			String httpsURL = "https://localhost:8443/TestContactServlet/contact-lists/"+list+"/";
-
-			URL myurl = new URL(httpsURL);
-			HttpsURLConnection con = (HttpsURLConnection)myurl.openConnection();
-			con.setRequestMethod("POST");
-			
-			String query = "list="+list+"&ruolo="+currentRole;
-
-			con.setDoOutput(true); 
-			con.setDoInput(true);
-			
-			DataOutputStream output = new DataOutputStream(con.getOutputStream());  
-
-			output.writeBytes(query);
-			output.flush();
-			output.close();
-			
-			int responseCode = con.getResponseCode();
-			System.out.println("\nSending 'POST' request to URL : " + httpsURL);
-			System.out.println("Post parameters : " + query);
-			System.out.println("Response Code : " + responseCode);
-			System.out.println("Content type:"+con.getContentType());
-			
-			if(con.getContentType().contains("application/octet-stream") && responseCode == 200) {
-
-			File f = new File("./liste/"+list+"-list.xml");
-			FileOutputStream fos = new FileOutputStream(f);
-			InputStream is = con.getInputStream();
-			
-			
-			    byte[] buffer = new byte[4096];
-			    int length;
-			    while ((length = is.read(buffer)) != -1) {
-			        fos.write(buffer, 0, length);
-			    }
-			    fos.flush();
-			    fos.close();
-			    is.close();
-			    System.out.println("Lista "+list+" scaricata!");
-			    return true;
-			    
-		}else if(con.getContentType().contains("text/plain") && responseCode == 200) {
-			
-			BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-			String input = new String("");
-			String readInput =  new String("");
-
-			   while ((input = br.readLine()) != null){
-			      readInput = input;
-			   }
-			   
-			   br.close();
-			   
-			   if(readInput.equals("Accesso negato!")) {
-				   JOptionPane.showMessageDialog(frame.getContentPane(), "Accesso Negato!","Errore",JOptionPane.ERROR_MESSAGE);
-				   
-			   }else {
-				   JOptionPane.showMessageDialog(frame.getContentPane(), "Errore interno di policy!","Errore!",JOptionPane.ERROR_MESSAGE);
-				  
-			   }
-			   
-			   return false;
-			
-		}else {
-			JOptionPane.showMessageDialog(frame.getContentPane(), "Impossibile contattare, riprova!","Errore",JOptionPane.ERROR_MESSAGE);
-			System.out.println("Response code:"+responseCode);
-			return false;
-		}
-			
-		}catch(Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-		
-		
-		
-	}*/
-	
-	
 	//Inizializza l'ascolto sulla porta specificata.
 	//In questo modo, all'apertura del Landing Frame l'utente si mette in ascolto di richieste di comunicazione
 	//Sulla porta specificata all'avvio del main
@@ -449,7 +394,10 @@ public class LandingFrame {
 		return this.currentUser;
 	}
 	
-	
+	private void initializeStores() {
+		CertificateHelper ch = CertificateHelper.getInstance();
+		ch.init(currentUser);
+	}
 	
 	
 }

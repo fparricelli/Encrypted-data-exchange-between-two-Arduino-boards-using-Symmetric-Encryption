@@ -5,13 +5,20 @@ import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 
 import it.chat.activechat.ActiveChat;
 import it.chat.gui.ChatFrame;
 import it.chat.threads.ListenerThread;
 import it.chat.threads.MessageListenerThread;
 import it.chat.threads.UpdaterThread;
+import it.sm.exception.ActiveChatNotFoundException;
 import it.sm.messages.Messaggio;
 
 
@@ -29,7 +36,7 @@ public class MessagingHelper {
 	
 	private static MessagingHelper instance;
 	
-	private ServerSocket listeningSocket;
+	private SSLServerSocket listeningSocket;
 	
 	private int listeningPort;
 	
@@ -59,9 +66,9 @@ public class MessagingHelper {
 		
 		try {
 		
-			//Creo ServerSocket 
-			this.listeningSocket = new ServerSocket();
-			this.listeningSocket.bind(new InetSocketAddress("localhost",port));
+			//Creo ServerSocket
+			SSLServerSocketFactory sslserversocketfactory = (SSLServerSocketFactory)SSLServerSocketFactory.getDefault();
+			this.listeningSocket = (SSLServerSocket)sslserversocketfactory.createServerSocket(port);
 			this.listeningPort = port;
 			
 			//Avvio thread di ascolto sulla socket precedentemente creata
@@ -104,77 +111,82 @@ public class MessagingHelper {
 	 */
 	
 	public boolean sendMessage(String sender, int destinationPort, String msg, ChatFrame cf) {
-		
+		ActiveChat ac;
 		try {
 			
-			//Controllo se ci sono chat giï¿½ attive con l'interlocutore richiesto (destinationPort)
-			ActiveChat ac = findActiveChat(destinationPort);
+			ac = findActiveChat(destinationPort);
+			Messaggio msgg = new Messaggio(this.listeningPort,sender,msg);
+			
+			ac.getOOS().reset();
+			ac.getOOS().writeObject(msgg);
+			ac.getOOS().flush();
+			
+			return true;
+			
+		}catch (ActiveChatNotFoundException e) {
 			
 			//Se non trovo chat con l'interlocutore vuol dire che sto scambiando con lui
 			//il primo messaggio
-			if(ac==null) {
+			System.out.println("[sendMessage]"+e.getMessage());
+			
+			//Creo la socket che verra' usata per la comunicazione con l'interlocutore
+			SSLSocket s;
+			
+			try {
 				
-				System.out.println("[Send Message] Non ho trovato chat attive con la porta:"+destinationPort);
-				
-				//Creo la socket che verrï¿½ usata per la comunicazione con l'interlocutore
-				Socket s = new Socket("localhost",destinationPort);
+				SSLSocketFactory sslsocketfactory = (SSLSocketFactory)SSLSocketFactory.getDefault();
+			    s = (SSLSocket)sslsocketfactory.createSocket("localhost", destinationPort);
 				s.setKeepAlive(true);
+				
 				
 				//Inizializzo un nuovo oggetto ActiveChat, che rappresenta la chat che sto iniziando
 				//A questo oggetto fornisco innanzitutto la socket appena creata, e la porta del destinatario con cui
 				//voglio comunicare
 				ac = new ActiveChat(destinationPort,s);
-				//Dopodichï¿½ inizializzo gli stream della socket, settando le variabili membro specifiche
 				ac.setOOS(new ObjectOutputStream(s.getOutputStream()));
 				ac.setOIS(new ObjectInputStream(s.getInputStream()));
-								
+				
 				//Inizializzo il chatFrame di riferimento per questa chat, passato come input
 				ac.setFrame(cf);
 				
 				//Aggiungo l'oggetto ActiveChat alla lista di chat attive
-				chats.add(ac);
+				addActiveChat(ac);
 				
 				//Dopo aver creato l'oggetto ActiveChat, devo mettermi in ascolto dei messaggi che
 				//saranno inviati dall'interlocutore sulla socket che ho creato precedentemente
 				//Passo tutte le informazioni precedentemente settate ad un MessageListenerThread,
-				//Che si occuperï¿½ di ricevere i messaggi dall'interlocutore 
+				//Che si occupera' di ricevere i messaggi dall'interlocutore 
 				MessageListenerThread mlt = new MessageListenerThread(ac, STARTER);
 				mlt.start();
-				
 				
 				//Avvio gli aggiornamenti, che mi permetteranno di visualizzare i messaggi ricevuti sul chatFrame
 				//Che ho aperto per parlare con l'interlocutore 
 				startUpdates(destinationPort);
 				
-			}else {
-				//Ho giï¿½ una chat attiva con l'interlocutore, quindi evito l'inizializzazione
-				System.out.println("[Send Message] Ho trovato una chat attiva con la porta:"+destinationPort);
+				//Richiamo la sendMessage, ora che la active chat è presente
+				sendMessage(sender,destinationPort,msg,cf);
+				
+			}catch (IOException e1) {
+				e1.printStackTrace();
 				
 			}
 			
-			
-			//A questo punto sono sicuro di avere una active chat con l'interlocutore.
-			
-			//Creo l'oggetto messaggio da inviare, passando la mia identitï¿½ (sender string e mia porta di origine) insieme
-			//al messaggio da inviare
-			Messaggio msgg = new Messaggio(this.listeningPort,sender,msg);
-			
-			//Invio il messaggio 
-			ac.getOOS().reset();
-			ac.getOOS().writeObject(msgg);
-			ac.getOOS().flush();
-			
-			//Restituisco true se tutto va a buon fine
-			return true;
-			
-		
-		}catch (IOException e) {
+		}catch(IOException e) {
 			e.printStackTrace();
-			//restituisco false se si verificano errori
-			return false;
+			
 		}
 		
+		return false;
+		
+		
+
+		
+		
+		
+		
 	}
+	
+	
 
 
 	/* Metodo che viene invocato quando scambio il primo messaggio con l'interlocutore.
@@ -182,39 +194,45 @@ public class MessagingHelper {
 	 * dall'interlocutore e che si occupa di spedire tali messaggi sul chatBox per la visualizzazione.
 	 */
 	public void startUpdates(int destPort) {
-		//Prima verifico che ci sia una chat attiva col destinatario specificato
-		ActiveChat ac = findActiveChat(destPort);
-		if(ac!=null) {
-			//Se trovo una chat attiva, setto l'updater thread per quella active chat e lo avvio
-			ac.setUpdaterThread(new UpdaterThread(ac.getFrame().getChatBox(),ac.getUpdatesPipe(),ac.getChatSem()));
-			ac.getUpdaterThread().start();
-		}else {
-			//Altrimenti, messaggio di errore
-			System.out.println("[startUpdates] Active chat non trovata con porta:"+destPort+", non posso iniziare updates!");
-		}
 		
+		try {
+			
+			ActiveChat ac = findActiveChat(destPort);
+			if(ac.getUpdaterThread() == null) {
+				ac.setUpdaterThread(new UpdaterThread(ac.getFrame().getChatBox(),ac.getUpdatesPipe(),ac.getChatSem()));
+				ac.getUpdaterThread().start();
+			}
+			
+		} catch (ActiveChatNotFoundException e) {
+			System.out.println("[startUpdates]"+e.getMessage());
+		}
 	}
+	
+	
+	
+	
+	
 	
 	/* Metodo che viene chiamato quando chiudiamo il chat frame che ï¿½ attivo:
 	 * se chiudo la chat devo infatti interrompere l'updater thread che spara i messaggi ricevuti sul chat box.
 	 * Si occupa di chiamare un metodo interrupt() sull'updater thread associato alla chat.
 	 */
 	public void stopUpdates(int destPort) {
-		//prima verifico che ci sia una active chat con l'interlocutore
-		ActiveChat ac = findActiveChat(destPort);
-		if(ac!=null) {
-			//Se trovo una chat attiva, allora chiamo interrupt() sull'updater thread
+		
+		try {
+			
+			ActiveChat ac = findActiveChat(destPort);
 			ac.getUpdaterThread().interrupt();
-			//Dopodichï¿½ rimuovo l'active chat dalla lista delle chat attive, poichï¿½ lo stopUpdates()
-			//ï¿½ l'ultimo metodo che viene chiamato in caso di chiusura della chat
-			//e di conseguenza ï¿½ responsabile di 'chiudere la porta' rimuovendo la entry dell'arraylist
-			chats.remove(ac);
-		}else {
-			System.out.println("[stopUpdates] Active chat non trovata per porta:"+destPort+", non posso fermare gli updates!");
+			removeActiveChat(ac);
+			
+		} catch (ActiveChatNotFoundException e) {
+			System.out.println("[stopUpdates]"+e.getMessage());
+			
 		}
+
+		
+		
 	}
-	
-	
 	
 	
 			
@@ -227,67 +245,85 @@ public class MessagingHelper {
 	 * la chiusura della chat da parte dell'altro interlocutore).
 	 * 	
 	 */
+	
 	public void closeChat(int dest, boolean nullSend) {
 		
-		//Cerco tra tutte le active chat..
-		for(int i = 0;i<chats.size();i++) {
+		synchronized(this.chats) {
 			
-			//Quando trovo quella che mi interessa
-			if(chats.get(i).getDest() == dest) {
+			try {
 				
-				try {
+				ActiveChat a = findActiveChat(dest);
 				
 				//Se sono io a chiudere la chat, allora devo inviare un messaggio speciale (null)
 				//All'interlocutore, per notificarlo della chiusura della chat
 				if(nullSend) {
-					chats.get(i).getOOS().reset();
-					chats.get(i).getOOS().writeObject(null);
-					chats.get(i).getOOS().flush();
+					a.getOOS().reset();
+					a.getOOS().writeObject(new Messaggio(this.listeningPort,"END_COMMUNICATION",""));
+					a.getOOS().flush();
 				}
 				
 				//Chiudo e rilascio le risorse utilizzate
-				chats.get(i).getOOS().close();
-				chats.get(i).getSocket().close();
-				chats.get(i).getUpdatesPipe().close();
+				a.getOOS().close();
+				a.getSocket().close();
+				a.getUpdatesPipe().close();
 				
 				//Controllo se il chatFrame associato alla acive chat che sto chiudendo ï¿½ ancora
 				//visibile: in caso affermativo, lo chiudo mostrando un messaggio (vedi dettagli
 				//metodo interruptCommunication())
-				if(chats.get(i).getFrame().isVisible()) {
-					chats.get(i).getFrame().interruptCommunication();
+				if(a.getFrame().isVisible()) {
+					a.getFrame().interruptCommunication();
 				}
 				
 				
 				
-				}catch(Exception e) {
-					e.printStackTrace();
-					chats.remove(i);
-				}
+			}catch(ActiveChatNotFoundException e) {
+				System.out.println("[closeChat]"+e.getMessage());
+			}catch(IOException e) {
+				e.printStackTrace();
 			}
-		}
-		
-		
-	}
 			
-	
+		}
+	}
 	
 	//metodo di utility, permette di aggiungere una ActiveChat alla lista.
 	public void addActiveChat(ActiveChat ac) {
 		
-		this.chats.add(ac);
+		synchronized(this.chats) {
+			this.chats.add(ac);
+		}
 		
 	}
 	
-	//Permette di cercare tra la lista delle active chats dell'utente corrente.
-	public ActiveChat findActiveChat(int dest) {
+	
+	public void removeActiveChat(ActiveChat ac) {
 		
-		for(int i = 0;i<chats.size();i++) {
+		synchronized(this.chats) {
+			try {
+				
+				ActiveChat a = findActiveChat(ac.getDest());
+				this.chats.remove(a);
 			
-			if(chats.get(i).getDest() == dest) {
-				return chats.get(i);
+			}catch(ActiveChatNotFoundException e) {
+				System.out.println("[removeActiveChat]"+e.getMessage());
 			}
 		}
-		return null;
+	}
+	
+	
+	//Permette di cercare tra la lista delle active chats dell'utente corrente.
+	public synchronized ActiveChat findActiveChat(int dest) throws ActiveChatNotFoundException {
+		
+		synchronized(this.chats) {
+			
+			for(int i = 0;i<chats.size();i++) {
+			
+				if(chats.get(i).getDest() == dest) {
+					return chats.get(i);
+				}
+			}
+		}
+		
+		throw new ActiveChatNotFoundException();
 	}
 	
 		

@@ -5,6 +5,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSocket;
+
 import it.chat.activechat.ActiveChat;
 import it.chat.helpers.MessagingHelper;
 
@@ -15,10 +18,10 @@ public class ListenerThread extends Thread{
 	
 	int client_type;
 	
-	private ServerSocket ss;
+	private SSLServerSocket ss;
 	
 	
-	public ListenerThread(ServerSocket s) {
+	public ListenerThread(SSLServerSocket s) {
 		this.ss = s;
 		
 	}
@@ -34,7 +37,7 @@ public class ListenerThread extends Thread{
 		
 		
 			//In attesa di connessioni
-			Socket s = ss.accept();
+			SSLSocket s = (SSLSocket) ss.accept();
 			s.setKeepAlive(true);
 			
 			//Ricevuta richiesta di connessione

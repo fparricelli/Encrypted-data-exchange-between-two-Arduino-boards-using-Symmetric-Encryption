@@ -27,6 +27,11 @@ public class UpdaterThread extends Thread{
 	
 	public void run() {
 		
+		System.out.println("[UpdaterThread] Avviato!");
+		
+		if(this.j == null) {
+			System.out.println("[UpdaterThread] TextPane null!");
+		}
 		
 		try {
 		
@@ -37,6 +42,7 @@ public class UpdaterThread extends Thread{
 				sem.acquire();
 				//Quando esco dall'acquire, vuol dire che c'� uno (o pi�) messaggi sulla pipe
 				String msg = dis.readUTF();
+				System.out.println("[UpdaterThread] Ho ricevuto il messaggio:"+msg);
 				//Visualizzo tali messaggi sul textpane
 				j.setText(j.getText().concat("[Ricevuto]: "+msg+"\n"));
 				

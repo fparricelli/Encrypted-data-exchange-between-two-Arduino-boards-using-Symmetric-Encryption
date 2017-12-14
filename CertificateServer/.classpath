@@ -23,6 +23,5 @@
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/bcmail-jdk15on-158.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/bcpkix-jdk15on-158.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/bcprov-jdk15on-1.58.jar"/>
-	<classpathentry kind="lib" path="lib/servlet-api.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

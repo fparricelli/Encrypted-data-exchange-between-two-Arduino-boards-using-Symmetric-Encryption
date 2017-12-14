@@ -3,8 +3,13 @@ package it.authorization;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.security.InvalidParameterException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -21,6 +26,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 import com.sun.xacml.PDP;
 import com.sun.xacml.PDPConfig;
 import com.sun.xacml.ctx.RequestCtx;
@@ -31,8 +37,8 @@ import com.sun.xacml.finder.PolicyFinder;
 import com.sun.xacml.finder.impl.CurrentEnvModule;
 import com.sun.xacml.finder.impl.FilePolicyModule;
 
-import it.exception.authorizaton.InvalidListException;
-import it.exception.authorizaton.InvalidRoleException;
+import it.sm.keystore.rsakeystore.MyRSAKeystore;
+import it.sm.keystore.rsakeystore.RSASoftwareKeystore;
 import it.utility.network.HTTPCodesClass;
 import it.utility.network.HTTPCommonMethods;
 
@@ -130,15 +136,17 @@ public class ContactListFilter implements Filter {
         	HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.CONFLICT);
         }
 	
-    }catch(InvalidListException | InvalidRoleException e) {
+    }catch(IllegalArgumentException e) {
         	
         System.out.println(e.getMessage());
         HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.BAD_REQUEST);
 
     }catch(Exception ex) {
         ex.printStackTrace();
-        	
-        }
+        
+        //In caso di fallimenti, non permetto l'accesso (fail-safe default)
+        HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.UNAUTHORIZED);
+   }
         
 		
 	}
@@ -164,6 +172,7 @@ public class ContactListFilter implements Filter {
 			String path = context.getRealPath("/contact-lists/admins/admin-list.xml");
 			reqList = new File(path);
 			
+			
 		}else if(list.equals("utenti")){
 			
 			String path = context.getRealPath("/contact-lists/utenti/utenti-list.xml");
@@ -171,15 +180,16 @@ public class ContactListFilter implements Filter {
 		
 		}else{
 			
-			System.out.println("Prendo lista tecnici");
 			String path = context.getRealPath("/contact-lists/tecnici/tecnici-list.xml");
 			reqList = new File(path);
 		}
+		
 		
 		response.setContentType("application/octet-stream");
 		response.setContentLength((int) reqList.length());
 		((HttpServletResponse)response).setHeader( "Content-Disposition",
 		         String.format("attachment; filename=\"%s\"", reqList.getName()));
+		
 		
 		OutputStream outs = response.getOutputStream();
 		
@@ -202,20 +212,18 @@ public class ContactListFilter implements Filter {
 	}
 	
 	
-	private void checkList(String list) throws InvalidListException {
+	private void checkList(String list) throws IllegalArgumentException {
 		if(!(list.equals("admins") || list.equals("utenti") || list.equals("tecnici"))) {
-			throw new InvalidListException();
+			throw new IllegalArgumentException();
 		}
 	}
 	
-	private void checkRuolo(String ruolo) throws InvalidRoleException {
+	private void checkRuolo(String ruolo) throws IllegalArgumentException {
 		if(!(ruolo.equals("admin") || ruolo.equals("utente") || ruolo.equals("tecnico"))) {
-			throw new InvalidRoleException();
+			throw new IllegalArgumentException();
 		}
 	}
 	
-	
-	
-	
+	 
 
 }

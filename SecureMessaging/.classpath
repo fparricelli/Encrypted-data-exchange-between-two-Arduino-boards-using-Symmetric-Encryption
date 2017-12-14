@@ -12,5 +12,6 @@
 	<classpathentry kind="lib" path="libs/commons-io-2.6.jar"/>
 	<classpathentry kind="lib" path="libs/RXTXcomm.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/JTattoo-1.6.11.jar"/>
+	<classpathentry kind="lib" path="libs/commons-lang3-3.7.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

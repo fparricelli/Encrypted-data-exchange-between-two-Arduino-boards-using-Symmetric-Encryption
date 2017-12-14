@@ -71,22 +71,15 @@ public class RSASoftwareKeystore implements MyRSAKeystore {
 	 * come algoritmo.
 	 */
 	@Override
-	public byte[] sign(byte[] messageBytes, String alg) throws Exception {
+	public byte[] sign(byte[] messageBytes, String alg) throws Exception{
+			
+				Signature sig = Signature.getInstance(alg);
+				sig.initSign(extractPrivateKey());
+				sig.update(messageBytes);
 
-		String sigAlgorithm = alg + "withRSA";
-
-		if (!sigAlgorithm.equals("MD5withRSA")) { // Alg: solo md5
-
-			throw new Exception("L'algoritmo specificato non è supportato.");
-
-		} else {
-
-			Signature sig = Signature.getInstance(sigAlgorithm);
-			sig.initSign(extractPrivateKey());
-			sig.update(messageBytes);
-
-			return sig.sign();
-		}
+				return sig.sign();
+			
+		
 
 	}
 

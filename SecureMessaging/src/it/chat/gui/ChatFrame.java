@@ -89,11 +89,13 @@ public class ChatFrame {
 		
 		setLookAndFeel();
 		initializeFrame();
-		if(client_type == STARTER)
-			handshake();
 		initializeTopPanel();
 		initializeChatBox();
 		initializeButtons();
+		
+		if(client_type == STARTER) {
+			handshake();
+		}
 	}
 	
 	//Inizializza il frame.
@@ -254,13 +256,16 @@ public class ChatFrame {
 	 * */
 	
 	private void handshake() {
-		System.out.println("[STARTER] Handshake avviato...");
+		
 		
 		MessagingHelper mh = MessagingHelper.getInstance();
 		
 		String token_to_send = "PO";//aesKeyStore.requireTokenToShare();
-
+		
+		System.out.println("[ChatFrame - STARTER] Avvio Handshake con token:"+token_to_send);
+		
 		mh.sendMessage(getCurrentUser(),getDestPort(), token_to_send, getChatFrame());
+		
 		
 	}
 		

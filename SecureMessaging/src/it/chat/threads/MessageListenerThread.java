@@ -36,7 +36,12 @@ public class MessageListenerThread extends Thread{
 	public MessageListenerThread(ActiveChat ac, int c) {
 		this.c_type = c;
 		this.actChat = ac;
-		if(c_type == STARTER) this.countMsg = 1; else this.countMsg = 0;
+		if(c_type == STARTER) {
+			this.countMsg = 1;
+		}else {
+			this.countMsg = 0;
+		}
+			
 		
 	}
 	
@@ -70,13 +75,13 @@ public class MessageListenerThread extends Thread{
 				//Mi metto in attesa di messaggi sulla socket settata nella active chat
 				msg = (Messaggio)this.actChat.getOIS().readObject();
 		
-				//Se il messaggio che ricevo ï¿½ diverso da null..
-				if(msg!=null) {
+				//Se il messaggio che ricevo diverso da null..
+				if(!(msg.getSender().equals("END_COMMUNICATION") && msg.getMsg().length() == 0)) {
 					
 					//Aumento il conteggio di messaggi
 					countMsg++;
 					
-					//Se il primo messaggio che ricevo allora devo inviare il mio token
+					//Se è il primo messaggio che ricevo allora devo inviare il mio token
 					if(countMsg == 1) {
 												
 						int destPort = msg.getSenderPort();
@@ -91,103 +96,101 @@ public class MessageListenerThread extends Thread{
 							//cf.setVisible(true); visibile dopo
 						}
 						
-						System.out.println(this.actChat.getFrame().getCurrentUser()+"Â - Handshake avviato - Token Ricevuto");
+						System.out.println("[MsgListenerThread] Ricevuto primo token:"+msg.getMsg()+", avvio handshake");
 
 						String token_to_send = "POPO";// aesKeystore.requireTokenToShare();
 						
 						first_token = msg.getMsg();
 
-						mh.sendMessage(this.actChat.getFrame().getCurrentUser(), destPort, token_to_send, this.actChat.getFrame());
+						mh.sendMessage(this.actChat.getFrame().getCurrentUser(), this.actChat.getDest(), token_to_send, this.actChat.getFrame());
 					
-						System.out.println(this.actChat.getFrame().getCurrentUser()+" - Token Inoltrato");
+						System.out.println("[MsgListenerThread] Token "+token_to_send+" inviato");
 						
-						System.out.println(this.actChat.getFrame().getCurrentUser()+" - Derivo Chiave");
+						System.out.println("[MsgListenerThread] Derivo chiave...");
 
 						/*if(aesKeystore.setTokenShared(first_token)) {
 							mh.startUpdates(this.actChat.getDest());
 							this.actChat.getFrame().setVisible(true);
 						};*/
-						mh.startUpdates(this.actChat.getDest());
-
-					}
-					else if (countMsg == 2 && c_type == STARTER) {
+						
+					}else if (countMsg == 2 && c_type == STARTER) {
 												
-						System.out.println("Token Ricevuto");
+						System.out.println("[MsgListenerThread] Ricevuto Secondo token:"+msg.getMsg());
 						
 						first_token = msg.getMsg();
 						
-						System.out.println(this.actChat.getFrame().getCurrentUser()+" - Derivo Chiave");
+						System.out.println("[MsgListenerThread] Derivo chiave..");
 
 						/*if(aesKeystore.setTokenShared(first_token)) {
 							mh.startUpdates(this.actChat.getDest());
 						};*/
+						
+					}else{
+						
+						if(c_type == NO_STARTER) {
+							mh.startUpdates(this.actChat.getDest());	
+							this.actChat.getFrame().setVisible(true);
+						}
+
+						//Scrivo il contenuto del messaggio sulla pipe che ï¿½ connessa all'updater thread, cosi
+						//che possa mostrarli sul chatBox
+						dos.writeUTF(msg.getMsg());
+		
+						//Risveglio l'updater thread, che era in attesa sul semaforo
+						this.actChat.getChatSem().release();
 					}
 		
-		
-					else {
-						mh.startUpdates(this.actChat.getDest());		
-
-						if(c_type == NO_STARTER)
-							this.actChat.getFrame().setVisible(true);
-
-				//Scrivo il contenuto del messaggio sulla pipe che ï¿½ connessa all'updater thread, cosi
-				//che possa mostrarli sul chatBox
-				dos.writeUTF(msg.getMsg());
-		
-				//Risveglio l'updater thread, che era in attesa sul semaforo
-				this.actChat.getChatSem().release();
-			}
-		
-		}else{
-			//Se ricevo un msg null, vuol dire che l'interlocutore ha chiuso la chat
-			//Quindi devo chiuderla anche io
-			System.out.println("[MsgListenerThread] Msg = null, chiudo!");
+				}else{
+					
+					//Se ricevo un msg speciale, vuol dire che l'interlocutore ha chiuso la chat
+					//Quindi devo chiuderla anche io
+					System.out.println("[MsgListenerThread] Msg finale, chiudo!");
 			
-			//CloseChat lo chiamo con nullSend = false, perchï¿½ come detto
-			//effettuo una chiusura 'passiva', e non c'ï¿½ bisogno che invio
-			//un messaggio = null all'interlocutore per notificargli la chiusura della chat
-			mh.closeChat(this.actChat.getDest(), false);
+					//CloseChat lo chiamo con nullSend = false, perchï¿½ come detto
+					//effettuo una chiusura 'passiva', e non c'ï¿½ bisogno che invio
+					//un messaggio = null all'interlocutore per notificargli la chiusura della chat
+					mh.closeChat(this.actChat.getDest(), false);
 			
-			//interrompo gli updates sul chatbox
-			mh.stopUpdates(this.actChat.getDest());
+					//interrompo gli updates sul chatbox
+					mh.stopUpdates(this.actChat.getDest());
 			
-			break;
+					break;
 			
-		}
+				}
 		
 		}
 		
-		}catch(SocketException e) {
+	}catch(SocketException e) {
 			
-			//Quando il chatframe viene chiuso, automaticamente andiamo a chiudere anche la socket
-			//su cui il thread sta facendo readObject: di conseguenza verrï¿½ lanciata una SocketException,
-			//che farï¿½ uscire dal while(true) il thread
-			if(e.getMessage().contains("closed")) {
-				System.out.println("[MsgListenerThread] Esco, socket chiusa");
-			}else {
-				e.printStackTrace();
-			}
+		//Quando il chatframe viene chiuso, automaticamente andiamo a chiudere anche la socket
+		//su cui il thread sta facendo readObject: di conseguenza verrï¿½ lanciata una SocketException,
+		//che farï¿½ uscire dal while(true) il thread
+		if(e.getMessage().contains("closed")) {
+			System.out.println("[MsgListenerThread] Esco, socket chiusa");
+		}else {
+			e.printStackTrace();
+		}
 			
-			//Rilascio le risorse
-			try {
-				pos.close();
-				dos.close();
-			}catch(Exception ex) {
-				ex.printStackTrace();
-			}
-			
-		//Tutte le altre eccezioni le registro normalmente
+		//Rilascio le risorse
+		try {
+			pos.close();
+			dos.close();
 		}catch(Exception ex) {
 			ex.printStackTrace();
-			
-			//Rilascio le risorse
-			try {
-				pos.close();
-				dos.close();
-			}catch(Exception exx) {
-				exx.printStackTrace();
-			}
 		}
+			
+		//Tutte le altre eccezioni le registro normalmente
+	}catch(Exception ex) {
+		ex.printStackTrace();
+			
+		//Rilascio le risorse
+		try {
+			pos.close();
+			dos.close();
+		}catch(Exception exx) {
+			exx.printStackTrace();
+		}
+	}
 		
 		
 	}

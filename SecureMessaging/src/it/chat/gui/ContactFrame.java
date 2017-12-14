@@ -23,7 +23,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import it.chat.helpers.CertificateHelper;
 import it.chat.helpers.MessagingHelper;
+import it.chat.helpers.ServerHelper;
+import it.sm.exception.CertificateNotFoundException;
+import it.sm.exception.ServerErrorException;
 
 
 public class ContactFrame {
@@ -199,10 +203,25 @@ public class ContactFrame {
         			String identity = nome+" "+cognome;
         			int destPort = Integer.valueOf((String)rubricaList.getValueAt(row, 2));
         			
-        			//Apro un nuovo chat frame per gestire la chat con il soggetto selezionato
+        			CertificateHelper ch = CertificateHelper.getInstance();
+        			
+        			try {
+						ch.getCertificate(nome, cognome);
+					
+        			} catch (CertificateNotFoundException e1) {
+						System.out.println(e1.getMessage());
+						JOptionPane.showMessageDialog(frame.getContentPane(), "Impossibile recuperare le informazioni del soggetto, riprovare.","Errore!",JOptionPane.ERROR_MESSAGE);
+					
+					} catch (ServerErrorException e1) {
+						JOptionPane.showMessageDialog(frame.getContentPane(), "Errore di comunicazione, riprovare.","Errore!",JOptionPane.ERROR_MESSAGE);
+						e1.printStackTrace();
+					}
+        			
+        			
+        			/*//Apro un nuovo chat frame per gestire la chat con il soggetto selezionato
         			ChatFrame cf = new ChatFrame(getCurrentUser(),identity,destPort, STARTER);
         			frame.dispose();
-        			cf.setVisible(true);
+        			cf.setVisible(true);*/
         			
         			
         		}
