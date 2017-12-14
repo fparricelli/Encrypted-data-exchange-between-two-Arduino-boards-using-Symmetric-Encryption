@@ -3,6 +3,7 @@ package it.debug;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import it.utility.database.DatabaseTriple;
 import it.utility.database.DatabaseUtility;
@@ -10,7 +11,25 @@ import it.utility.database.DatabaseUtility;
 public class DebugDatabase {
 
 	public static void main(String[] args) throws SQLException {
-		debugResult();
+		//debugResult();
+		debugSHA();
+	}
+	
+	public static void debugSHA() throws SQLException 
+	{
+		DatabaseUtility db = DatabaseUtility.getInstance();
+		String username = "Luca";
+		String ip ="127.0.0.1";
+		String randomCode = "notSoRandom . . .";
+		String query = "INSERT INTO MAIL_CODES VALUES (?,?,?,sha2(?,256))";
+		DatabaseTriple triple = new DatabaseTriple(db.connect());
+		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
+		triple.getPreparedStatement().setString(1, username);
+		triple.getPreparedStatement().setString(2, ip);
+		triple.getPreparedStatement().setTimestamp(3, new Timestamp(System.currentTimeMillis()));
+		triple.getPreparedStatement().setString(4, "randomCode");
+		triple.getPreparedStatement().executeUpdate();
+		triple.closeAll();
 	}
 
 	public static void debugResult() throws SQLException {

@@ -42,6 +42,7 @@ public class DAOTrustedIPs {
 		triple.getPreparedStatement().setString(1, username);
 		triple.getPreparedStatement().setString(2, ip);
 		triple.setResultSet(triple.getPreparedStatement().executeQuery());
+		if(triple.getResultSet().next())
 		{
 			onceSent = true;
 			codeTimestamp = triple.getResultSet().getTimestamp(3);
@@ -79,7 +80,7 @@ public class DAOTrustedIPs {
 	}
 	public static void insertCode(String username, String ip, String code) throws SQLException
 	{
-		String query = "INSERT INTO MAIL_CODES VALUES (?,?,?,sha2(?,256)";
+		String query = "INSERT INTO MAIL_CODES VALUES (?,?,?,sha2(?,256))";
 		DatabaseTriple triple = new DatabaseTriple(db.connect());
 		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
 		triple.getPreparedStatement().setString(1, username);

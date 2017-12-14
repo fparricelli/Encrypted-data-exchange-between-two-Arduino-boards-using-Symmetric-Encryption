@@ -68,6 +68,8 @@ public class AuthenticationServlet extends HttpServlet {
 					response.setContentType("application/octet-stream");
 					response.setContentLength(authenticationToken.length());
 					out.write(authenticationToken.getBytes());
+					response.setStatus(httpCode);
+					out.flush();
 				} else {
 					TwoFactorsManager.sendMail(username,request.getRemoteAddr());
 					HTTPCommonMethods.sendReplyHeaderOnly(response,HTTPCodesClass.TEMPORARY_REDIRECT);
@@ -76,9 +78,10 @@ public class AuthenticationServlet extends HttpServlet {
 			} else {
 				AuthenticationLogic.handleFailedLogin(username, request.getRemoteAddr());
 				httpCode = HTTP_UNAUTHORIZED;
+				HTTPCommonMethods.sendReplyHeaderOnly(response, httpCode);
 			}
-			response.setStatus(httpCode);
-			out.flush();
+			
+		
 
 		}
 
