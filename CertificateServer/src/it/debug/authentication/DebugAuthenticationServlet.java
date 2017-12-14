@@ -1,4 +1,4 @@
-package it.debug;
+package it.debug.authentication;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -26,8 +26,8 @@ public class DebugAuthenticationServlet {
 		//blockedExample();
 		//causeALockDown();
 		//almostLockDown();
-		createFailedLogins();
-
+	//	createFailedLogins();
+testServlet("wewe","questaèunapassword");
 	}
 	public static void createFailedLogins () throws Exception
 	{

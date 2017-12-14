@@ -1,4 +1,4 @@
-package it.debug;
+package it.debug.registration;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,10 +14,10 @@ import javax.net.ssl.HttpsURLConnection;
 public class DebugRegistrationServlet {
 	public static void main(String[] args) throws IOException {
 		boolean result;
-		result = registrationAttempt("nwoegnewnginn", "ngioagnigionegnignie");
-		System.out.println(result);
-		result = registrationAttempt("username", "password");
-		System.out.println(result);
+		result = registrationAttempt("Luca", "Pirozzi");
+	//System.out.println(result);
+//	result = registrationAttempt("username", "password");
+		//System.out.println(result);
 	}
 public static boolean registrationAttempt(String username, String password) throws IOException {
 	HttpsURLConnection.setDefaultHostnameVerifier ((hostname, session) -> true);

@@ -1,4 +1,4 @@
-package it.debug;
+package it.debug.registration;
 
 import java.sql.SQLException;
 

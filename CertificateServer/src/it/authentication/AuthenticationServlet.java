@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import it.dao.DAOLogins;
-import it.dao.DAOUsers;
 import it.exception.authentication.InvalidHopException;
 import it.exception.authentication.LockedUser;
 import it.exception.authentication.NoSuchUserException;
@@ -57,7 +56,7 @@ public class AuthenticationServlet extends HttpServlet {
 			OutputStream out = response.getOutputStream();
 			String username = request.getParameter("username");
 			String password = request.getParameter("password");
-			if(DAOLogins.isLockedout(username, request.getRemoteAddr()))
+			if(AuthenticationLogic.isLockedOut(username, request.getRemoteAddr()))
 			{
 				System.out.println("Account is locked");
 				throw new LockedUser();
@@ -73,7 +72,6 @@ public class AuthenticationServlet extends HttpServlet {
 				
 			} else {
 				AuthenticationLogic.handleFailedLogin(username, request.getRemoteAddr());
-				
 				httpCode = HTTP_UNAUTHORIZED;
 			}
 			response.setStatus(httpCode);

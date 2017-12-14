@@ -119,4 +119,9 @@ public class AuthenticationLogic {
 	{
 		DAOLogins.deleteFailedLogin(username, ip);
 	}
+	
+	public static boolean isLockedOut (String username,String ip) throws SQLException
+	{
+		return DAOLogins.isLockedOut(username, ip);
+	}
 }

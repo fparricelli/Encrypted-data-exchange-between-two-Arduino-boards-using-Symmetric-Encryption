@@ -8,4 +8,19 @@ public class HTTPCodesClass {
 	public static final Integer UNAUTHORIZED = 401;
 	public static final Integer NOT_FOUND = 404;
 	public static final Integer BAD_REQUEST = 400;
+	public static final Integer TIMEOUT = 408;
+	public static final Integer FORBIDDEN = 403;
+	
+	/*
+	 * Linee guida:
+	 * 200 - Tutto a buon fine
+	 * 409 - Ogni volta in cui l'azione del client andrebbe in conflitto con qualcosa presente nel 
+	 * server. Ad esempio: voglio registrare uno username che è già presente.
+	 * 500 - Eccezioni sollevate nel server, ad esempio dovute a una crittografia sbagliata del messaggio
+	 * 401 -
+	 * 404 - 
+	 * 400 -
+	 * 408 - Un'informazione doveva essere mandata entro un certo tempo e non lo è stata
+	 * 403 - Azione vietata. Ad esempio tentativo di accesso con IP e utente in account lock.
+	 */
  }

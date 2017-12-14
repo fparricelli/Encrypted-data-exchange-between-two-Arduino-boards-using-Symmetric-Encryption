@@ -1,4 +1,4 @@
-package it.debug;
+package it.debug.authentication;
 
 import java.io.FileInputStream;
 import java.security.Key;

@@ -10,17 +10,16 @@ import it.utility.database.DatabaseUtility;
 
 public class DAOLogins {
 	private static DatabaseUtility db = DatabaseUtility.getInstance();
-	private static final Integer LOCKOUT_DURATION = 15;
+	private static final Integer LOCKOUT_DURATION = 20;
 	private static final Integer MILLISECONDS_TO_MINUTES = 60*1000;
-	private static final Integer FAILED_ATTEMPTS_DURATION = 5;
+	private static final Integer FAILED_ATTEMPTS_DURATION = 15;
 	private static final Integer MAXIMUM_FAILED_LOGINS = 5;
 	
-	public static boolean isLockedout (String username, String ip) throws SQLException
+	public static boolean isLockedOut (String username, String ip) throws SQLException
 	{
 		boolean locked = false;
 		Timestamp startinglockout;
 		long timestamp;
-		System.out.println(ip);
 		String query = "SELECT * FROM ACCOUNT_LOCKDOWN WHERE LOCKDOWN_USERNAME = ? AND IP = ?";
 		DatabaseTriple triple = new DatabaseTriple(db.connect());
 		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
@@ -85,7 +84,7 @@ public class DAOLogins {
 		if(triple.getResultSet().next())
 		{
 			loginTimestamp = triple.getResultSet().getTimestamp(4);
-			if(loginTimestamp.getTime() > System.currentTimeMillis() + FAILED_ATTEMPTS_DURATION * MILLISECONDS_TO_MINUTES)
+			if(System.currentTimeMillis() > loginTimestamp.getTime() +  FAILED_ATTEMPTS_DURATION * MILLISECONDS_TO_MINUTES )
 			{
 				updateFailedLogin(username, ip);
 			}
@@ -139,7 +138,7 @@ public class DAOLogins {
 	}
 	public static void updateFailedLogin (String username, String ip, Integer attempts, Timestamp timestamp) throws SQLException
 	{
-		String query = "UPDATE FAILED_LOGINS SET ATTEMPTS = ?  FIRST_ATTEMPT = ? WHERE USERNAME_FAILED = ? AND IP = ?";
+		String query = "UPDATE FAILED_LOGINS SET ATTEMPTS = ?,  FIRST_ATTEMPT = ? WHERE USERNAME_FAILED = ? AND IP = ?";
 		DatabaseTriple triple = new DatabaseTriple(db.connect());
 		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
 		triple.getPreparedStatement().setInt(1, attempts);
@@ -162,7 +161,7 @@ public class DAOLogins {
 	}
 	public static void updateFailedLogin (String username, String ip) throws SQLException
 	{
-		String query = "UPDATE FAILED_LOGINS SET ATTEMPTS = ? FIRST_ATTEMPT = ? WHERE USERNAME_FAILED = ? AND IP = ?";
+		String query = "UPDATE FAILED_LOGINS SET ATTEMPTS = ?, FIRST_ATTEMPT = ? WHERE USERNAME_FAILED = ? AND IP = ?;";
 		DatabaseTriple triple = new DatabaseTriple(db.connect());
 		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
 		triple.getPreparedStatement().setInt(1, 1);
