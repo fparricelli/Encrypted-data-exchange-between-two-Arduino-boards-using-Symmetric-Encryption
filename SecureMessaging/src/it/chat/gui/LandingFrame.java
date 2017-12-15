@@ -207,7 +207,6 @@ public class LandingFrame {
 						
 						ServerHelper sh = new ServerHelper();
 						File cList = sh.getContactList("admins", currentRole,currentUser.getToken(),currentUser);
-						System.out.println("[Landing frame] Token ricevuto:"+currentUser.getToken());
 						
 						ContactFrame cf = new ContactFrame(currentNome,currentCognome,"Admins",cList);
 						cf.setVisible(true);
@@ -319,7 +318,6 @@ public class LandingFrame {
 						
 						ServerHelper sh = new ServerHelper();
 						File cList = sh.getContactList("utenti", currentRole,currentUser.getToken(),currentUser);
-						System.out.println("[Landing Frame] Token ricevuto:"+currentUser.getToken());
 						
 						ContactFrame cf = new ContactFrame(currentNome,currentCognome,"Utenti",cList);
 						cf.setVisible(true);
@@ -374,7 +372,6 @@ public class LandingFrame {
 						
 						
 						File cList = sh.getContactList("tecnici", currentRole,currentUser.getToken(),currentUser);
-						System.out.println("[Landing Frame] Token ricevuto:"+currentUser.getToken());
 						
 						ContactFrame cf = new ContactFrame(currentNome,currentCognome,"Tecnici",cList);
 						cf.setVisible(true);

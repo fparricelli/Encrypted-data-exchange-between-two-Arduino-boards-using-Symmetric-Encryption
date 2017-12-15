@@ -97,8 +97,6 @@ public class ServerHelper {
 			
 			String myToken = con.getHeaderField("NEWTOKEN");
 			
-			System.out.println("New token received:"+myToken);
-			
 			u.setToken(myToken);
 			    
 			fos.flush();
