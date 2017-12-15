@@ -37,7 +37,6 @@ CREATE TABLE `account_lockdown` (
 
 LOCK TABLES `account_lockdown` WRITE;
 /*!40000 ALTER TABLE `account_lockdown` DISABLE KEYS */;
-INSERT INTO `account_lockdown` VALUES ('wewe','140.0.0.1','2017-12-14 15:02:48'),('wewe3','127.0.0.1','2017-12-14 15:47:05'),('wewe4','127.0.01','2017-12-14 15:47:05');
 /*!40000 ALTER TABLE `account_lockdown` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -64,7 +63,6 @@ CREATE TABLE `failed_logins` (
 
 LOCK TABLES `failed_logins` WRITE;
 /*!40000 ALTER TABLE `failed_logins` DISABLE KEYS */;
-INSERT INTO `failed_logins` VALUES ('wewe','127.0.0.1',1,'2017-12-14 18:02:11'),('wewe2','127.0.0.1',1,'2017-12-14 17:10:58'),('wewe3','127.0.0.1',5,'2017-12-14 16:46:50'),('wewe4','127.0.0.1',1,'2017-12-14 18:01:21');
 /*!40000 ALTER TABLE `failed_logins` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -89,8 +87,31 @@ CREATE TABLE `lockdown_history` (
 
 LOCK TABLES `lockdown_history` WRITE;
 /*!40000 ALTER TABLE `lockdown_history` DISABLE KEYS */;
-INSERT INTO `lockdown_history` VALUES ('wewe','140.0.0.1'),('wewe4','127.0.01');
 /*!40000 ALTER TABLE `lockdown_history` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `lockdown_ips`
+--
+
+DROP TABLE IF EXISTS `lockdown_ips`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `lockdown_ips` (
+  `ip` varchar(45) NOT NULL,
+  `failed` int(11) NOT NULL,
+  `starting` datetime NOT NULL,
+  PRIMARY KEY (`ip`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `lockdown_ips`
+--
+
+LOCK TABLES `lockdown_ips` WRITE;
+/*!40000 ALTER TABLE `lockdown_ips` DISABLE KEYS */;
+/*!40000 ALTER TABLE `lockdown_ips` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -116,7 +137,7 @@ CREATE TABLE `mail_codes` (
 
 LOCK TABLES `mail_codes` WRITE;
 /*!40000 ALTER TABLE `mail_codes` DISABLE KEYS */;
-INSERT INTO `mail_codes` VALUES ('Luca','127.0.0.1','2017-12-14 19:34:19','f754a450bb39ebb19d07a286aac3968cd1f4e2a5d445230e7d1d213c6a5a8980');
+INSERT INTO `mail_codes` VALUES ('Luca','127.0.0.1','2017-12-14 23:37:26','1eb41311c1926093f0054fd406da96f6308294c3ea5dc5a01e95bf990e6adb0c'),('wewe','127.0.0.1','2017-12-14 22:51:30','6258a5e0eb772911d4f92be5b5db0e14511edbe01d1d0ddd1d5a2cb9db9a56ba');
 /*!40000 ALTER TABLE `mail_codes` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -177,6 +198,7 @@ CREATE TABLE `trusted_devices` (
 
 LOCK TABLES `trusted_devices` WRITE;
 /*!40000 ALTER TABLE `trusted_devices` DISABLE KEYS */;
+INSERT INTO `trusted_devices` VALUES ('Luca','127.0.0.1');
 /*!40000 ALTER TABLE `trusted_devices` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -240,4 +262,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-12-14 22:44:26
+-- Dump completed on 2017-12-15 11:24:42
