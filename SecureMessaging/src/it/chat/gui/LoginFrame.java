@@ -90,8 +90,8 @@ public class LoginFrame {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		
-		LookAndFeelUtility.setLookAndFeel(LookAndFeelUtility.GRAPHITE);
+		if(!System.getProperty("os.name").toLowerCase().contains("mac"))
+			LookAndFeelUtility.setLookAndFeel(LookAndFeelUtility.GRAPHITE);
 		initializeFrame();
 		initializeTopPanel();
 		initializeCenterPanel();

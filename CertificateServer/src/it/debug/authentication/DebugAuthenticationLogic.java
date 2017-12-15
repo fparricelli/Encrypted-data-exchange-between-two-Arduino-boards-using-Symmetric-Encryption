@@ -20,6 +20,7 @@ import it.authentication.AuthenticationLogic;
 import it.exception.authentication.NoSuchUserException;
 import it.sm.keystore.rsakeystore.RSADevice;
 import it.sm.keystore.rsakeystore.RSASoftwareKeystore;
+import it.utility.TokenUtility;
 
 public class DebugAuthenticationLogic {
 
@@ -38,23 +39,14 @@ public class DebugAuthenticationLogic {
 			System.out.println("TOKEN RIGENERATO: " + token);
 			System.out.println("I token sono diversi? " + Objects.equals(token, token2));
 			boolean result = true;
-			for (int i=0; i<token.length() && i<token2.length() && result == true; i++)
-			{
-				if(token.charAt(i)!=token2.charAt(i))
-				{
-					result = false;
-				}
-			}
-			System.out.println("MI ASPETTO FALSE : " + result);
+			System.out.println("MI ASPETTO FALSE : " + TokenUtility.compareTokens(token, token2));
 			result = true;
-			for (int i=0; i<token.length() && i<token.length() && result == true; i++)
-			{
-				if(token.charAt(i)!=token.charAt(i))
-				{
-					result = false;
-				}
-			}
-			System.out.println("MI ASPETO TRUE : " + result);
+			System.out.println("MI ASPETO TRUE : " + TokenUtility.compareTokens(token, token));
+			token2 = new String(token);
+			System.out.println("MI ASPETO TRUE : " + TokenUtility.compareTokens(token, token2));
+			String token3;
+			token3 = AuthenticationLogic.regenToken(token2);
+			System.out.println("MI ASPETO FALSE : " + TokenUtility.compareTokens(token3, token));
 			
 	   
 	

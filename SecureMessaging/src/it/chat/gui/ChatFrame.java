@@ -110,8 +110,8 @@ public class ChatFrame {
 		initializeLoadingBar();
 
 		progressFrame.setVisible(true);
-		
-		LookAndFeelUtility.setLookAndFeel(LookAndFeelUtility.GRAPHITE);
+		if(!System.getProperty("os.name").toLowerCase().contains("mac"))
+			LookAndFeelUtility.setLookAndFeel(LookAndFeelUtility.GRAPHITE);
 		initializeFrame();
 		initializeTopPanel();
 		initializeChatBox();
