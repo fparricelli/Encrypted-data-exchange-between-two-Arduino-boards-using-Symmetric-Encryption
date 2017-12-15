@@ -112,8 +112,7 @@ public class ContactFrame {
 	
 	private void initialize() {
 		initializeLoadingBar();
-		if(!System.getProperty("os.name").toLowerCase().contains("mac"))
-			LookAndFeelUtility.setLookAndFeel(LookAndFeelUtility.GRAPHITE);
+		LookAndFeelUtility.setLookAndFeel(LookAndFeelUtility.GRAPHITE);
 		initializeFrame();
 		initializeTopPanel();
 		initializeCenterPanel();

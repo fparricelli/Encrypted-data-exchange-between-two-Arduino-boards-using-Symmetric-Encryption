@@ -68,8 +68,7 @@ public class TwoFactorFrame {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		if(!System.getProperty("os.name").toLowerCase().contains("mac"))
-			LookAndFeelUtility.setLookAndFeel(LookAndFeelUtility.GRAPHITE);
+		LookAndFeelUtility.setLookAndFeel(LookAndFeelUtility.GRAPHITE);
 		initializeFrame();
 		initializeTopPanel();
 		initializeBottomPanel();

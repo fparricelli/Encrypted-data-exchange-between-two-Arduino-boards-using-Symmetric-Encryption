@@ -108,8 +108,7 @@ public class LandingFrame {
 	
 	private void initialize() {
 		initializeStores();
-		if(!System.getProperty("os.name").toLowerCase().contains("mac"))
-			setLookAndFeel();
+		setLookAndFeel();
 		initializeFrame();
 		initializeWelcomePanel();
 		initializeAdminPanel();
