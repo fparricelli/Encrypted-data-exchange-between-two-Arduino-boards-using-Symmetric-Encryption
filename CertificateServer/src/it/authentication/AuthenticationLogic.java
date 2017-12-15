@@ -46,6 +46,7 @@ public class AuthenticationLogic {
 		if (hops > maximumHops || hops < 0) {
 			throw new InvalidHopException();
 		}
+		System.out.println("Sto generando un token con hops: " + hops + " e username: " + username);
 		Builder tokenBuilder = JWT.create();
 		String token = null;
 		Integer interval = tokenDurationMinutes * 1000 * 60;
@@ -59,6 +60,7 @@ public class AuthenticationLogic {
 		tokenBuilder.withExpiresAt(expiresAt);
 		RSADevice rsa = RSADevice.getInstance();
 		token = rsa.signToken(tokenBuilder);
+		System.out.println("TOKEN RIGENERATO: " + token);
 		return token;
 	}
 	
@@ -102,11 +104,13 @@ public class AuthenticationLogic {
 		HashMap<String, Object> parameters = new HashMap<String,Object>();
 		if(isValidToken(token, parameters))
 		{
-			newHops =(Integer) parameters.get("hops") - 1;
-		    if(newHops > 0)
+			System.out.println("Token entra con hops : " + (Integer)parameters.get("hops"));
+			newHops =((Integer) parameters.get("hops")) - 1;
+			System.out.println("Token in uscita con hops: " + newHops);
+		    if(newHops >= 0)
 		    {
 		    	username = (String) parameters.get("username");
-		    	token = generateToken(username, newHops);
+		    	newToken = generateToken(username, newHops);
 		    }
 			
 		}

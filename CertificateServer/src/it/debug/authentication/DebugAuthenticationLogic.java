@@ -8,11 +8,13 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.sun.org.apache.xerces.internal.util.SynchronizedSymbolTable;
 
 import it.authentication.AuthenticationLogic;
 import it.exception.authentication.NoSuchUserException;
@@ -24,11 +26,36 @@ public class DebugAuthenticationLogic {
 	public static void main(String[] args) {
 
 		try {
+			
 			// checkBCrypt();
 			//tryToken();
 			//tokenExample();
-			tokenExample2();
-	
+			//tokenExample2();
+			String token = DebugAuthenticationServlet.testServlet("Luca", "Pirozzi");
+			String token2;
+			System.out.println(token);
+			token2 = AuthenticationLogic.regenToken(token);
+			System.out.println("TOKEN RIGENERATO: " + token);
+			System.out.println("I token sono diversi? " + Objects.equals(token, token2));
+			boolean result = true;
+			for (int i=0; i<token.length() && i<token2.length() && result == true; i++)
+			{
+				if(token.charAt(i)!=token2.charAt(i))
+				{
+					result = false;
+				}
+			}
+			System.out.println("MI ASPETTO FALSE : " + result);
+			result = true;
+			for (int i=0; i<token.length() && i<token.length() && result == true; i++)
+			{
+				if(token.charAt(i)!=token.charAt(i))
+				{
+					result = false;
+				}
+			}
+			System.out.println("MI ASPETO TRUE : " + result);
+			
 	   
 	
 		} catch (Exception e) {

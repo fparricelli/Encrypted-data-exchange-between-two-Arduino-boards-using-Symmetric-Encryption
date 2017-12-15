@@ -32,8 +32,9 @@ public class DebugAuthenticationServlet {
 		//causeALockDown();
 		//almostLockDown();
 	//	createFailedLogins();
-testServlet("Luca","Pirozzi");
-		//System.out.println("IP LOCKDOWN: " + createIPLockdownFromFailedLogins());
+//testServlet("bob","password");
+	//	System.out.println("IP LOCKDOWN: " + createIPLockdownFromFailedLogins());
+		testServlet("Luca","Pirozzi");
 	}
 	
 	public static boolean createIPLockdownFromFailedLogins () throws Exception
@@ -92,6 +93,7 @@ testServlet("Luca","Pirozzi");
 			}
 			for(int j=0; j<8; j++)
 			{
+				//Thread.sleep(1000);
 				System.out.println("I: " + i + "J :" + j);
 				System.out.println("USERNAME" + username);
 				testServlet(username, password);
@@ -161,7 +163,7 @@ testServlet("Luca","Pirozzi");
 public static String testServlet (String usr, String pwd) throws Exception
 {
 	
-	{
+	
 		HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
 		URL url = new URL("https://localhost:8443/CertificateServer/authenticate");
 		Map<String, Object> params = new LinkedHashMap<>();
@@ -192,6 +194,7 @@ public static String testServlet (String usr, String pwd) throws Exception
 		{
 		ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
 	parameters= (HashMap<String,String>)in.readObject();
+		token = parameters.get("token");
 		System.out.println(parameters.get("token"));
 		System.out.println(parameters.get("telephone"));
 		System.out.println(parameters.get("name"));
@@ -199,7 +202,7 @@ public static String testServlet (String usr, String pwd) throws Exception
 		System.out.println(parameters.get("role"));
 		}
 		return token;
-	}
+	
 
 }
 

@@ -5,16 +5,24 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
+import it.dao.DAOLogins;
+import it.dao.DAOUsers;
 import it.utility.database.DatabaseTriple;
 import it.utility.database.DatabaseUtility;
 
 public class DebugDatabase {
+	public static final String local = "127.0.0.1";
 
 	public static void main(String[] args) throws SQLException {
 		//debugResult();
-		debugSHA();
+		//debugSHA();
+		checkDBFunctions(local);
 	}
-	
+
+	public static void checkDBFunctions (String ip) throws SQLException
+	{
+		DAOLogins.handleCountLockedUser(ip);
+	}
 	public static void debugSHA() throws SQLException 
 	{
 		DatabaseUtility db = DatabaseUtility.getInstance();
