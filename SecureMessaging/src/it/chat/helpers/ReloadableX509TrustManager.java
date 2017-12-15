@@ -88,6 +88,7 @@ private final String certDownloadPath;
 		String aliasActualCert = getIdentity(actualCert)[0]+getIdentity(actualCert)[1]+"_cer_"+sNumActualCert;
 		
 		try {
+			
 				//NOTA: prima di inserire un certificato nel trust-store, andrebbe verificata la validità
 				//Di tale certificato controllando verificandone la firma della CA.
 				//Essendo i certificati self-signed, è superfluo effettuare un controllo in questo caso

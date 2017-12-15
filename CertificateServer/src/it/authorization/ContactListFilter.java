@@ -181,7 +181,7 @@ public class ContactListFilter implements Filter {
 		ServletContext context = ((HttpServletRequest)request).getServletContext();
 		String list = ((HttpServletRequest)request).getParameter("list");
 		
-		MyResponseWrapper mrw = new MyResponseWrapper((HttpServletResponse)response);
+		
 		
 		File reqList = null;
 		
@@ -210,7 +210,7 @@ public class ContactListFilter implements Filter {
 		
 		((HttpServletResponse)response).addHeader("NewToken", newToken);
 		
-		OutputStream outs = mrw.getOutputStream();
+		OutputStream outs = response.getOutputStream();
 		
 		
 		try (FileInputStream in = new FileInputStream(reqList)) {
