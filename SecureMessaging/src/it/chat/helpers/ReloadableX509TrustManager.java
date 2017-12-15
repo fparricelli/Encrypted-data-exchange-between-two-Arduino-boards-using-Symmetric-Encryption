@@ -35,15 +35,25 @@ private final String certDownloadPath;
 
 	@Override
 	public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-		trustManager.checkClientTrusted(chain, authType);
+		System.out.println("[Controllo Client Certificate..]");
+		try{
+			trustManager.checkClientTrusted(chain, authType);
+		} catch(CertificateException cx) {
+			System.out.println("[Controllo Client - Certificato non trovato]");
+			addCertAndReload(chain[0],true);
+			trustManager.checkClientTrusted(chain, authType);
+		}
 	}
 
 	@Override
 	public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+		System.out.println("[Controllo Server Certificate..]");
 		try {
 			trustManager.checkServerTrusted(chain, authType);
 		} catch (CertificateException cx) {
-			addServerCertAndReload(chain[0], true);
+			
+			System.out.println("[Controllo Server - Certificato non trovato]");
+			addCertAndReload(chain[0], true);
 			trustManager.checkServerTrusted(chain, authType);
 		}
 	}
@@ -81,7 +91,7 @@ private final String certDownloadPath;
 	
 	
 
-	private void addServerCertAndReload(Certificate actualCert, boolean permanent) {
+	private void addCertAndReload(Certificate actualCert, boolean permanent) {
 		
 		X509Certificate actualCert509 = (X509Certificate) actualCert;
 		int sNumActualCert = actualCert509.getSerialNumber().intValue();

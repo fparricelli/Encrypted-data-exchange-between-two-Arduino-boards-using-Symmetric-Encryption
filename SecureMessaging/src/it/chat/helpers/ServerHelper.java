@@ -147,7 +147,7 @@ public class ServerHelper {
 	}
 	
 	
-	//Non usiamo token, i certificati sono pubblici
+	
 	public File getCertificate(String nome, String cognome, String downloadPath) throws CertificateNotFoundException, ServerErrorException, RedirectToLoginException {
 		
 		
