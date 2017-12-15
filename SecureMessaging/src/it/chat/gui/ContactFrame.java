@@ -23,6 +23,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import it.chat.gui.utility.LookAndFeelUtility;
 import it.chat.helpers.CertificateHelper;
 import it.chat.helpers.MessagingHelper;
 import it.chat.helpers.ServerHelper;
@@ -88,7 +89,7 @@ public class ContactFrame {
 	
 	private void initialize() {
 		
-		setLookAndFeel();
+		LookAndFeelUtility.setLookAndFeel(LookAndFeelUtility.GRAPHITE);
 		initializeFrame();
 		initializeTopPanel();
 		initializeCenterPanel();
@@ -203,29 +204,12 @@ public class ContactFrame {
         			String targetIdentity = targetNome+" "+targetCognome;
         			int destPort = Integer.valueOf((String)rubricaList.getValueAt(row, 2));
         			
-        			CertificateHelper ch = CertificateHelper.getInstance();
         			
-        			try {
-						ch.getCertificate(targetNome, targetCognome);
-						
-						//Apro un nuovo chat frame per gestire la chat con il soggetto selezionato
-	        			ChatFrame cf = new ChatFrame(currentIdentity,targetIdentity,destPort, STARTER);
-	        			frame.dispose();
-	        			cf.setVisible(true);
-	        			
-					
-        			} catch (CertificateNotFoundException e1) {
-						System.out.println(e1.getMessage());
-						JOptionPane.showMessageDialog(frame.getContentPane(), "Impossibile recuperare le informazioni del soggetto, riprovare.","Errore!",JOptionPane.ERROR_MESSAGE);
-					
-					} catch (ServerErrorException e1) {
-						JOptionPane.showMessageDialog(frame.getContentPane(), "Errore di comunicazione, riprovare.","Errore!",JOptionPane.ERROR_MESSAGE);
-						e1.printStackTrace();
-					}
-        			
-        			
-        			
-        			
+        			//Apro un nuovo chat frame per gestire la chat con il soggetto selezionato
+        			ChatFrame cf = new ChatFrame(currentIdentity,targetIdentity,destPort, STARTER);
+        			frame.dispose();
+        			cf.setVisible(true);
+
         		}
         		
         	}
@@ -237,17 +221,7 @@ public class ContactFrame {
         
 	}
 	
-	//Setta il look and feel dell'applicazione
-	private void setLookAndFeel() {
-		
-		try {
-			
-			UIManager.setLookAndFeel("com.jtattoo.plaf.graphite.GraphiteLookAndFeel");
-			
-			}catch(Exception e) {
-				e.printStackTrace();
-			}
-	}
+	
 
 	
 	//Effettua il parsing del file xml contenente la lista contatti, e ne mostra il contenuto in una tabella.
@@ -256,7 +230,10 @@ public class ContactFrame {
 	private void fillContacts() {
 		
 		try {
-
+			
+			String [] p = currentIdentity.split(" ");
+			String currentNome = p[0];
+			String currentCognome = p[1];
 			
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -289,7 +266,9 @@ public class ContactFrame {
 					String cognome = currElem.getElementsByTagName("cognome").item(0).getTextContent();
 					String numero = currElem.getElementsByTagName("numero").item(0).getTextContent();
 					
-					dtm.addRow(new Object []{nome,cognome,numero});
+					if(!(nome.equals(currentNome) && cognome.equals(currentCognome))) {
+						dtm.addRow(new Object []{nome,cognome,numero});
+					}
 				
 				}
 			}

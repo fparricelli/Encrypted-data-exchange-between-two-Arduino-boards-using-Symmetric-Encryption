@@ -24,6 +24,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
+import it.chat.gui.utility.LookAndFeelUtility;
 import it.chat.helpers.MessagingHelper;
 import it.chat.threads.MessageListenerThread;
 import it.sm.keystore.aeskeystore.AESHardwareKeystore;
@@ -87,7 +88,7 @@ public class ChatFrame {
 	
 	private void initialize() {
 		
-		setLookAndFeel();
+		LookAndFeelUtility.setLookAndFeel(LookAndFeelUtility.GRAPHITE);
 		initializeFrame();
 		initializeTopPanel();
 		initializeChatBox();
@@ -239,17 +240,7 @@ public class ChatFrame {
 	}
 	
 	
-	//Inizializza il lookAndFeel del frame.
-	private void setLookAndFeel() {
-		
-		try {
-			
-			UIManager.setLookAndFeel("com.jtattoo.plaf.graphite.GraphiteLookAndFeel");
-			
-			}catch(Exception e) {
-				e.printStackTrace();
-			}
-	}
+	
 	
 	/**
 	 * Funzione che si occupa di effettuare l'handshke per lo scambio della chiave 

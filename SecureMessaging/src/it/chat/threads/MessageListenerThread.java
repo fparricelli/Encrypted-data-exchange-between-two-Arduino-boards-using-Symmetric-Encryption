@@ -91,13 +91,14 @@ public class MessageListenerThread extends Thread{
 						int destPort = msg.getSenderPort();
 						
 						this.actChat.setDest(destPort);
-						CertificateHelper ch = CertificateHelper.getInstance();
+						
+						/*CertificateHelper ch = CertificateHelper.getInstance();
 						String [] ids = msg.getSender().split(" ");
 						
 						String targetNome = ids[0];
 						String targetCognome = ids[1];
 						
-						ch.getCertificate(targetNome, targetCognome);
+						ch.getCertificate(targetNome, targetCognome);*/
 						
 						if(this.actChat.getFrame()==null) {
 							

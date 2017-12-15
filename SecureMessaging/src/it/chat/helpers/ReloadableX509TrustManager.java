@@ -1,13 +1,12 @@
 package it.chat.helpers;
 
-import java.awt.List;
+import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.*;
-import java.util.UUID;
+import java.util.Date;
 
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
@@ -23,10 +22,11 @@ class ReloadableX509TrustManager implements X509TrustManager {
 
 private final String trustStorePath;
 private X509TrustManager trustManager;
-private List tempCertList = new List();
+private final String certDownloadPath;
 
-	public ReloadableX509TrustManager(String tspath) throws Exception {
+	public ReloadableX509TrustManager(String tspath,String certDownloadPath) throws Exception {
 		this.trustStorePath = tspath;
+		this.certDownloadPath = certDownloadPath;
 		reloadTrustManager();
 	}
 
@@ -60,9 +60,6 @@ private List tempCertList = new List();
 		try { ts.load(in, null); }
 		finally { in.close(); }
 
-		
-
-		
 		TrustManagerFactory tmf = TrustManagerFactory.getInstance(
         TrustManagerFactory.getDefaultAlgorithm());
 		tmf.init(ts);
@@ -81,18 +78,51 @@ private List tempCertList = new List();
 	
 	
 
-	private void addServerCertAndReload(Certificate cert, boolean permanent) {
+	private void addServerCertAndReload(Certificate actualCert, boolean permanent) {
+		
 		try {
-			
+				//Ricavo il serial number del certificato in esame, per ottenere un alias unico
+				X509Certificate actualCert509 = (X509Certificate) actualCert;
+				int sNumActualCert = actualCert509.getSerialNumber().intValue();
+				String aliasActualCert = getIdentity(actualCert)[0]+getIdentity(actualCert)[1]+"_cer_"+sNumActualCert;
 				
-				CertificateHelper ch = CertificateHelper.getInstance();
-				String ids = getIdentity(cert)[0]+getIdentity(cert)[1]+"_cer";
-				ch.addCertificateFromCert(cert, ids);
-				reloadTrustManager();
+				Date actualDate = new Date();
+				//Controllo: se il certificato che voglio inserire è scaduto, allora lo scarico dal server
+				if(actualDate.after(actualCert509.getNotAfter())) {
+					
+					ServerHelper sh = new ServerHelper();
+					//Chiedo il nuovo certificato al server
+					File fNewCert = sh.getCertificate(getIdentity(actualCert)[0], getIdentity(actualCert)[1], certDownloadPath);
+					Certificate newCert = getCertificateFromFile(fNewCert);
+					
+					//Una volta ottenuto l'oggetto Certificate, posso cancellare il file
+					fNewCert.delete();
+					CertificateHelper ch = CertificateHelper.getInstance();
+					//Rimuovo il certificato scaduto dal truststore
+					ch.removeCertificate(aliasActualCert);
+					
+					X509Certificate newCert509 = (X509Certificate) newCert;
+					int sNumNewCert = newCert509.getSerialNumber().intValue();
+					String aliasNewCert = getIdentity(newCert)[0]+getIdentity(newCert)[1]+"_cer_"+sNumNewCert;
+					
+					//Aggiungo il certificato che ho recuperato e ricarico il truststore
+					ch.addCertificateFromCert(newCert, aliasNewCert);
+					reloadTrustManager();
+				
+				}else{
+					
+					//Il certificato che voglio inserire è valido, quindi lo metto
+					//Nel trust-store e lo ricarico
+					CertificateHelper ch = CertificateHelper.getInstance();
+					ch.addCertificateFromCert(actualCert, aliasActualCert);
+					reloadTrustManager();
+				}
 				
 				
-		} catch (Exception ex) 
-		{ ex.printStackTrace(); }
+		}catch (Exception ex){
+			ex.printStackTrace();
+		}
+		
 	}
 	
 	private String [] getIdentity(Certificate cert) {
@@ -112,6 +142,21 @@ private List tempCertList = new List();
 		}
 	return null;
 		
+	}
+	
+	private Certificate getCertificateFromFile(File c) {
+		Certificate cert = null;
+		
+		try {
+			CertificateFactory fact = CertificateFactory.getInstance("X.509");
+			FileInputStream fis = new FileInputStream (c);
+			cert = (X509Certificate) fact.generateCertificate(fis);
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return cert;
+
 	}
 	
 	

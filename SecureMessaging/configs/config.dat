@@ -1,0 +1,3 @@
+contactlistURL=https://localhost:8443/CertificateServer/contact-lists/
+authenticationURL=https://localhost:8443/CertificateServer/authenticate
+certificateURL=https://localhost:8443/CertificateServer/getCertificate

@@ -102,9 +102,6 @@ public class ContactListFilter implements Filter {
         attrModules.add(envModule);
         attrFinder.setModules(attrModules);
 		
-        
-        	
-        
         RequestCtx XACMLrequest = RequestBuilder.createXACMLRequest((HttpServletRequest)request);
   	  
     	
@@ -141,11 +138,15 @@ public class ContactListFilter implements Filter {
         System.out.println(e.getMessage());
         HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.BAD_REQUEST);
 
-    }catch(Exception ex) {
+    }catch(IOException ex) {
         ex.printStackTrace();
+        //In caso di IOException, non posso mandare risposta su output stream
         
-        //In caso di fallimenti, non permetto l'accesso (fail-safe default)
-        HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.UNAUTHORIZED);
+   }catch(Exception exx) {
+	   exx.printStackTrace();
+	   
+	   //In caso di altri fallimenti, non permetto l'accesso (fail-safe default)
+       HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.UNAUTHORIZED);
    }
         
 		

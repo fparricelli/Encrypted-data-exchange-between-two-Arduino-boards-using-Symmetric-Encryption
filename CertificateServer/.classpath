@@ -13,16 +13,16 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
-	<classpathentry kind="lib" path="lib/commons-codec-1.11.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-annotations-2.9.3.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-core-2.9.2.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-databind-2.9.0.jar"/>
-	<classpathentry kind="lib" path="lib/java-jwt-3.1.0.jar"/>
-	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.10-bin.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/sunxacml.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/bcmail-jdk15on-158.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/bcpkix-jdk15on-158.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/bcprov-jdk15on-1.58.jar"/>
-	<classpathentry kind="lib" path="E:/Documenti/Progetto-Finale-SSD/CertificateServer/lib/javax.mail.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/java-jwt-3.1.0.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jackson-annotations-2.9.3.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jackson-core-2.9.2.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jackson-databind-2.9.0.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/commons-codec-1.11.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/javax.mail.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/mysql-connector-java-5.1.10-bin.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

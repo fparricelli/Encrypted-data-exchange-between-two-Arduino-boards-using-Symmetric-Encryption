@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
+import it.chat.gui.utility.LookAndFeelUtility;
 import it.chat.helpers.CertificateHelper;
 import it.chat.helpers.MessagingHelper;
 import it.chat.helpers.ServerHelper;
@@ -93,7 +94,7 @@ public class LandingFrame {
 	
 	private void initialize() {
 		initializeStores();
-		setLookAndFeel();
+		LookAndFeelUtility.setLookAndFeel(LookAndFeelUtility.GRAPHITE);
 		initializeFrame();
 		initializeWelcomePanel();
 		initializeAdminPanel();

@@ -13,5 +13,12 @@
 	<classpathentry kind="lib" path="libs/RXTXcomm.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/JTattoo-1.6.11.jar"/>
 	<classpathentry kind="lib" path="libs/commons-lang3-3.7.jar"/>
+	<classpathentry kind="lib" path="libs/jcaptcha-2.0-alpha-1.jar"/>
+	<classpathentry kind="lib" path="libs/jcaptcha-api-2.0-alpha-1.jar"/>
+	<classpathentry kind="lib" path="libs/commons-collections-3.2.jar"/>
+	<classpathentry kind="lib" path="libs/filters-2.0.235-1.jar"/>
+	<classpathentry kind="lib" path="libs/commons-logging-1.0.4.jar"/>
+	<classpathentry kind="lib" path="libs/slf4j-simple-1.7.25.jar"/>
+	<classpathentry kind="lib" path="libs/slf4j-api-1.7.25.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

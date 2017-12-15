@@ -1,2 +1,0 @@
-alias: clientreceiver
-password: password
