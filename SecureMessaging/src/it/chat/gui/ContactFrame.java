@@ -24,6 +24,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import it.chat.gui.utility.LookAndFeelUtility;
+import it.chat.gui.utility.MessageStringUtility;
 import it.chat.helpers.CertificateHelper;
 import it.chat.helpers.MessagingHelper;
 import it.chat.helpers.ServerHelper;
@@ -49,7 +51,10 @@ public class ContactFrame {
 	
 	private File contactList;
 	private String contactType;
-	private String currentIdentity;
+	
+	
+	private String currentNome;
+	private String currentCognome;
 	
 	private static final int STARTER = 1;
 	
@@ -86,12 +91,13 @@ public class ContactFrame {
 
 	//Costruttore: prende il current user, il tipo di contact list da trattare e il File che punta alla contact list (xml)
 	//che mostreremo nel frame
-	public ContactFrame(String cu,String ctype, File cList) {
-		this.currentIdentity = cu;
+	public ContactFrame(String cn,String cc,String ctype, File cList) {
+		this.currentNome = cn;
+		this.currentCognome = cc;
 		this.contactType = ctype;
 		this.contactList = cList;
 		bar = new SwingProgressBar();
-		progressFrame = new JFrame("Initializing Secure Chat...");
+		progressFrame = new JFrame("Loading..");
 		initialize();
 	}
 	
@@ -105,8 +111,8 @@ public class ContactFrame {
 
 	
 	private void initialize() {
-		
-		//setLookAndFeel();
+		initializeLoadingBar();
+		LookAndFeelUtility.setLookAndFeel(LookAndFeelUtility.GRAPHITE);
 		initializeFrame();
 		initializeTopPanel();
 		initializeCenterPanel();
@@ -118,7 +124,7 @@ public class ContactFrame {
 	private void initializeFrame() {
 		
 		frame = new JFrame();
-		frame.setTitle("Rubrica "+contactType);
+		frame.setTitle("Contacts:"+contactType);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setBounds(100, 100, 495, 298);
 		frame.setResizable(false);
@@ -132,7 +138,7 @@ public class ContactFrame {
 		topPanel.setBackground(new Color(36, 47, 65));
 		frame.getContentPane().add(topPanel,BorderLayout.NORTH);
 		
-		titoloLabel = new JLabel("Select a Contact from below:");
+		titoloLabel = new JLabel(MessageStringUtility.SELECT_CONTACT);
 		titoloLabel.setForeground(Color.WHITE);
 		titoloLabel.setFont(new Font("AppleGothic", Font.PLAIN, 13));
 		titoloLabel.setBackground(Color.WHITE);
@@ -170,7 +176,7 @@ public class ContactFrame {
             }
         };
 		
-		String header[] = new String[] {"Nome","Cognome","Numero"};
+		String header[] = new String[] {"Name","Surname","Number"};
 		dtm.setColumnIdentifiers(header);
 		rubricaList.setModel(dtm);
 		rubricaList.setDefaultEditor(Object.class, null);
@@ -222,7 +228,7 @@ public class ContactFrame {
         		
         		//Se non seleziono nessuno, mostro un dialog
         		if(row == -1) {
-        			JOptionPane.showMessageDialog(frame.getContentPane(), "Seleziona un soggetto da contattare!","Errore!",JOptionPane.ERROR_MESSAGE);
+        			JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.SELECT_CONTACT_ERR,MessageStringUtility.ERROR,JOptionPane.ERROR_MESSAGE);
         		//Altrimenti..
         		}else {
         			progressFrame.setVisible(true);
@@ -237,6 +243,7 @@ public class ContactFrame {
 	        		bar.updateBar(80);
 
 						//Apro un nuovo chat frame per gestire la chat con il soggetto selezionato
+	        			String currentIdentity = currentNome+" "+currentCognome;
 	        			ChatFrame cf = new ChatFrame(currentIdentity,targetIdentity,destPort, STARTER);
 	        			frame.dispose();
 	        			cf.setVisible(true);
@@ -255,17 +262,7 @@ public class ContactFrame {
         
 	}
 	
-	//Setta il look and feel dell'applicazione
-	private void setLookAndFeel() {
-		
-		try {
-			
-			UIManager.setLookAndFeel("com.jtattoo.plaf.graphite.GraphiteLookAndFeel");
-			
-			}catch(Exception e) {
-				e.printStackTrace();
-			}
-	}
+	
 
 	
 	//Effettua il parsing del file xml contenente la lista contatti, e ne mostra il contenuto in una tabella.
@@ -274,7 +271,8 @@ public class ContactFrame {
 	private void fillContacts() {
 		
 		try {
-
+			
+			
 			
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -307,7 +305,11 @@ public class ContactFrame {
 					String cognome = currElem.getElementsByTagName("cognome").item(0).getTextContent();
 					String numero = currElem.getElementsByTagName("numero").item(0).getTextContent();
 					
-					dtm.addRow(new Object []{nome,cognome,numero});
+					
+					if(!(nome.equals(currentNome) && cognome.equals(currentCognome))) {
+						dtm.addRow(new Object []{nome,cognome,numero});
+					}
+					
 				
 				}
 			}

@@ -36,7 +36,6 @@ public class AuthenticationServlet extends HttpServlet {
 	private static final Integer HTTP_SUCCESS = HTTPCodesClass.SUCCESS;
 	private static final Integer HTTP_UNAUTHORIZED = HTTPCodesClass.UNAUTHORIZED;
 	private static final Integer HTTP_SERVER_INTERNAL_ERROR = HTTPCodesClass.SERVER_ERROR;
-	private static Integer richieste = 0;
 
 	/*
 	 * In maniera sintetica:
@@ -61,48 +60,42 @@ public class AuthenticationServlet extends HttpServlet {
 		String current = null;
 
 		try {
-			System.out.println(++richieste + " richieste arrivate");
 			OutputStream out = response.getOutputStream();
 			ObjectOutputStream oos = new ObjectOutputStream(out);
 			String username = request.getParameter("username");
 			String password = request.getParameter("password");
 			MutableBoolean needsUpdate = new MutableBoolean(false);
 			MutableBoolean lockTimeout = new MutableBoolean(false);
-			System.out.println("Arrivata richiesta di: " + username);
 			MutableInteger failed_account_attempts = new MutableInteger();
 			HashMap<String,String> returnParameters = new HashMap<String,String>();
+			byte[] bytes;
 			if(AuthenticationLogic.isIPLocked(request.getRemoteAddr(), needsUpdate, lockTimeout, failed_account_attempts))
 			{
-				System.out.println("Tuttavia l'ip era bloccato");
 				throw new LockedIP();
 			}
 			if (AuthenticationLogic.isLockedOut(username, request.getRemoteAddr())) {
-				System.out.println("Tuttavia la coppia ip,utente è bloccata");
+				System.out.println("Account is locked");
 				throw new LockedUser();
 			}
 			Boolean authenticated = AuthenticationLogic.authenticate(username, password);
 			if (authenticated) {
 				if (AuthenticationLogic.isTrusted(username, request.getRemoteAddr())) {
-					System.out.println(username + " si è connesso da una ip trusted");
 					AuthenticationLogic.deleteFailedLogins(username, request.getRemoteAddr());
 					String authenticationToken = AuthenticationLogic.generateAuthenticationToken(username);
-					System.out.println("Generato token: " + authenticationToken);
+					System.out.println("[Server]Auth token:"+authenticationToken);
 					returnParameters.put("token", authenticationToken);
 					returnParameters.putAll(AuthenticationLogic.getUserDetails(username));
-					System.out.println("Riconfermo il token: " + returnParameters.get("token"));
-					httpCode = HTTP_SUCCESS; 
+					httpCode = HTTP_SUCCESS;
 					response.setContentType("application/octet-stream");
 					oos.writeObject(returnParameters);
 					response.setStatus(httpCode);
 					oos.flush();
 				} else {
-					System.out.println("A " + username + " è stata inviata una mail");
 					TwoFactorsManager.sendMail(username,request.getRemoteAddr());
 					HTTPCommonMethods.sendReplyHeaderOnly(response,HTTPCodesClass.TEMPORARY_REDIRECT);
 				}
 
 			} else {
-				System.out.println(username + " credenziali sbagliate");
 				AuthenticationLogic.handleFailedLogin(username, request.getRemoteAddr(),needsUpdate,lockTimeout,failed_account_attempts);
 				httpCode = HTTP_UNAUTHORIZED;
 				HTTPCommonMethods.sendReplyHeaderOnly(response, httpCode);

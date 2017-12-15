@@ -23,6 +23,7 @@ public class ListenerThread extends Thread{
 	
 	public ListenerThread(SSLServerSocket s, String ci) {
 		this.ss = s;
+		this.ss.setWantClientAuth(true);
 		this.currentIdentity = ci;
 		
 	}
@@ -40,6 +41,7 @@ public class ListenerThread extends Thread{
 			//In attesa di connessioni
 			SSLSocket s = (SSLSocket) ss.accept();
 			s.setKeepAlive(true);
+		
 			
 			//Ricevuta richiesta di connessione
 			

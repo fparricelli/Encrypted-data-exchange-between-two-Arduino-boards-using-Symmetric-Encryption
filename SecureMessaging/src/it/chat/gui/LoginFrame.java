@@ -10,7 +10,12 @@ import com.octo.captcha.service.image.AbstractManageableImageCaptchaService;
 import com.octo.captcha.service.image.DefaultManageableImageCaptchaService;
 
 import it.chat.gui.utility.LookAndFeelUtility;
+import it.chat.gui.utility.MessageStringUtility;
 import it.chat.helpers.ServerHelper;
+import it.chat.user.AuthUser;
+import it.sm.exception.ForbiddenAccessException;
+import it.sm.exception.ServerErrorException;
+import it.sm.exception.TwoFactorRequiredException;
 
 import javax.swing.JPanel;
 import javax.swing.JLabel;
@@ -53,6 +58,8 @@ public class LoginFrame {
 	private BufferedImage captchaImage;
 	
 	
+	
+	
 	/**
 	 * Launch the application.
 	 */
@@ -76,6 +83,7 @@ public class LoginFrame {
 		initialize();
 		this.a = new DefaultManageableImageCaptchaService();
 		
+		
 	}
 
 	/**
@@ -88,6 +96,7 @@ public class LoginFrame {
 		initializeTopPanel();
 		initializeCenterPanel();
 		initializeBottomPanel();
+		
 	
 	}
 	
@@ -110,7 +119,7 @@ public class LoginFrame {
 		frame.getContentPane().add(topPanel);
 		topPanel.setLayout(null);
 		
-		welcomeLabel = new JLabel("Pannello di Login");
+		welcomeLabel = new JLabel("Login Panel");
 		welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		welcomeLabel.setBounds(0, 0, 414, 49);
 		topPanel.add(welcomeLabel);
@@ -151,7 +160,7 @@ public class LoginFrame {
 		centerPanel.add(captchaField);
 		captchaField.setColumns(10);
 		
-		labelInserisciCodice = new JLabel("Inserisci il codice per continuare.");
+		labelInserisciCodice = new JLabel(MessageStringUtility.INSERT_CP);
 		labelInserisciCodice.setBounds(203, 93, 211, 14);
 		labelInserisciCodice.setVisible(false);
 		centerPanel.add(labelInserisciCodice);
@@ -169,19 +178,21 @@ public class LoginFrame {
 		loginButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
+				
 				if(userNameField.getText().length() == 0 || String.valueOf(passwordField.getPassword()).length() == 0) {
-					JOptionPane.showMessageDialog(frame.getContentPane(), "Inserisci username e password prima di continuare.", "Attenzione", JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.INSERT_US_PSW, MessageStringUtility.WARNING, JOptionPane.WARNING_MESSAGE);
+					
 				}else {
 					
 					if(captchaField.isVisible()) {
 						
 						if(captchaField.getText().length() == 0) {
-							JOptionPane.showMessageDialog(frame.getContentPane(), "Inserisci captcha prima di continuare.", "Attenzione", JOptionPane.INFORMATION_MESSAGE);
+							JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.INSERT_CP, MessageStringUtility.WARNING, JOptionPane.WARNING_MESSAGE);
 							return;
 						}else {
 							boolean res = a.validateResponseForID(randString, captchaField.getText());
 							if(!res) {
-								JOptionPane.showMessageDialog(frame.getContentPane(), "Captcha errato!", "Attenzione", JOptionPane.INFORMATION_MESSAGE);
+								JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.WRONG_CP, MessageStringUtility.ERROR, JOptionPane.ERROR_MESSAGE);
 								captchaField.setText("");
 								captchaImage = a.getImageChallengeForID(randString);
 								captchaLabel.setIcon(new ImageIcon(captchaImage));
@@ -190,19 +201,28 @@ public class LoginFrame {
 						}
 					}
 					
+					
 					String username = userNameField.getText();
 					String password = String.valueOf(passwordField.getPassword());
 					ServerHelper sh = new ServerHelper();
+					
 					try {
-						String token = sh.authenticate(username, password);
-						System.out.println("Login Completato, il mio token è:"+token);
 						
 						
+						
+						AuthUser currentUser = sh.authenticate(username, password);
+						System.out.println("Login Completato,benvenuto:"+currentUser.getName());
+						
+						
+						LandingFrame lf = new LandingFrame(currentUser);
+						lf.setVisible(true);
+						
+						frame.dispose();
 						
 						
 					}catch(FailedLoginException ex) {
 						System.out.println("Login Fallito");
-						JOptionPane.showMessageDialog(frame.getContentPane(), "Credenziali errate, riprova.", "Attenzione", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.WRONG_CRED, MessageStringUtility.ERROR, JOptionPane.ERROR_MESSAGE);
 						passwordField.setText("");
 						
 						if(captchaField.isVisible()) {
@@ -216,6 +236,26 @@ public class LoginFrame {
 						captchaLabel.setVisible(true);
 						labelInserisciCodice.setVisible(true);
 						captchaField.setVisible(true);
+						
+					}catch(TwoFactorRequiredException e1) {
+						System.out.println(e1.getMessage());
+						TwoFactorFrame tff = new TwoFactorFrame(userNameField.getText(),getLoginFrame());
+						frame.setEnabled(false);
+						tff.setVisible(true);
+						
+					}catch(ForbiddenAccessException e2) {
+						System.out.println(e2.getMessage());
+						JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.ACC_BLOCKED, MessageStringUtility.ERROR, JOptionPane.ERROR_MESSAGE);
+						captchaField.setVisible(false);
+						labelInserisciCodice.setVisible(false);
+						captchaLabel.setVisible(false);
+					
+					}catch(ServerErrorException e3) {
+						System.out.println(e3.getMessage());
+						JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.COMM_ERR, MessageStringUtility.ERROR, JOptionPane.ERROR_MESSAGE);
+						captchaField.setVisible(false);
+						labelInserisciCodice.setVisible(false);
+						captchaLabel.setVisible(false);
 					}
 					
 				}
@@ -230,7 +270,7 @@ public class LoginFrame {
 		frame.getRootPane().setDefaultButton(loginButton);
 		bottomPanel.add(loginButton);
 		
-		chiudiButton = new JButton("Registrati");
+		chiudiButton = new JButton("Register");
 		chiudiButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				System.out.println("Registrazione");
@@ -238,5 +278,20 @@ public class LoginFrame {
 		});
 		chiudiButton.setBounds(216, 36, 89, 23);
 		bottomPanel.add(chiudiButton);
+	}
+	
+	
+	
+	
+	public void setEnabled(boolean b) {
+		this.frame.setEnabled(b);
+	}
+	
+	public LoginFrame getLoginFrame() {
+		return this;
+	}
+	
+	public void setVisible(boolean b) {
+		this.frame.setVisible(b);
 	}
 }

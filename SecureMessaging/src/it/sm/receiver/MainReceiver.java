@@ -1,4 +1,4 @@
-package it.sm.receiver;
+/*package it.sm.receiver;
 
 import it.sm.keystore.aeskeystore.AESHardwareKeystore;
 import it.sm.keystore.aeskeystore.MyAESKeystore;
@@ -42,3 +42,4 @@ public class MainReceiver {
 	}
 
 }
+*/

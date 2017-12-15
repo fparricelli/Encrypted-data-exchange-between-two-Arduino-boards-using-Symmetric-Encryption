@@ -24,6 +24,8 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
+import it.chat.gui.utility.LookAndFeelUtility;
+import it.chat.gui.utility.MessageStringUtility;
 import it.chat.helpers.MessagingHelper;
 import it.chat.threads.MessageListenerThread;
 import it.sm.exception.OutOfBoundEncrypt;
@@ -67,6 +69,11 @@ public class ChatFrame {
 	
 	JFrame progressFrame;
 	private JLabel lblNewLabel;
+	
+	
+	
+	
+	
 
 	//Main di test, da usare per lanciare autonomamente il frame
 	/*
@@ -94,7 +101,7 @@ public class ChatFrame {
 		this.client_type = type;
 		aesKeyStore = AESHardwareKeystore.getInstance(client_type);
 		bar = new SwingProgressBar();
-		progressFrame = new JFrame("Initializing Secure Chat...");
+		progressFrame = new JFrame(MessageStringUtility.PROGRESS_BAR_MSG);
 		initialize();
 	}
 
@@ -104,7 +111,7 @@ public class ChatFrame {
 
 		progressFrame.setVisible(true);
 		
-		//setLookAndFeel();
+		LookAndFeelUtility.setLookAndFeel(LookAndFeelUtility.GRAPHITE);
 		initializeFrame();
 		initializeTopPanel();
 		initializeChatBox();
@@ -198,7 +205,7 @@ public class ChatFrame {
 			//Se non ho inserito alcun messaggio, mostro un dialog
 			if(messageBox.getText().length() == 0) {
 				
-				JOptionPane.showMessageDialog(frame.getContentPane(), "Inserisci un messaggio da inviare!","Errore!",JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.EMPTY_MESSAGE,MessageStringUtility.WARNING,JOptionPane.WARNING_MESSAGE);
 			
 		    //Altrimenti procedo..
 			}else{
@@ -210,6 +217,7 @@ public class ChatFrame {
 				EncryptedMessage encryptedMessage = aesKeyStore.encrypt(messageBox.getText());
 				
 				//Invio il messaggio chiamando il metodo sendMessage
+				
 				boolean res = mh.sendChatMessage(currentIdentity,getDestPort(), encryptedMessage.getEncryptedMessage(), encryptedMessage.getMsg_key(),getChatFrame());	
 				
 				//Se l'invio va a buon fine, mostro il messaggio all'interno del chat box
@@ -219,12 +227,12 @@ public class ChatFrame {
 				
 				//Altrimenti mostro un dialog di errore, nel caso in cui sia impossibile contattare l'utente specificato (ad es: non � online)
 				}else {
-	    			JOptionPane.showMessageDialog(frame.getContentPane(), "Errore: impossibile contattare l'utente specificato, riprova!","Errore!",JOptionPane.ERROR_MESSAGE);
+	    			JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.UNABLE_CONTACTING,MessageStringUtility.ERROR,JOptionPane.ERROR_MESSAGE);
 	    			mh.closeChat(getDestPort(),true);
 	    			frame.dispose();
 				}
 				}catch(OutOfBoundEncrypt ec){
-	    			JOptionPane.showMessageDialog(frame.getContentPane(), "Messaggio troppo lungo!","Errore!",JOptionPane.ERROR_MESSAGE);
+	    			JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.MESSAGE_LENGTH_ERR,MessageStringUtility.ERROR,JOptionPane.ERROR_MESSAGE);
 				}
 					
 				}
@@ -290,17 +298,7 @@ public class ChatFrame {
 	}
 	
 	
-	//Inizializza il lookAndFeel del frame.
-	private void setLookAndFeel() {
-		
-		try {
-			
-			UIManager.setLookAndFeel("com.jtattoo.plaf.graphite.GraphiteLookAndFeel");
-			
-			}catch(Exception e) {
-				e.printStackTrace();
-			}
-	}
+	
 	
 	/**
 	 * Funzione che si occupa di effettuare l'handshke per lo scambio della chiave 
@@ -334,13 +332,13 @@ public class ChatFrame {
 	}
 	
 		public void handshakeError() {
-			JOptionPane.showMessageDialog(frame.getContentPane(), "Errore nella fase di handshake!","Attenzione!",JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.HANDSHAKE_ERR,MessageStringUtility.ERROR,JOptionPane.ERROR_MESSAGE);
 			this.frame.dispose();
 		}
 	
 	//Metodo utilizzato quando l'altro interlocutore interrompe la comunicazione.
 	public void interruptCommunication() {
-		JOptionPane.showMessageDialog(frame.getContentPane(), "Comunicazione interrotta dall'interlocutore!","Attenzione!",JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.COMM_INTERR,MessageStringUtility.WARNING,JOptionPane.WARNING_MESSAGE);
 		this.frame.dispose();
 	}
 	

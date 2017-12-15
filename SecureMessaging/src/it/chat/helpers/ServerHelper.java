@@ -7,27 +7,33 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 import javax.security.auth.login.FailedLoginException;
+
+import it.chat.user.AuthUser;
 import it.sm.exception.AccessDeniedException;
 import it.sm.exception.CertificateNotFoundException;
-import it.sm.exception.InvalidParametersException;
+import it.sm.exception.CodeNotFoundException;
+import it.sm.exception.ForbiddenAccessException;
 import it.sm.exception.PolicyConflictException;
+import it.sm.exception.RedirectToLoginException;
 import it.sm.exception.ServerErrorException;
+import it.sm.exception.TwoFactorRequiredException;
 import it.sm.utility.network.HTTPCodesClass;
 
 public class ServerHelper {
 	
-	//Da rendere sicuro
 	private final String contactListPath = "./contact-lists";
 	private final String configPath = "./configs/config.dat";
 	
@@ -53,45 +59,26 @@ public class ServerHelper {
 	
 	
 	
-	public File getContactList(String listType, String currentRole) throws AccessDeniedException, PolicyConflictException, InvalidParametersException, ServerErrorException, IOException {
+	public File getContactList(String listType, String currentRole, String token) throws AccessDeniedException, PolicyConflictException, ServerErrorException, RedirectToLoginException{
 		
-		//Per accettare localhost come trusted durante la sessione SSL con il server
-		trustLocalhost();
-		File f = null;
-
-		//Costruisco la stringa di download in base alla lista richiesta
-		String httpsURL = readContactListURL()+listType+"/";
-
-		URL myurl = new URL(httpsURL);
-		HttpsURLConnection con = (HttpsURLConnection)myurl.openConnection();
-		con.setRequestMethod("POST");
-			
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("list=");
-		stringBuilder.append(URLEncoder.encode(listType.toLowerCase(),"UTF-8"));
-		stringBuilder.append("&ruolo=");
-		stringBuilder.append(URLEncoder.encode(currentRole.toLowerCase(),"UTF-8"));
+	try {
+		Map<String, Object> params = new LinkedHashMap<>();
 		
-		//Costruisco la query string in base ai parametri forniti
-		String query = stringBuilder.toString();
-
-		con.setDoOutput(true); 
-		con.setDoInput(true);
-			
-		DataOutputStream output = new DataOutputStream(con.getOutputStream());  
-		//Invio i parametri
-		output.writeBytes(query);
-		output.flush();
-		output.close();
-			
-		//Recupero il response code
+		params.put("list", listType);
+		params.put("ruolo", currentRole);
+		params.put("token", token);
+		
+		String postURL = readContactListURL()+listType+"/";
+		
+		HttpsURLConnection con = sendPost(postURL,params);
+		
 		int responseCode = con.getResponseCode();
 			
-			
+		System.out.println("getContList respCode:"+responseCode);
 		if(responseCode == HTTPCodesClass.SUCCESS) {
 				
 			//Definisco dove salvare la lista
-			f = new File(this.contactListPath+"/"+listType+"-list.xml");
+			File f = new File(this.contactListPath+"/"+listType+"-list.xml");
 			
 			FileOutputStream fos = new FileOutputStream(f);
 			InputStream is = con.getInputStream();
@@ -115,21 +102,27 @@ public class ServerHelper {
 			
 		}else if(responseCode == HTTPCodesClass.UNAUTHORIZED) {
 				
-			throw new AccessDeniedException(httpsURL);
+			throw new AccessDeniedException(postURL);
 				
 		}else if(responseCode == HTTPCodesClass.CONFLICT) {
 				
 			throw new PolicyConflictException();
 				
-		}else if(responseCode == HTTPCodesClass.BAD_REQUEST){
+		}else if(responseCode == HTTPCodesClass.TEMPORARY_REDIRECT){
 				
-			throw new InvalidParametersException(listType, currentRole);
+			throw new RedirectToLoginException();
 				
 		}else {
 			throw new ServerErrorException();
 		}
-			
-			
+		
+	}catch(IOException e) {
+		e.printStackTrace();
+		throw new ServerErrorException();
+	}
+	
+	
+	
 	}
 	
 	
@@ -146,122 +139,142 @@ public class ServerHelper {
 	}
 	
 	
-	public File getCertificate(String nome, String cognome, String downloadPath) throws IOException, CertificateNotFoundException, ServerErrorException {
-		
-		trustLocalhost();
-		
+	//Non usiamo token, i certificati sono pubblici
+	public File getCertificate(String nome, String cognome, String downloadPath) throws CertificateNotFoundException, ServerErrorException, RedirectToLoginException {
 		
 		
-			System.out.println("Certificato non trovato, lo scarico!");
-			String httpsURL = readCertificateURL();
-
-			URL myurl = new URL(httpsURL);
-			HttpsURLConnection con = (HttpsURLConnection)myurl.openConnection();
-			con.setRequestMethod("POST");
+	try {	
+		Map<String, Object> params = new LinkedHashMap<>();
 		
-			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.append("nome=");
-			stringBuilder.append(URLEncoder.encode(nome.toLowerCase(),"UTF-8"));
-			stringBuilder.append("&cognome=");
-			stringBuilder.append(URLEncoder.encode(cognome.toLowerCase(),"UTF-8"));
+		params.put("nome", nome);
+		params.put("cognome", cognome);
 		
-			String query = stringBuilder.toString();
-
-			con.setDoOutput(true); 
-			con.setDoInput(true);
+		String postURL = readCertificateURL();
 		
-			DataOutputStream output = new DataOutputStream(con.getOutputStream());  
-
-			output.writeBytes(query);
-			output.flush();
-			output.close();
-
-			int respCode =  con.getResponseCode();
+		HttpsURLConnection con = sendPost(postURL,params);
 		
-			if(respCode == HTTPCodesClass.SUCCESS) {
+		int respCode =  con.getResponseCode();
+		System.out.println("GET certificate code:"+respCode);
+		if(respCode == HTTPCodesClass.SUCCESS) {
 		
-				File f = new File(downloadPath+nome.toLowerCase()+"_certificate.cer");
-				FileOutputStream fos = new FileOutputStream(f);
-				InputStream is = con.getInputStream();
+			File f = new File(downloadPath+nome.toLowerCase()+"_certificate.cer");
+			FileOutputStream fos = new FileOutputStream(f);
+			InputStream is = con.getInputStream();
 		
-				byte[] buffer = new byte[4096];
-				int length;
+			byte[] buffer = new byte[4096];
+			int length;
 		
-				while ((length = is.read(buffer)) != -1) {
-					fos.write(buffer, 0, length);
-				}
-		
-				fos.flush();
-				fos.close();
-				is.close();
-		
-				return f;
-			
-			}else if(respCode == HTTPCodesClass.NOT_FOUND){
-				throw new CertificateNotFoundException();
-			}else{
-				throw new ServerErrorException();
+			while ((length = is.read(buffer)) != -1) {
+				fos.write(buffer, 0, length);
 			}
+		
+			fos.flush();
+			fos.close();
+			is.close();
+		
+			return f;
+			
+		}else if(respCode == HTTPCodesClass.NOT_FOUND){
+			throw new CertificateNotFoundException();
+		}else {
+			throw new ServerErrorException();
+		}
+		
+	}catch(IOException e) {
+		e.printStackTrace();
+		throw new ServerErrorException();
 	}
 	
 	
-	public String authenticate(String username, String password) throws FailedLoginException {
-		
-		String token = null;
+	
+	}
+	
+	
+	public AuthUser authenticate(String username, String password) throws FailedLoginException,TwoFactorRequiredException, ForbiddenAccessException, ServerErrorException {
+	
 		
 	try {
-		HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
-		URL url = new URL(readAuthenticationURL());
+		
 		
 		Map<String, Object> params = new LinkedHashMap<>();
 		
 		params.put("username", username);
 		params.put("password", password);
 		
+		String postURL = readAuthenticationURL();
 		
-		StringBuilder postData = new StringBuilder();
-		for (Map.Entry<String, Object> param : params.entrySet()) {
-			if (postData.length() != 0)
-				postData.append('&');
-			postData.append(URLEncoder.encode(param.getKey(), "UTF-8"));
-			postData.append('=');
-			postData.append(URLEncoder.encode(String.valueOf(param.getValue()), "UTF-8"));
-		}
+		HttpsURLConnection con = sendPost(postURL,params);
+		System.out.println("Authenticate code:"+con.getResponseCode());
+		if(con.getResponseCode() == HTTPCodesClass.SUCCESS){
 		
+			ObjectInputStream ois = new ObjectInputStream(con.getInputStream());
+			
+			HashMap<String,String> respParam = (HashMap<String,String>)ois.readObject();
+			
+			String token = respParam.get("token");
+			String tel = respParam.get("telephone");
+			String role = respParam.get("role");
+			String name = respParam.get("name");
+			String surname = respParam.get("surname");
+			System.out.println("AUTH token:"+token);
+			AuthUser u = new AuthUser(token,name,surname,role,Integer.valueOf(tel));
+			ois.close();
+			return u;
 		
-		byte[] postDataBytes = postData.toString().getBytes("UTF-8");
-
-		HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-		conn.setRequestMethod("POST");
-		conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-		conn.setRequestProperty("Content-Length", String.valueOf(postDataBytes.length));
-		conn.setDoOutput(true);
-		conn.getOutputStream().write(postDataBytes);
-		
-		System.out.println("HTTP CODE :" + conn.getResponseCode());
-		
-		if(conn.getResponseCode()==200){
-		
-			Reader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-			token = "";
-			for (int c; (c = in.read()) >= 0;) {
-				token = token.concat(String.valueOf((char)c));
-			}
-		
-		}
-		
-	}catch(Exception e) {
-		e.printStackTrace();
-	}
-		
-		if(token != null) {
-			return token;
-		}else {
+		}else if(con.getResponseCode() == HTTPCodesClass.TEMPORARY_REDIRECT) {
+			throw new TwoFactorRequiredException();
+		}else if(con.getResponseCode() == HTTPCodesClass.UNAUTHORIZED) {
 			throw new FailedLoginException();
+		}else if(con.getResponseCode() == HTTPCodesClass.FORBIDDEN) {
+			throw new ForbiddenAccessException();
+		}else {
+			throw new ServerErrorException();
 		}
-	
+		
+	}catch(IOException | ClassNotFoundException e) {
+		e.printStackTrace();
+		throw new ServerErrorException();
 	}
 	
+	
+		
+	}
+	
+	public boolean validateTwoFactorCode(String username, String code) throws CodeNotFoundException, ServerErrorException, IllegalArgumentException {
+		
+		try {
+			
+			String postURL = readTwoFactorURL();
+			Map<String, Object> params = new LinkedHashMap<>();
+			
+			params.put("username", username);
+			params.put("code", code);
+			
+			HttpsURLConnection con = sendPost(postURL,params);
+			System.out.println("Validate RESP:"+con.getResponseCode());
+			if(con.getResponseCode() == HTTPCodesClass.SUCCESS) {
+				
+				return true;
+				
+			}else if(con.getResponseCode() == HTTPCodesClass.UNAUTHORIZED) {
+				throw new IllegalArgumentException();
+			}else if(con.getResponseCode() == HTTPCodesClass.NOT_FOUND){
+				throw new CodeNotFoundException();
+			}else {
+				throw new ServerErrorException();
+			}
+			
+		}catch(IOException e) {
+			e.printStackTrace();
+			throw new ServerErrorException();
+		}
+		
+		
+		
+		
+		
+		
+	}
 	
 	private String readAuthenticationURL() throws IOException {
 		
@@ -324,6 +337,61 @@ public class ServerHelper {
 		}else {
 			throw new IOException();
 		}
+	}
+	
+	
+	private String readTwoFactorURL() throws IOException {
+		
+		String twoFactorsURL = null;
+		try {
+			
+			String line3 = Files.readAllLines(Paths.get(this.configPath)).get(3);
+			String [] p = line3.split("=");
+			twoFactorsURL = p[1];
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		if(twoFactorsURL != null) {
+			return twoFactorsURL;
+		}else {
+			throw new IOException();
+		}
+		
+	}
+	
+	
+	private HttpsURLConnection sendPost(String postUrl, Map<String, Object> params) throws IOException {
+		
+		trustLocalhost();
+		URL url = new URL(postUrl);
+		
+		StringBuilder postParams = new StringBuilder();
+		
+		for (Map.Entry<String, Object> param : params.entrySet()) {
+			
+			if (postParams.length() != 0) {
+				postParams.append('&');
+			}
+			
+			postParams.append(URLEncoder.encode(param.getKey(), "UTF-8"));
+			postParams.append('=');
+			postParams.append(URLEncoder.encode(String.valueOf(param.getValue()), "UTF-8"));
+		}
+		
+		
+		byte[] postBytes = postParams.toString().getBytes("UTF-8");
+		
+		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
+		con.setRequestMethod("POST");
+		con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+		con.setRequestProperty("Content-Length", String.valueOf(postBytes.length));
+		con.setDoOutput(true);
+		con.getOutputStream().write(postBytes);
+		
+		return con;
+		
 	}
 	
 
