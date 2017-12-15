@@ -2,9 +2,9 @@ package it.utility;
 
 public class MutableBoolean {
 	
-	private boolean flag;
+	private Boolean flag;
 
-	public boolean isFlag() {
+	public Boolean isFlag() {
 		return flag;
 	}
 
@@ -14,6 +14,9 @@ public class MutableBoolean {
 	
 	public MutableBoolean(Boolean flag) {
 this.flag = flag;	}
-	
+@Override
+public String toString() {
+	return this.isFlag().toString();}
+
 
 }

@@ -6,6 +6,7 @@ import java.io.Reader;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.interfaces.RSAKey;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -18,7 +19,10 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import it.authentication.AuthenticationLogic;
+import it.dao.DAOLogins;
 import it.sm.keystore.rsakeystore.RSADevice;
+import it.utility.MutableBoolean;
+import it.utility.MutableInteger;
 
 public class DebugAuthenticationServlet {
 	public static void main(String[] args) throws Exception {
@@ -27,7 +31,72 @@ public class DebugAuthenticationServlet {
 		//causeALockDown();
 		//almostLockDown();
 	//	createFailedLogins();
-testServlet("Luca","Pirozzi");
+//testServlet("Luca","Pirozzi");
+		System.out.println("IP LOCKDOWN: " + createIPLockdownFromFailedLogins());
+	}
+	
+	public static boolean createIPLockdownFromFailedLogins () throws Exception
+	{Boolean ipLocked;
+	String ip = "127.0.0.1";
+	String password = "passwordsbagliata";
+	String username = "";
+		for(int i=0; i<8; i++)
+		{
+			switch(i)
+			{
+		
+			
+			case 0:
+			{
+				username = new String ("paperino");
+				break;
+			}
+
+			case 1:
+			{
+				username = new String("username");
+				break;
+			}
+			case 2:
+			{
+				username = new String ("wewe");
+				break;
+			}
+			
+			case 3:
+			{
+				username = new String("topolino");
+				break;
+			}
+			case 4:
+			{
+				username = new String("Luca");
+				break;
+			}
+			case 5:
+			{
+				username = new String("linux");
+				break;
+			}
+			case 6:
+			{
+				username = new String("pepp");
+				break;
+			}
+			case 7:
+			{
+				username = new String("aldo");
+				break;
+			}
+			}
+			for(int j=0; j<8; j++)
+			{
+				System.out.println("I: " + i + "J :" + j);
+				System.out.println("USERNAME" + username);
+				testServlet(username, password);
+			}
+		}
+		return DAOLogins.isIPLocked(ip, new MutableBoolean(false), new MutableBoolean(false), new MutableInteger());
 	}
 	public static void createFailedLogins () throws Exception
 	{

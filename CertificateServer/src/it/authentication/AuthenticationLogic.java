@@ -19,6 +19,8 @@ import it.dao.DAOUsers;
 import it.exception.authentication.InvalidHopException;
 import it.exception.authentication.NoSuchUserException;
 import it.sm.keystore.rsakeystore.RSADevice;
+import it.utility.MutableBoolean;
+import it.utility.MutableInteger;
 
 public class AuthenticationLogic {
 	private final static Integer tokenDurationMinutes = 15;
@@ -111,9 +113,9 @@ public class AuthenticationLogic {
 		return newToken;
 	}
 
-	public static void handleFailedLogin (String username, String ip) throws SQLException
+	public static void handleFailedLogin (String username, String ip, MutableBoolean needsUpdate, MutableBoolean locktimeout, MutableInteger attempts) throws SQLException
 	{
-	 DAOLogins.handleFailedLogin(username, ip);
+	 DAOLogins.handleFailedLogin(username, ip, needsUpdate, locktimeout, attempts);
 	}
 	
 	public static void deleteFailedLogins (String username, String ip ) throws SQLException
@@ -128,6 +130,16 @@ public class AuthenticationLogic {
 	public static boolean isTrusted (String username, String ip) throws SQLException
 	{
 		return DAOTrustedIPs.isTrusted(username, ip);
+	}
+	
+	public static boolean isIPLocked (String ip, MutableBoolean needsUpdate, MutableBoolean lockTimeout, MutableInteger failed_account_attempts) throws SQLException
+	{
+		return DAOLogins.isIPLocked(ip, needsUpdate, lockTimeout, failed_account_attempts);
+	}
+	
+	public static void handleLockedUser(String ip, MutableBoolean needsUpdate, MutableBoolean locktimeout, MutableInteger attempts) throws SQLException
+	{
+	 DAOLogins.handleLockedUserPerIp(ip, needsUpdate, locktimeout, attempts);
 	}
 
 	

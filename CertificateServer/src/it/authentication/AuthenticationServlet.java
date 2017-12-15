@@ -9,8 +9,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import it.authentication.twofactors.TwoFactorsManager;
 import it.exception.authentication.InvalidHopException;
+import it.exception.authentication.LockedIP;
 import it.exception.authentication.LockedUser;
 import it.exception.authentication.NoSuchUserException;
+import it.utility.MutableBoolean;
+import it.utility.MutableInteger;
 import it.utility.network.HTTPCodesClass;
 import it.utility.network.HTTPCommonMethods;
 
@@ -55,6 +58,13 @@ public class AuthenticationServlet extends HttpServlet {
 			OutputStream out = response.getOutputStream();
 			String username = request.getParameter("username");
 			String password = request.getParameter("password");
+			MutableBoolean needsUpdate = new MutableBoolean(false);
+			MutableBoolean lockTimeout = new MutableBoolean(false);
+			MutableInteger failed_account_attempts = new MutableInteger();
+			if(AuthenticationLogic.isIPLocked(request.getRemoteAddr(), needsUpdate, lockTimeout, failed_account_attempts))
+			{
+				throw new LockedIP();
+			}
 			if (AuthenticationLogic.isLockedOut(username, request.getRemoteAddr())) {
 				System.out.println("Account is locked");
 				throw new LockedUser();
@@ -76,7 +86,7 @@ public class AuthenticationServlet extends HttpServlet {
 				}
 
 			} else {
-				AuthenticationLogic.handleFailedLogin(username, request.getRemoteAddr());
+				AuthenticationLogic.handleFailedLogin(username, request.getRemoteAddr(),needsUpdate,lockTimeout,failed_account_attempts);
 				httpCode = HTTP_UNAUTHORIZED;
 				HTTPCommonMethods.sendReplyHeaderOnly(response, httpCode);
 			}
@@ -86,6 +96,16 @@ public class AuthenticationServlet extends HttpServlet {
 		}
 
 		// codice di risposta
+		catch(LockedIP e)
+		{
+			httpCode = e.getHttpCode();
+			try {
+				HTTPCommonMethods.sendReplyHeaderOnly(response, httpCode);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
 		catch (LockedUser e) {
 			httpCode = e.getHttpCode();
 			try {
