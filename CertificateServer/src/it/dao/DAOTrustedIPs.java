@@ -8,7 +8,7 @@ import it.utility.database.DatabaseTriple;
 import it.utility.database.DatabaseUtility;
 
 public class DAOTrustedIPs {
-	private static final Integer CODE_DURATION = 30;
+	public static final Integer CODE_DURATION = 30;
 	private static final Integer MINUTES_TO_MILLISECONDS = 60*1000;
 	private static DatabaseUtility db = DatabaseUtility.getInstance();
 	
@@ -32,6 +32,23 @@ public class DAOTrustedIPs {
 		return isTrusted;
 	}
 	
+	public static String retrieveCode(String username,String ip) throws SQLException
+	{
+		String code = null;
+		String query = "SELECT VALUE FROM MAIL_CODES WHERE USERNAME=? AND IP=?";
+		DatabaseTriple triple = new DatabaseTriple(db.connect());
+		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
+		triple.getPreparedStatement().setString(1, username);
+		triple.getPreparedStatement().setString(2, ip);
+		triple.setResultSet(triple.getPreparedStatement().executeQuery());
+		if(triple.getResultSet().next())
+		{
+			code = triple.getResultSet().getString(1);
+		}
+		
+		triple.closeAll();
+		return code;
+	}
 	
 	public static boolean validCodeExists (String username, String ip, MutableBoolean onceSent) throws SQLException
 	{
@@ -55,6 +72,11 @@ public class DAOTrustedIPs {
 		}
 		triple.closeAll();
 		return validCode;
+	}
+	public static boolean validCodeExists (String username, String ip) throws SQLException
+	{
+		MutableBoolean ignoreParameter = new MutableBoolean(false);
+		return validCodeExists(username, ip,ignoreParameter);
 	}
 	
 	public static void updateCode(String username, String ip, String code) throws SQLException
@@ -91,6 +113,18 @@ public class DAOTrustedIPs {
 		triple.getPreparedStatement().setString(4, code);
 		triple.getPreparedStatement().executeUpdate();
 		triple.closeAll();
+	}
+	
+	public static void insertTrustedDevice (String username, String ip) throws SQLException
+	{
+		String query = "INSERT IGNORE INTO TRUSTED_DEVICES VALUES (?,?)";
+		DatabaseTriple triple = new DatabaseTriple(db.connect());
+		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
+		triple.getPreparedStatement().setString(1, username);
+		triple.getPreparedStatement().setString(2, ip);
+		triple.getPreparedStatement().executeUpdate();
+		triple.closeAll();
+		
 	}
 	
 }
