@@ -18,6 +18,9 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 
+import it.sm.exception.CertificateNotFoundException;
+import it.sm.exception.ServerErrorException;
+
 class ReloadableX509TrustManager implements X509TrustManager {
 
 private final String trustStorePath;
@@ -80,11 +83,13 @@ private final String certDownloadPath;
 
 	private void addServerCertAndReload(Certificate actualCert, boolean permanent) {
 		
+		X509Certificate actualCert509 = (X509Certificate) actualCert;
+		int sNumActualCert = actualCert509.getSerialNumber().intValue();
+		String aliasActualCert = getIdentity(actualCert)[0]+getIdentity(actualCert)[1]+"_cer_"+sNumActualCert;
+		
 		try {
 				//Ricavo il serial number del certificato in esame, per ottenere un alias unico
-				X509Certificate actualCert509 = (X509Certificate) actualCert;
-				int sNumActualCert = actualCert509.getSerialNumber().intValue();
-				String aliasActualCert = getIdentity(actualCert)[0]+getIdentity(actualCert)[1]+"_cer_"+sNumActualCert;
+				
 				
 				Date actualDate = new Date();
 				//Controllo: se il certificato che voglio inserire è scaduto, allora lo scarico dal server
@@ -119,8 +124,9 @@ private final String certDownloadPath;
 				}
 				
 				
-		}catch (Exception ex){
-			ex.printStackTrace();
+		}catch (Exception e){
+		e.printStackTrace();
+		
 		}
 		
 	}

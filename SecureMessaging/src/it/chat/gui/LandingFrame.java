@@ -9,12 +9,14 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
+import it.chat.gui.utility.MessageStringUtility;
 import it.chat.helpers.CertificateHelper;
 import it.chat.helpers.MessagingHelper;
 import it.chat.helpers.ServerHelper;
+import it.chat.user.AuthUser;
 import it.sm.exception.AccessDeniedException;
-import it.sm.exception.InvalidParametersException;
 import it.sm.exception.PolicyConflictException;
+import it.sm.exception.RedirectToLoginException;
 import it.sm.exception.ServerErrorException;
 
 import javax.swing.BorderFactory;
@@ -49,8 +51,11 @@ public class LandingFrame {
 	private String currentRole;
 	private int currentNumber;
 	
+	private AuthUser currentUser;
+	
 	int client_type;
 	private JLabel lblSecureMessaging;
+	private JLabel labelRole;
 	
 	/* Frame 'home', dalla quale l'utente corrente pu� contattare
 	 * gli altri utenti secondo i permessi accordati.
@@ -89,11 +94,21 @@ public class LandingFrame {
 		this.currentNumber = num;
 		initialize();
 	}
+	
+	public LandingFrame(AuthUser u) {
+		this.currentUser = u;
+		this.currentNome = u.getName();
+		this.currentCognome = u.getSurname();
+		this.currentRole = u.getRole();
+		this.currentNumber = u.getTelephone();
+		System.out.println("Landing frame, token:"+this.currentUser.getToken());
+		initialize();
+	}
 
 	
 	private void initialize() {
 		initializeStores();
-		//setLookAndFeel();
+		setLookAndFeel();
 		initializeFrame();
 		initializeWelcomePanel();
 		initializeAdminPanel();
@@ -127,7 +142,7 @@ public class LandingFrame {
 		lblSecureMessaging = new JLabel("Secure Messaging");
 		lblSecureMessaging.setFont(new Font("AppleGothic", Font.PLAIN, 15));
 		lblSecureMessaging.setForeground(UIManager.getColor("OptionPane.background"));
-		lblSecureMessaging.setBounds(40, 37, 155, 16);
+		lblSecureMessaging.setBounds(40, 37, 155, 35);
 		welcomePanel.add(lblSecureMessaging);
 		
 		
@@ -137,7 +152,7 @@ public class LandingFrame {
 	private void initializeFrame() {
 		
 		frame = new JFrame();
-		frame.setTitle("Help Desk");
+		frame.setTitle(MessageStringUtility.LAND_TITLE);
 		frame.setBounds(100, 100, 450, 395);
 		frame.getContentPane().setLayout(null);
 		frame.getContentPane().setBackground(new Color(72,166,152));
@@ -181,7 +196,7 @@ public class LandingFrame {
 				
 				//Se ha chat aperte, mostro un dialog di avviso
 				if(hac) {
-					JOptionPane.showMessageDialog(frame.getContentPane(), "Chiudi le chat attive prima di continuare.", "Info", JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.CLOSE_ACT_CHATS, MessageStringUtility.INFO, JOptionPane.INFORMATION_MESSAGE);
 				}else {
 				
 				//Altrimenti gli consento di procedere..
@@ -190,33 +205,34 @@ public class LandingFrame {
 					try {
 						
 						ServerHelper sh = new ServerHelper();
-						File cList = sh.getContactList("admins", currentRole);
-						String identity = currentNome+" "+currentCognome;
-						ContactFrame cf = new ContactFrame(identity,"Admins",cList);
+						File cList = sh.getContactList("admins", currentRole,currentUser.getToken());
+						
+						ContactFrame cf = new ContactFrame(currentNome,currentCognome,"Admins",cList);
 						cf.setVisible(true);
 					
 					}catch(AccessDeniedException e) {
 						
 						System.out.println(e.getMessage());
-						JOptionPane.showMessageDialog(frame.getContentPane(), "Accesso Negato!", "Errore", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.ACC_DENIED, MessageStringUtility.ERROR, JOptionPane.ERROR_MESSAGE);
 					
 					}catch(PolicyConflictException e1) {
 						
 						System.out.println(e1.getMessage());
-						JOptionPane.showMessageDialog(frame.getContentPane(), "Errore di applicazione permessi, eseguire nuovamente il login e riprovare.", "Errore", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.POL_ERR, MessageStringUtility.ERROR, JOptionPane.ERROR_MESSAGE);
 					
-					}catch(InvalidParametersException | ServerErrorException e2) {
+					}catch(RedirectToLoginException e2) {
 						
 						System.out.println(e2.getMessage());
 						
-						if(e2 instanceof InvalidParametersException) {
-							System.out.println("Parametri errati:"+((InvalidParametersException) e2).getListParameter()+", "+((InvalidParametersException) e2).getRoleParameter());
-						}
-						
-						JOptionPane.showMessageDialog(frame.getContentPane(), "Impossibile recuperare la lista contatti, riprova.", "Errore", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.CONT_LIST_ERR, MessageStringUtility.ERROR, JOptionPane.ERROR_MESSAGE);
+						btnLogout.doClick();
+						LoginFrame lf = new LoginFrame();
+						lf.setVisible(true);
 					
-					}catch(IOException e3) {
-						e3.printStackTrace();
+					}catch(ServerErrorException e3) {
+						System.out.println(e3.getMessage());
+						JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.COMM_ERR, MessageStringUtility.ERROR, JOptionPane.ERROR_MESSAGE);
+
 					}
 					
 					
@@ -251,17 +267,28 @@ public class LandingFrame {
 		adminPanel.add(separator_2);
 		
 		btnLogout = new JButton("Logout");
-		btnLogout.setBounds(123, 301, 89, 23);
+		btnLogout.setBounds(113, 296, 89, 23);
 		adminPanel.add(btnLogout);
 		btnLogout.setFont(new Font("AppleGothic", Font.PLAIN, 13));
 		
-		lblWelcome = new JLabel("Welcome " +currentNome+" "+currentCognome+" - "+currentRole);
-		lblWelcome.setBounds(10, 266, 226, 69);
+		lblWelcome = new JLabel("Welcome " +currentNome+" "+currentCognome);
+		lblWelcome.setBounds(10, 278, 226, 43);
 		frame.getContentPane().add(lblWelcome);
 		lblWelcome.setFont(new Font("AppleGothic", Font.BOLD, 13));
 		lblWelcome.setBackground(UIManager.getColor("window"));
 		lblWelcome.setForeground(UIManager.getColor("MenuItem.selectionForeground"));
 		lblWelcome.setHorizontalAlignment(SwingConstants.LEFT);
+		
+		labelRole = new JLabel("Role: "+this.currentRole);
+		labelRole.setBounds(10, 323, 218, 32);
+		frame.getContentPane().add(labelRole);
+		labelRole.setFont(new Font("AppleGothic", Font.BOLD, 13));
+		labelRole.setBackground(UIManager.getColor("window"));
+		labelRole.setForeground(UIManager.getColor("MenuItem.selectionForeground"));
+		labelRole.setHorizontalAlignment(SwingConstants.LEFT);
+		
+		
+		
 		btnLogout.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				MessagingHelper mh = MessagingHelper.getInstance();
@@ -280,7 +307,7 @@ public class LandingFrame {
 				
 				//Se ne ha, mostro un dialog di avviso
 				if(hac) {
-					JOptionPane.showMessageDialog(frame.getContentPane(), "Chiudi le chat attive prima di continuare.", "Info", JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.CLOSE_ACT_CHATS, MessageStringUtility.INFO, JOptionPane.INFORMATION_MESSAGE);
 				}else {
 				
 					//Altrimenti gli consento di procedere..
@@ -289,28 +316,34 @@ public class LandingFrame {
 					try {
 						
 						ServerHelper sh = new ServerHelper();
-						File cList = sh.getContactList("utenti", currentRole);
-						String identity = currentNome+" "+currentCognome;
-						ContactFrame cf = new ContactFrame(identity,"Utenti",cList);
+						File cList = sh.getContactList("utenti", currentRole,currentUser.getToken());
+						
+						ContactFrame cf = new ContactFrame(currentNome,currentCognome,"Utenti",cList);
 						cf.setVisible(true);
 					
 					}catch(AccessDeniedException e) {
 						
 						System.out.println(e.getMessage());
-						JOptionPane.showMessageDialog(frame.getContentPane(), "Accesso Negato!", "Errore", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.ACC_DENIED, MessageStringUtility.ERROR, JOptionPane.ERROR_MESSAGE);
 					
 					}catch(PolicyConflictException e1) {
 						
 						System.out.println(e1.getMessage());
-						JOptionPane.showMessageDialog(frame.getContentPane(), "Errore di applicazione permessi, eseguire nuovamente il login e riprovare.", "Errore", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.POL_ERR, MessageStringUtility.ERROR, JOptionPane.ERROR_MESSAGE);
 					
-					}catch(InvalidParametersException | ServerErrorException e2) {
+					}catch(RedirectToLoginException e2) {
 						
 						System.out.println(e2.getMessage());
-						JOptionPane.showMessageDialog(frame.getContentPane(), "Impossibile recuperare la lista contatti, riprova.", "Errore", JOptionPane.ERROR_MESSAGE);
+						
+						JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.CONT_LIST_ERR, MessageStringUtility.ERROR, JOptionPane.ERROR_MESSAGE);
+						btnLogout.doClick();
+						LoginFrame lf = new LoginFrame();
+						lf.setVisible(true);
 					
-					}catch(IOException e3) {
-						e3.printStackTrace();
+					}catch(ServerErrorException e3) {
+						System.out.println(e3.getMessage());
+						JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.COMM_ERR, MessageStringUtility.ERROR, JOptionPane.ERROR_MESSAGE);
+
 					}
 					
 				}
@@ -326,7 +359,7 @@ public class LandingFrame {
 				
 				//Se ne ha, mostro un dialog di avviso
 				if(hac) {
-					JOptionPane.showMessageDialog(frame.getContentPane(), "Chiudi le chat attive prima di continuare.", "Info", JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.CLOSE_ACT_CHATS, MessageStringUtility.INFO, JOptionPane.INFORMATION_MESSAGE);
 				}else {
 					
 					//Altrimenti gli consento di procedere..
@@ -335,28 +368,34 @@ public class LandingFrame {
 					try {
 						
 						ServerHelper sh = new ServerHelper();
-						File cList = sh.getContactList("tecnici", currentRole);
-						String identity = currentNome+" "+currentCognome;
-						ContactFrame cf = new ContactFrame(identity,"Tecnici",cList);
+						File cList = sh.getContactList("tecnici", currentRole,currentUser.getToken());
+						
+						ContactFrame cf = new ContactFrame(currentNome,currentCognome,"Tecnici",cList);
 						cf.setVisible(true);
 					
 					}catch(AccessDeniedException e1) {
 						
 						System.out.println(e1.getMessage());
-						JOptionPane.showMessageDialog(frame.getContentPane(), "Accesso Negato!", "Errore", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.ACC_DENIED, MessageStringUtility.ERROR, JOptionPane.ERROR_MESSAGE);
 					
 					}catch(PolicyConflictException e2) {
 						
 						System.out.println(e2.getMessage());
-						JOptionPane.showMessageDialog(frame.getContentPane(), "Errore di applicazione permessi, eseguire nuovamente il login e riprovare.", "Errore", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.POL_ERR, MessageStringUtility.ERROR, JOptionPane.ERROR_MESSAGE);
 					
-					}catch(InvalidParametersException | ServerErrorException e3) {
+					}catch(RedirectToLoginException e2) {
 						
-						System.out.println(e3.getMessage());
-						JOptionPane.showMessageDialog(frame.getContentPane(), "Impossibile recuperare la lista contatti, riprova.", "Errore", JOptionPane.ERROR_MESSAGE);
+						System.out.println(e2.getMessage());
+						
+						JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.CONT_LIST_ERR, MessageStringUtility.ERROR, JOptionPane.ERROR_MESSAGE);
+						btnLogout.doClick();
+						LoginFrame lf = new LoginFrame();
+						lf.setVisible(true);
 					
-					}catch(IOException e4) {
-						e4.printStackTrace();
+					}catch(ServerErrorException e3) {
+						System.out.println(e3.getMessage());
+						JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.COMM_ERR, MessageStringUtility.ERROR, JOptionPane.ERROR_MESSAGE);
+
 					}
 					
 					
@@ -413,5 +452,10 @@ public class LandingFrame {
 	private void initializeStores() {
 		CertificateHelper ch = CertificateHelper.getInstance();
 		ch.init(currentNome);
+	}
+	
+	
+	public void setVisible(boolean b) {
+		this.frame.setVisible(b);
 	}
 }

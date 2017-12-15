@@ -22,7 +22,9 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 
+import it.authentication.AuthenticationLogic;
 import it.exception.certificates.CertificateNotFoundException;
+import it.utility.network.HTTPCodesClass;
 import it.utility.network.HTTPCommonMethods;
 
 
@@ -39,7 +41,7 @@ public class CertificateServlet extends HttpServlet {
 		this.config = config;
 	}
     
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException{  
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException{  
     
     	
     	String nome = ((HttpServletRequest)request).getParameter("nome").toLowerCase();
@@ -47,6 +49,8 @@ public class CertificateServlet extends HttpServlet {
 		
 		try {
 			
+			
+			System.out.println("[CertificateServlet] Token Valido!");
 			File cer = findCertificate(nome,cognome);
 			
 			response.setContentType("application/octet-stream");
@@ -67,18 +71,17 @@ public class CertificateServlet extends HttpServlet {
 			outs.flush();
 			outs.close();
 			
+			
 		}catch(CertificateNotFoundException c) {
 			
 			System.out.println(c.getMessage());
-			try {
-				HTTPCommonMethods.sendReplyHeaderOnly(response, c.getHttpCode());
-			}catch(IOException e) {
-				e.printStackTrace();
-			}
+			HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.NOT_FOUND);
 			
-			
-		}catch(IOException | CertificateException ce) {
+		}catch(IOException ce) {
 			ce.printStackTrace();
+		}catch(Exception e) {
+			e.printStackTrace();
+			HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.NOT_FOUND);
 		}
 		
     

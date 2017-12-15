@@ -37,6 +37,8 @@ import com.sun.xacml.finder.PolicyFinder;
 import com.sun.xacml.finder.impl.CurrentEnvModule;
 import com.sun.xacml.finder.impl.FilePolicyModule;
 
+import it.authentication.AuthenticationLogic;
+import it.exception.authentication.InvalidHopException;
 import it.sm.keystore.rsakeystore.MyRSAKeystore;
 import it.sm.keystore.rsakeystore.RSASoftwareKeystore;
 import it.utility.network.HTTPCodesClass;
@@ -60,89 +62,102 @@ public class ContactListFilter implements Filter {
 	
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		
-		//necessario controllo: se non hai inserito le credenziali (ovvero: non sei stato autenticato)
-		//ti rimando da qualche altra parte
+		
 		
 	try {
 		
-		
-		String list = ((HttpServletRequest)request).getParameter("list");
-		String ruolo = ((HttpServletRequest)request).getParameter("ruolo");
-		
-		checkList(list);
-		checkRuolo(ruolo);
+		String token = ((HttpServletRequest)request).getParameter("token");
+		System.out.println("[contactListServlet] Token:"+token);
+		String newToken = AuthenticationLogic.regenToken(token);
 		
 		
-		System.out.println("[ContactListFilter] Ho trovato i seguenti parametri:");
-		System.out.println("List:"+list);
-		System.out.println("Ruolo:"+ruolo);
 		
-		File f;
-        String policyfile;
-        FilePolicyModule policyModule = new FilePolicyModule();
-        PolicyFinder policyFinder = new PolicyFinder();
-        Set policyModules = new HashSet();
+		if(newToken == null) {
+			System.out.println("[ContactListFilter] Token scaduto!");
+			HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.TEMPORARY_REDIRECT);
+			
+		}else{
+			
+			System.out.println("[ContactListFilter] Token valido!");
+			String list = ((HttpServletRequest)request).getParameter("list");
+			String ruolo = ((HttpServletRequest)request).getParameter("ruolo");
+		
+			checkList(list);
+			checkRuolo(ruolo);
+		
+		
+			System.out.println("[ContactListFilter] Ho trovato i seguenti parametri:");
+			System.out.println("List:"+list);
+			System.out.println("Ruolo:"+ruolo);
+		
+			File f;
+			String policyfile;
+			FilePolicyModule policyModule = new FilePolicyModule();
+			PolicyFinder policyFinder = new PolicyFinder();
+			Set policyModules = new HashSet();
         
-        String PATH_POLICY = ((HttpServletRequest)request).getServletContext().getRealPath("/policy");
-        File [] listaFile = (new File(PATH_POLICY)).listFiles();
+			String PATH_POLICY = ((HttpServletRequest)request).getServletContext().getRealPath("/policy");
+			File [] listaFile = (new File(PATH_POLICY)).listFiles();
         
-        for(int i=0;i<listaFile.length;i++)
-        {
+			for(int i=0;i<listaFile.length;i++)
+			{
              
-             f=listaFile[i];
-             policyfile = f.getAbsolutePath();
-             policyModule.addPolicy(policyfile); 
-             policyModules.add(policyModule);
-             policyFinder.setModules(policyModules);
-        }
+				f=listaFile[i];
+				policyfile = f.getAbsolutePath();
+				policyModule.addPolicy(policyfile); 
+				policyModules.add(policyModule);
+				policyFinder.setModules(policyModules);
+			}
 
-        CurrentEnvModule envModule = new CurrentEnvModule();
-        AttributeFinder attrFinder = new AttributeFinder();
-        List attrModules = new ArrayList();
-        attrModules.add(envModule);
-        attrFinder.setModules(attrModules);
+			CurrentEnvModule envModule = new CurrentEnvModule();
+			AttributeFinder attrFinder = new AttributeFinder();
+			List attrModules = new ArrayList();
+			attrModules.add(envModule);
+			attrFinder.setModules(attrModules);
 		
-        RequestCtx XACMLrequest = RequestBuilder.createXACMLRequest((HttpServletRequest)request);
+			RequestCtx XACMLrequest = RequestBuilder.createXACMLRequest((HttpServletRequest)request);
   	  
     	
-        PDP pdp = new PDP(new PDPConfig(attrFinder, policyFinder, null));
+			PDP pdp = new PDP(new PDPConfig(attrFinder, policyFinder, null));
 
-        ResponseCtx XACMLresponse = pdp.evaluate(XACMLrequest);
+			ResponseCtx XACMLresponse = pdp.evaluate(XACMLrequest);
         
-        Set ris_set = XACMLresponse.getResults();
-        Result ris = null;
-        Iterator it = ris_set.iterator();
+			Set ris_set = XACMLresponse.getResults();
+			Result ris = null;
+			Iterator it = ris_set.iterator();
 
-        while (it.hasNext()) {
-            ris = (Result) it.next();
-        }
+			while (it.hasNext()) {
+				ris = (Result) it.next();
+			}
         
-        int dec = ris.getDecision();
+			int dec = ris.getDecision();
 
-        if (dec == 0) {//permit
-        	System.out.println("PERMIT");
-        	sendRequestedList(request,response);
+			if (dec == 0) {//permit
+				System.out.println("PERMIT");
+				sendRequestedList(request,response);
         	
-        } else if (dec == 1) {//deny
-        	System.out.println("DENY");
-        	HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.UNAUTHORIZED);
+			} else if (dec == 1) {//deny
+				System.out.println("DENY");
+				HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.UNAUTHORIZED);
         	
-        } else if (dec == 2||dec==3) {//not applicable o indeterminate
+			} else if (dec == 2||dec==3) {//not applicable o indeterminate
         	
-        	System.out.println("NOT APPLICABLE");
-        	HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.CONFLICT);
-        }
+				System.out.println("NOT APPLICABLE");
+				HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.CONFLICT);
+			}
+		}
+    
 	
-    }catch(IllegalArgumentException e) {
+    }catch(IllegalArgumentException | InvalidHopException e) {
         	
         System.out.println(e.getMessage());
-        HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.BAD_REQUEST);
+        HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.TEMPORARY_REDIRECT);
 
     }catch(IOException ex) {
         ex.printStackTrace();
         //In caso di IOException, non posso mandare risposta su output stream
         
-   }catch(Exception exx) {
+    }catch(Exception exx) {
 	   exx.printStackTrace();
 	   
 	   //In caso di altri fallimenti, non permetto l'accesso (fail-safe default)

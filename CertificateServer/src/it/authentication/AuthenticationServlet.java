@@ -82,6 +82,7 @@ public class AuthenticationServlet extends HttpServlet {
 				if (AuthenticationLogic.isTrusted(username, request.getRemoteAddr())) {
 					AuthenticationLogic.deleteFailedLogins(username, request.getRemoteAddr());
 					String authenticationToken = AuthenticationLogic.generateAuthenticationToken(username);
+					System.out.println("[Server]Auth token:"+authenticationToken);
 					returnParameters.put("token", authenticationToken);
 					returnParameters.putAll(AuthenticationLogic.getUserDetails(username));
 					httpCode = HTTP_SUCCESS;
