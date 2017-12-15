@@ -1,12 +1,8 @@
 package it.utility.mail;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.security.AlgorithmParameters;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidParameterSpecException;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Vector;
@@ -63,6 +59,7 @@ public class MailUtility {
 		String path = System.getenv("SECURE_MESSAGING_HOME");
 		FileInputStream fileIn = new FileInputStream(path + "\\mail_place\\config.dat");
 		ObjectInputStream objectIn = new ObjectInputStream(fileIn);
+		@SuppressWarnings("unchecked")
 		Vector<byte[]> vector = (Vector<byte[]>) objectIn.readObject();
 		byte[] enc_user = vector.get(0);
 		byte[] enc_pwd = vector.get(1);
@@ -90,19 +87,13 @@ public class MailUtility {
 		starttls = (new String(aesCipher.doFinal(enc_starttls)));
 		port = (new String(aesCipher.doFinal(enc_port)));
 		auth = (new String(aesCipher.doFinal(enc_auth)));
-		/*
-		 * String host = "smtp.gmail.com"; props.put("mail.smtp.starttls.enable",
-		 * "true"); props.put("mail.smtp.host", host); props.put("mail.smtp.user",
-		 * receiver); props.put("mail.smtp.password", PASSWORD);
-		 * props.put("mail.smtp.port", "587"); props.put("mail.smtp.auth", "true");
-		 */
 		parameters.put("username", username);
 		parameters.put("password", password);
 		parameters.put("mail.smtp.starttls.enable", starttls);
 		parameters.put("mail.smtp.host", host);
 		parameters.put("mail.stmp.port", port);
 		parameters.put("mail.smtp.auth", auth);
-
+		objectIn.close();
 		return parameters;
 	}
 

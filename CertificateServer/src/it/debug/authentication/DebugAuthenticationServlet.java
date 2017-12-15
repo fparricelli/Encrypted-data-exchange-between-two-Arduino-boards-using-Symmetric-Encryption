@@ -31,8 +31,8 @@ public class DebugAuthenticationServlet {
 		//causeALockDown();
 		//almostLockDown();
 	//	createFailedLogins();
-//testServlet("Luca","Pirozzi");
-		System.out.println("IP LOCKDOWN: " + createIPLockdownFromFailedLogins());
+testServlet("Luca","Pirozzi");
+		//System.out.println("IP LOCKDOWN: " + createIPLockdownFromFailedLogins());
 	}
 	
 	public static boolean createIPLockdownFromFailedLogins () throws Exception

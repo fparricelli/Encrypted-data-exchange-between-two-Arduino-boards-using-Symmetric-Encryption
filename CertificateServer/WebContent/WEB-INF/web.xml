@@ -31,6 +31,12 @@
 		<servlet-name>AuthenticationServlet</servlet-name>
 		<servlet-class>it.authentication.AuthenticationServlet</servlet-class>
 	</servlet>
+		<servlet>
+		<description />
+		<display-name>TwoFactorsServlet</display-name>
+		<servlet-name>TwoFactorsServlet</servlet-name>
+		<servlet-class>it.authentication.twofactors.TwoFactorsServlet</servlet-class>
+	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>CertificateServlet</servlet-name>
@@ -44,6 +50,10 @@
 	<servlet-mapping>
 		<servlet-name>AuthenticationServlet</servlet-name>
 		<url-pattern>/authenticate/*</url-pattern>
+	</servlet-mapping>
+		<servlet-mapping>
+		<servlet-name>TwoFactorsServlet</servlet-name>
+		<url-pattern>/twofactors/*</url-pattern>
 	</servlet-mapping>
 	
 	<security-constraint>
@@ -72,6 +82,17 @@
 	<security-constraint>
 		<web-resource-collection>
 			<web-resource-name>AuthenticationServlet</web-resource-name>
+			<url-pattern>/*</url-pattern>
+		</web-resource-collection>
+		
+		
+		<user-data-constraint>
+			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>TwoFactorsServlet</web-resource-name>
 			<url-pattern>/*</url-pattern>
 		</web-resource-collection>
 
