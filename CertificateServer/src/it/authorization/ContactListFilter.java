@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.file.Files;
@@ -62,14 +63,13 @@ public class ContactListFilter implements Filter {
 	
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		
-		
-		
-	try {
-		
 		String token = ((HttpServletRequest)request).getParameter("token");
 		System.out.println("[contactListServlet] Token:"+token);
-		String newToken = AuthenticationLogic.regenToken(token);
+		String newToken = "newToken";
+	
+		try {
 		
+		newToken = AuthenticationLogic.regenToken(token);
 		
 		
 		if(newToken == null) {
@@ -79,6 +79,7 @@ public class ContactListFilter implements Filter {
 		}else{
 			
 			System.out.println("[ContactListFilter] Token valido!");
+			System.out.println("[ContactListFilter] new Token:"+newToken);
 			String list = ((HttpServletRequest)request).getParameter("list");
 			String ruolo = ((HttpServletRequest)request).getParameter("ruolo");
 		
@@ -134,16 +135,16 @@ public class ContactListFilter implements Filter {
 
 			if (dec == 0) {//permit
 				System.out.println("PERMIT");
-				sendRequestedList(request,response);
+				sendRequestedList(request,response,newToken);
         	
 			} else if (dec == 1) {//deny
 				System.out.println("DENY");
-				HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.UNAUTHORIZED);
+				HTTPCommonMethods.sendReplyHeaderWithToken(((HttpServletResponse)response), HTTPCodesClass.UNAUTHORIZED,newToken);
         	
 			} else if (dec == 2||dec==3) {//not applicable o indeterminate
         	
 				System.out.println("NOT APPLICABLE");
-				HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.CONFLICT);
+				HTTPCommonMethods.sendReplyHeaderWithToken(((HttpServletResponse)response), HTTPCodesClass.CONFLICT,newToken);
 			}
 		}
     
@@ -152,7 +153,7 @@ public class ContactListFilter implements Filter {
         	
         System.out.println(e.getMessage());
         HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.TEMPORARY_REDIRECT);
-
+        
     }catch(IOException ex) {
         ex.printStackTrace();
         //In caso di IOException, non posso mandare risposta su output stream
@@ -173,13 +174,14 @@ public class ContactListFilter implements Filter {
 	}
 	
 	
-	private void sendRequestedList(ServletRequest request, ServletResponse response) {
+	private void sendRequestedList(ServletRequest request, ServletResponse response,String newToken) {
 		
 	
 		try {
 		ServletContext context = ((HttpServletRequest)request).getServletContext();
 		String list = ((HttpServletRequest)request).getParameter("list");
 		
+		MyResponseWrapper mrw = new MyResponseWrapper((HttpServletResponse)response);
 		
 		File reqList = null;
 		
@@ -203,11 +205,13 @@ public class ContactListFilter implements Filter {
 		
 		response.setContentType("application/octet-stream");
 		response.setContentLength((int) reqList.length());
-		((HttpServletResponse)response).setHeader( "Content-Disposition",
-		         String.format("attachment; filename=\"%s\"", reqList.getName()));
 		
+		((HttpServletResponse)response).setHeader("Content-Disposition",String.format("attachment; filename=\"%s\"", reqList.getName()));
 		
-		OutputStream outs = response.getOutputStream();
+		((HttpServletResponse)response).addHeader("NewToken", newToken);
+		
+		OutputStream outs = mrw.getOutputStream();
+		
 		
 		try (FileInputStream in = new FileInputStream(reqList)) {
 		    byte[] buffer = new byte[4096];
@@ -217,7 +221,9 @@ public class ContactListFilter implements Filter {
 		    }
 		}
 		
+		
 		outs.flush();
+		
 		
 		
 		}catch(Exception e) {

@@ -12,6 +12,10 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.Signature;
 import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.crypto.Cipher;
 import javax.net.ssl.HostnameVerifier;
@@ -35,10 +39,6 @@ public class DebugContactListServlet {
 		
 		
 		test1();
-		test2();
-		test3();
-		test4();
-		test5();
 	}
 	
 	
@@ -80,6 +80,12 @@ public class DebugContactListServlet {
 		
 		
 		if(respCode == 200) {
+		
+			
+		String val = con.getHeaderField("NewToken");	
+	        
+	    System.out.println("Token:"+val); 
+			
 		
 		File f = new File("./lista.xml");
 		FileOutputStream fos = new FileOutputStream(f);
