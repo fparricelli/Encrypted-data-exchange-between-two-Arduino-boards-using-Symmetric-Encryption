@@ -11,6 +11,7 @@ public class Messaggio implements Serializable{
 	private int senderPort;
 	private String sender;
 	private String msg;
+	private String msg_key;
 	
 	public Messaggio(int s, String sn, String m) {
 		this.senderPort = s;
@@ -18,6 +19,21 @@ public class Messaggio implements Serializable{
 		this.msg = m;
 	}
 	
+	public Messaggio(int s, String sn, String m, String k) {
+		this.senderPort = s;
+		this.sender = sn;
+		this.msg = m;
+		this.msg_key = k;
+	}
+	
+	public String getMsg_key() {
+		return msg_key;
+	}
+
+	public void setMsg_key(String msg_key) {
+		this.msg_key = msg_key;
+	}
+
 	public Messaggio(String m) {
 		this.msg = m;
 	}

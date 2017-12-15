@@ -9,7 +9,6 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
-import it.chat.gui.utility.LookAndFeelUtility;
 import it.chat.helpers.CertificateHelper;
 import it.chat.helpers.MessagingHelper;
 import it.chat.helpers.ServerHelper;
@@ -26,18 +25,17 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.awt.event.ActionEvent;
+import javax.swing.ImageIcon;
+import java.awt.Font;
+import javax.swing.JSeparator;
 public class LandingFrame {
 
 	private JFrame frame;
 	private JPanel welcomePanel;
 	private JPanel adminPanel;
-	private JPanel tecnicoPanel;
 	private JPanel userPanel;
 	
 	private JLabel lblWelcome;
-	private JLabel lblAdmin;
-	private JLabel lblUser;
-	private JLabel lblTecnico;
 	
 	
 	private JButton btnAdmin;
@@ -52,6 +50,7 @@ public class LandingFrame {
 	private int currentNumber;
 	
 	int client_type;
+	private JLabel lblSecureMessaging;
 	
 	/* Frame 'home', dalla quale l'utente corrente puï¿½ contattare
 	 * gli altri utenti secondo i permessi accordati.
@@ -94,7 +93,7 @@ public class LandingFrame {
 	
 	private void initialize() {
 		initializeStores();
-		LookAndFeelUtility.setLookAndFeel(LookAndFeelUtility.GRAPHITE);
+		//setLookAndFeel();
 		initializeFrame();
 		initializeWelcomePanel();
 		initializeAdminPanel();
@@ -106,28 +105,30 @@ public class LandingFrame {
 	
 	private void initializeWelcomePanel() {
 		
+		userPanel = new JPanel();
+		userPanel.setForeground(UIManager.getColor("Button.background"));
+		userPanel.setBackground(new Color(97, 212, 195));
+		userPanel.setBounds(0, 0, 238, 276);
+		frame.getContentPane().add(userPanel);
+		userPanel.setLayout(null);
+		
+		JLabel lblNewLabel = new JLabel("");
+		lblNewLabel.setIcon(new ImageIcon(LandingFrame.class.getResource("/it/chat/gui/icons/user_red.png")));
+		lblNewLabel.setBounds(132, -119, 100, 480);
+		userPanel.add(lblNewLabel);
+
+		
 		welcomePanel = new JPanel();
-		welcomePanel.setBounds(10, 11, 414, 51);
+		welcomePanel.setBackground(new Color(36, 47, 65));
+		welcomePanel.setBounds(238, 0, 212, 83);
 		frame.getContentPane().add(welcomePanel);
-		welcomePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		welcomePanel.setLayout(null);
 		
-		lblWelcome = new JLabel("Benvenuto, "+currentNome+" "+currentCognome+" - ["+currentRole+"]");
-		lblWelcome.setHorizontalAlignment(SwingConstants.LEFT);
-		lblWelcome.setBounds(10, 11, 295, 29);
-		welcomePanel.add(lblWelcome);
-		
-		btnLogout = new JButton("Logout");
-		btnLogout.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				MessagingHelper mh = MessagingHelper.getInstance();
-				mh.stopListening();
-				
-				frame.dispose();
-			}
-		});
-		btnLogout.setBounds(315, 14, 89, 23);
-		welcomePanel.add(btnLogout);
+		lblSecureMessaging = new JLabel("Secure Messaging");
+		lblSecureMessaging.setFont(new Font("AppleGothic", Font.PLAIN, 15));
+		lblSecureMessaging.setForeground(UIManager.getColor("OptionPane.background"));
+		lblSecureMessaging.setBounds(40, 37, 155, 16);
+		welcomePanel.add(lblSecureMessaging);
 		
 		
 	}
@@ -139,7 +140,7 @@ public class LandingFrame {
 		frame.setTitle("Help Desk");
 		frame.setBounds(100, 100, 450, 395);
 		frame.getContentPane().setLayout(null);
-		frame.getContentPane().setBackground(Color.DARK_GRAY);
+		frame.getContentPane().setBackground(new Color(72,166,152));
 		frame.setResizable(false);
 		
 		
@@ -162,16 +163,14 @@ public class LandingFrame {
 	private void initializeAdminPanel() {
 		
 		adminPanel = new JPanel();
-		adminPanel.setBounds(10, 73, 414, 85);
+		adminPanel.setForeground(UIManager.getColor("Button.background"));
+		adminPanel.setBackground(new Color(36,47,65));
+		adminPanel.setBounds(238, 43, 212, 330);
 		frame.getContentPane().add(adminPanel);
 		adminPanel.setLayout(null);
 		
-		lblAdmin = new JLabel("Clicca qui per parlare con un Amministratore");
-		lblAdmin.setBounds(10, 11, 394, 24);
-		adminPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		adminPanel.add(lblAdmin);
-		
-		btnAdmin = new JButton("Contatta Amministratore");
+		btnAdmin = new JButton("Contact Administrator");
+		btnAdmin.setFont(new Font("AppleGothic", Font.PLAIN, 13));
 		
 		btnAdmin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -186,7 +185,7 @@ public class LandingFrame {
 				}else {
 				
 				//Altrimenti gli consento di procedere..
-				//..richiedendo la lista contatti admin, che verrà (o meno) recuperata a seconda dei permessi
+				//..richiedendo la lista contatti admin, che verrï¿½ (o meno) recuperata a seconda dei permessi
 				//previsti per l'utente corrente.
 					try {
 						
@@ -226,24 +225,97 @@ public class LandingFrame {
 			}
 		});
 		
-		btnAdmin.setBounds(10, 50, 207, 24);
+		btnAdmin.setBounds(6, 143, 188, 24);
 		adminPanel.add(btnAdmin);
-	}
-	
-	//Inizializza i contenuti del pannello tecnici.
-	private void initializeTecnicoPanel() {
 		
-		tecnicoPanel = new JPanel();
-		tecnicoPanel.setBounds(10, 169, 414, 85);
-		frame.getContentPane().add(tecnicoPanel);
-		tecnicoPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		tecnicoPanel.setLayout(null);
+		btnTecnico = new JButton("Contact Technical");
+		btnTecnico.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+		btnTecnico.setBounds(6, 222, 188, 23);
+		adminPanel.add(btnTecnico);
 		
-		lblTecnico = new JLabel("Clicca qui per parlare con un Tecnico");
-		lblTecnico.setBounds(10, 11, 224, 14);
-		tecnicoPanel.add(lblTecnico);
+		btnUser = new JButton("Contact User");
+		btnUser.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+		btnUser.setBounds(6, 74, 188, 23);
+		adminPanel.add(btnUser);
 		
-		btnTecnico = new JButton("Contatta Tecnico");
+		JSeparator separator = new JSeparator();
+		separator.setBounds(51, 105, 161, 12);
+		adminPanel.add(separator);
+		
+		JSeparator separator_1 = new JSeparator();
+		separator_1.setBounds(51, 179, 161, 12);
+		adminPanel.add(separator_1);
+		
+		JSeparator separator_2 = new JSeparator();
+		separator_2.setBounds(62, 257, 161, 12);
+		adminPanel.add(separator_2);
+		
+		btnLogout = new JButton("Logout");
+		btnLogout.setBounds(123, 301, 89, 23);
+		adminPanel.add(btnLogout);
+		btnLogout.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+		
+		lblWelcome = new JLabel("Welcome " +currentNome+" "+currentCognome+" - "+currentRole);
+		lblWelcome.setBounds(10, 266, 226, 69);
+		frame.getContentPane().add(lblWelcome);
+		lblWelcome.setFont(new Font("AppleGothic", Font.BOLD, 13));
+		lblWelcome.setBackground(UIManager.getColor("window"));
+		lblWelcome.setForeground(UIManager.getColor("MenuItem.selectionForeground"));
+		lblWelcome.setHorizontalAlignment(SwingConstants.LEFT);
+		btnLogout.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				MessagingHelper mh = MessagingHelper.getInstance();
+				mh.stopListening();
+				
+				frame.dispose();
+			}
+		});
+		
+		btnUser.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				//Controllo se l'utente ha chat aperte
+				MessagingHelper mh = MessagingHelper.getInstance();
+				boolean hac = mh.hasActiveChats();
+				
+				//Se ne ha, mostro un dialog di avviso
+				if(hac) {
+					JOptionPane.showMessageDialog(frame.getContentPane(), "Chiudi le chat attive prima di continuare.", "Info", JOptionPane.INFORMATION_MESSAGE);
+				}else {
+				
+					//Altrimenti gli consento di procedere..
+					//..richiedendo la lista contatti utenti, che verrï¿½ (o meno) recuperata a seconda dei permessi
+					//previsti per l'utente corrente.
+					try {
+						
+						ServerHelper sh = new ServerHelper();
+						File cList = sh.getContactList("utenti", currentRole);
+						String identity = currentNome+" "+currentCognome;
+						ContactFrame cf = new ContactFrame(identity,"Utenti",cList);
+						cf.setVisible(true);
+					
+					}catch(AccessDeniedException e) {
+						
+						System.out.println(e.getMessage());
+						JOptionPane.showMessageDialog(frame.getContentPane(), "Accesso Negato!", "Errore", JOptionPane.ERROR_MESSAGE);
+					
+					}catch(PolicyConflictException e1) {
+						
+						System.out.println(e1.getMessage());
+						JOptionPane.showMessageDialog(frame.getContentPane(), "Errore di applicazione permessi, eseguire nuovamente il login e riprovare.", "Errore", JOptionPane.ERROR_MESSAGE);
+					
+					}catch(InvalidParametersException | ServerErrorException e2) {
+						
+						System.out.println(e2.getMessage());
+						JOptionPane.showMessageDialog(frame.getContentPane(), "Impossibile recuperare la lista contatti, riprova.", "Errore", JOptionPane.ERROR_MESSAGE);
+					
+					}catch(IOException e3) {
+						e3.printStackTrace();
+					}
+					
+				}
+			}
+		});
 		
 		btnTecnico.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -258,7 +330,7 @@ public class LandingFrame {
 				}else {
 					
 					//Altrimenti gli consento di procedere..
-					//..richiedendo la lista contatti tecnici, che verrà (o meno) recuperata a seconda dei permessi
+					//..richiedendo la lista contatti tecnici, che verrï¿½ (o meno) recuperata a seconda dei permessi
 					//previsti per l'utente corrente.
 					try {
 						
@@ -292,76 +364,15 @@ public class LandingFrame {
 				
 			}
 		});
-		
-		btnTecnico.setBounds(10, 47, 207, 23);
-		tecnicoPanel.add(btnTecnico);
+	}
+	
+	//Inizializza i contenuti del pannello tecnici.
+	private void initializeTecnicoPanel() {
 	}
 	
 	
 	//Inizializza i contenuti del pannello utente.
 	private void initializeUserPanel() {
-		
-		userPanel = new JPanel();
-		userPanel.setBounds(10, 263, 414, 85);
-		frame.getContentPane().add(userPanel);
-		userPanel.setLayout(null);
-		userPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-
-		
-		lblUser = new JLabel("Clicca qui per parlare con un Utente");
-		lblUser.setBounds(10, 11, 207, 14);
-		userPanel.add(lblUser);
-		
-		btnUser = new JButton("Contatta Utente");
-		
-		btnUser.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				
-				//Controllo se l'utente ha chat aperte
-				MessagingHelper mh = MessagingHelper.getInstance();
-				boolean hac = mh.hasActiveChats();
-				
-				//Se ne ha, mostro un dialog di avviso
-				if(hac) {
-					JOptionPane.showMessageDialog(frame.getContentPane(), "Chiudi le chat attive prima di continuare.", "Info", JOptionPane.INFORMATION_MESSAGE);
-				}else {
-				
-					//Altrimenti gli consento di procedere..
-					//..richiedendo la lista contatti utenti, che verrà (o meno) recuperata a seconda dei permessi
-					//previsti per l'utente corrente.
-					try {
-						
-						ServerHelper sh = new ServerHelper();
-						File cList = sh.getContactList("utenti", currentRole);
-						String identity = currentNome+" "+currentCognome;
-						ContactFrame cf = new ContactFrame(identity,"Utenti",cList);
-						cf.setVisible(true);
-					
-					}catch(AccessDeniedException e) {
-						
-						System.out.println(e.getMessage());
-						JOptionPane.showMessageDialog(frame.getContentPane(), "Accesso Negato!", "Errore", JOptionPane.ERROR_MESSAGE);
-					
-					}catch(PolicyConflictException e1) {
-						
-						System.out.println(e1.getMessage());
-						JOptionPane.showMessageDialog(frame.getContentPane(), "Errore di applicazione permessi, eseguire nuovamente il login e riprovare.", "Errore", JOptionPane.ERROR_MESSAGE);
-					
-					}catch(InvalidParametersException | ServerErrorException e2) {
-						
-						System.out.println(e2.getMessage());
-						JOptionPane.showMessageDialog(frame.getContentPane(), "Impossibile recuperare la lista contatti, riprova.", "Errore", JOptionPane.ERROR_MESSAGE);
-					
-					}catch(IOException e3) {
-						e3.printStackTrace();
-					}
-					
-				}
-			}
-		});
-		
-		btnUser.setBounds(10, 47, 207, 23);
-		userPanel.add(btnUser);
 	}
 	
 	
@@ -403,6 +414,4 @@ public class LandingFrame {
 		CertificateHelper ch = CertificateHelper.getInstance();
 		ch.init(currentNome);
 	}
-	
-	
 }

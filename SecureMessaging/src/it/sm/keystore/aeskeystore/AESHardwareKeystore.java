@@ -40,23 +40,37 @@ public class AESHardwareKeystore implements MyAESKeystore{
 	
 	private ArduinoSerial uno;
 	
-	public AESHardwareKeystore(int client_type) {
+	private Integer client_type;
+	
+	static private AESHardwareKeystore instance;
+	
+	static public AESHardwareKeystore getInstance(int c_type) {
+		if (instance == null)
+				return new AESHardwareKeystore(c_type);
+		
+		return instance;
+	}
+
+	private AESHardwareKeystore(int client_type) {
+		this.client_type = client_type;
 		uno = new ArduinoSerial(client_type);
 	};
 	
 	@Override
-	public String requireTokenToShare() {
-		
+	public String requireTokenToShare(int c_type) {
+
 		/* Send Command -- Command ref da ridefinire */
+		initialize();
+
 		uno.writeData("1");
 		System.out.println("[Arduino] - Requested Token...");
 
 		try {
-			Thread.sleep(500);
+			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+				
 		while(!uno.available());
 		String token = uno.readData();	
 		closeConnection();
@@ -66,13 +80,14 @@ public class AESHardwareKeystore implements MyAESKeystore{
 	
 	@Override
 	public boolean setTokenShared(String token) {
+		/* Send Command */
 		
-		/* Send Command -- Command ref da ridefinire */
+		initialize();
 		uno.writeData("2");
 		System.out.println("[Arduino] - Setting Token...");
 
 		try {
-			Thread.sleep(500);
+			Thread.sleep(1500);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -82,7 +97,9 @@ public class AESHardwareKeystore implements MyAESKeystore{
 		while(!uno.available());
 		String ris = new String(Base64.getDecoder().decode(uno.readData()));	
 		closeConnection();
-		if(ris.contains("OK")) return true;
+
+		if(ris.contains("OK")) 
+			return true;
 		return false;
 	}
 	
@@ -90,13 +107,14 @@ public class AESHardwareKeystore implements MyAESKeystore{
 	public EncryptedMessage encrypt(String message) throws OutOfBoundEncrypt  {
 
 		if(message.length() > MAX_SIZE-1) throw new OutOfBoundEncrypt();
-		initialize();
 		/* Send Command */
+		initialize();
+
 		uno.writeData("3");
 		System.out.println("[Arduino] - Requested Encryption...");
 
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(1500);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -107,9 +125,17 @@ public class AESHardwareKeystore implements MyAESKeystore{
 		while(!uno.available());
 		String msg_key = uno.readData();	
 		
+		try {
+			Thread.sleep(1500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
 		while(!uno.available());
 		String msg = uno.readData();	
 		closeConnection();
+		
+		System.out.println("KEY : "+msg_key+"\nMSG: "+msg);
 		return new EncryptedMessage(msg_key, msg);
 	}
 
@@ -117,15 +143,15 @@ public class AESHardwareKeystore implements MyAESKeystore{
 	@Override
 	public String decrypt(String message, String msg_key) throws Base64EncodedError {
 
-		if(!message.matches("^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$"))
-			throw new Base64EncodedError();
+		if(!msg_key.matches("^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$")||!message.matches("^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$"))
+		throw new Base64EncodedError();
 		/* Send Command */
 		initialize();
 		System.out.println("[Arduino] - Requested Decryption...");
 		uno.writeData("4");
 		
 		try {
-			Thread.sleep(500);
+			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -133,7 +159,7 @@ public class AESHardwareKeystore implements MyAESKeystore{
 		uno.writeData(msg_key);
 		
 		try {
-			Thread.sleep(500);
+			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -142,7 +168,7 @@ public class AESHardwareKeystore implements MyAESKeystore{
 		uno.writeData(message);
 		
 		while(!uno.available());
-		String msg = uno.readData();	
+		String msg = uno.readData();
 		closeConnection();
 		return new String(Base64.getDecoder().decode(msg));
 	}

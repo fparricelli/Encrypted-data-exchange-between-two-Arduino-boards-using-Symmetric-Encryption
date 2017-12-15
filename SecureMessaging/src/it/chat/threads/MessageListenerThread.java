@@ -4,8 +4,14 @@ import java.io.IOException;
 import java.io.PipedOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JProgressBar;
+
 import it.chat.activechat.ActiveChat;
 import it.chat.gui.ChatFrame;
+import it.chat.gui.SwingProgressBar;
 import it.chat.helpers.CertificateHelper;
 import it.chat.helpers.MessagingHelper;
 import it.sm.exception.CertificateNotFoundException;
@@ -28,14 +34,14 @@ public class MessageListenerThread extends Thread{
 	private static final int STARTER = 1;
 	private static final int NO_STARTER = 2;
 	private int c_type;
-
-	
+	private SwingProgressBar bar;
 	//Dati per l'handshake
 	
 	private String first_token;
 	
 	//Costruttore: prende in ingresso la ActiveChat a cui il thread deve essere associato.
 	public MessageListenerThread(ActiveChat ac, int c) {
+		aesKeystore = AESHardwareKeystore.getInstance(c);
 		this.c_type = c;
 		this.actChat = ac;
 		if(c_type == STARTER) {
@@ -43,14 +49,7 @@ public class MessageListenerThread extends Thread{
 		}else {
 			this.countMsg = 0;
 		}
-			
-		
-	}
-	
-	public MessageListenerThread(ActiveChat ac) {
-		this.countMsg = 0;
-		this.actChat = ac;
-		
+		bar = new SwingProgressBar();
 	}
 	
 	public void run() {
@@ -83,22 +82,14 @@ public class MessageListenerThread extends Thread{
 					//Aumento il conteggio di messaggi
 					countMsg++;
 					
-					//Se è il primo messaggio che ricevo allora devo inviare il mio token
-					//Se ho ricevuto il messaggio, vuol dire che il soggetto con cui sto parlando è trusted.
+					//Se ï¿½ il primo messaggio che ricevo allora devo inviare il mio token
+					//Se ho ricevuto il messaggio, vuol dire che il soggetto con cui sto parlando ï¿½ trusted.
 					//Di conseguenza, devo inserire il suo certificato nel mio trust-store
 					if(countMsg == 1) {
 												
 						int destPort = msg.getSenderPort();
 						
-						this.actChat.setDest(destPort);
-						
-						/*CertificateHelper ch = CertificateHelper.getInstance();
-						String [] ids = msg.getSender().split(" ");
-						
-						String targetNome = ids[0];
-						String targetCognome = ids[1];
-						
-						ch.getCertificate(targetNome, targetCognome);*/
+						this.actChat.setDest(destPort);						
 						
 						if(this.actChat.getFrame()==null) {
 							
@@ -109,7 +100,7 @@ public class MessageListenerThread extends Thread{
 						
 						System.out.println("[MsgListenerThread] Ricevuto primo token:"+msg.getMsg()+", avvio handshake");
 
-						String token_to_send = "POPO";// aesKeystore.requireTokenToShare();
+						String token_to_send = aesKeystore.requireTokenToShare(c_type);
 						
 						first_token = msg.getMsg();
 
@@ -118,34 +109,60 @@ public class MessageListenerThread extends Thread{
 						System.out.println("[MsgListenerThread] Token "+token_to_send+" inviato");
 						
 						System.out.println("[MsgListenerThread] Derivo chiave...");
+						
+						if(aesKeystore.setTokenShared(first_token)) {
+							System.out.println("[MsgListenerThread] OK Handshake...");
 
-						/*if(aesKeystore.setTokenShared(first_token)) {
+						}
+
+						/*if() {
 							mh.startUpdates(this.actChat.getDest());
 							this.actChat.getFrame().setVisible(true);
 						};*/
 						
 					}else if (countMsg == 2 && c_type == STARTER) {
+						
+					    actChat.getFrame().getBtnInvia().setEnabled(false);
+						
+						JFrame frame = new JFrame("Initializing Secure Chat...");
+					    frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+					    frame.setBounds(200, 200, 451, 312);
+						frame.setResizable(false);
+					    frame.setContentPane(bar);
+					    frame.pack();
+					    frame.setVisible(true);
 												
 						System.out.println("[MsgListenerThread] Ricevuto Secondo token:"+msg.getMsg());
+						
+						bar.updateBar(45);
 						
 						first_token = msg.getMsg();
 						
 						System.out.println("[MsgListenerThread] Derivo chiave..");
-
-						/*if(aesKeystore.setTokenShared(first_token)) {
-							mh.startUpdates(this.actChat.getDest());
-						};*/
 						
+						bar.updateBar(60);
+
+						if(aesKeystore.setTokenShared(first_token)) {
+							System.out.println("[MsgListenerThread] OK Handshake...");
+
+						}
+						
+						bar.updateBar(90);
+						
+						frame.dispose();
+						this.actChat.getFrame().getBtnInvia().setEnabled(true);
 					}else{
 						
-						if(c_type == NO_STARTER) {
+						String decrypted_msg = aesKeystore.decrypt(msg.getMsg(), msg.getMsg_key());
+						
+						if(c_type == NO_STARTER && countMsg == 2) {
 							mh.startUpdates(this.actChat.getDest());	
 							this.actChat.getFrame().setVisible(true);
 						}
 
 						//Scrivo il contenuto del messaggio sulla pipe che ï¿½ connessa all'updater thread, cosi
 						//che possa mostrarli sul chatBox
-						dos.writeUTF(msg.getMsg());
+						dos.writeUTF(decrypted_msg);
 		
 						//Risveglio l'updater thread, che era in attesa sul semaforo
 						this.actChat.getChatSem().release();

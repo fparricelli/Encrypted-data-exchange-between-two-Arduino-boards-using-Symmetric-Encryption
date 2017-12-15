@@ -16,7 +16,7 @@ public interface MyAESKeystore{
 	
 	public EncryptedMessage encrypt(String message) throws OutOfBoundEncrypt;
 	public String decrypt(String message,  String msg_key) throws Base64EncodedError;
-	public String requireTokenToShare();
+	public String requireTokenToShare(int c_type);
 	public boolean setTokenShared(String token);
 
 }

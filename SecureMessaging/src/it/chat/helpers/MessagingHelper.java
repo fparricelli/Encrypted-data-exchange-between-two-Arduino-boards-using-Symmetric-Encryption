@@ -164,7 +164,7 @@ public class MessagingHelper {
 				//Che ho aperto per parlare con l'interlocutore 
 				startUpdates(destinationPort);
 				
-				//Richiamo la sendMessage, ora che la active chat è presente
+				//Richiamo la sendMessage, ora che la active chat ï¿½ presente
 				sendMessage(sender,destinationPort,msg,cf);
 				
 			}catch (Exception e1) {
@@ -185,6 +185,76 @@ public class MessagingHelper {
 		
 		
 		
+	}
+	
+	public boolean sendChatMessage(String sender, int destinationPort, String msg, String msg_key, ChatFrame cf) {
+		ActiveChat ac;
+		try {
+			
+			ac = findActiveChat(destinationPort);
+			Messaggio msgg = new Messaggio(this.listeningPort,sender,msg, msg_key);
+			
+			ac.getOOS().reset();
+			ac.getOOS().writeObject(msgg);
+			ac.getOOS().flush();
+			
+			return true;
+			
+		}catch (ActiveChatNotFoundException e) {
+			
+			//Se non trovo chat con l'interlocutore vuol dire che sto scambiando con lui
+			//il primo messaggio
+			System.out.println("[sendMessage]"+e.getMessage());
+			
+			//Creo la socket che verra' usata per la comunicazione con l'interlocutore
+			SSLSocket s;
+			
+			try {
+				
+				SSLSocketFactory sslsocketfactory = (SSLSocketFactory)SSLContext.getDefault().getSocketFactory();
+			    s = (SSLSocket)sslsocketfactory.createSocket("localhost", destinationPort);
+				s.setKeepAlive(true);
+				
+				
+				//Inizializzo un nuovo oggetto ActiveChat, che rappresenta la chat che sto iniziando
+				//A questo oggetto fornisco innanzitutto la socket appena creata, e la porta del destinatario con cui
+				//voglio comunicare
+				ac = new ActiveChat(destinationPort,s);
+				ac.setOOS(new ObjectOutputStream(s.getOutputStream()));
+				ac.setOIS(new ObjectInputStream(s.getInputStream()));
+				
+				//Inizializzo il chatFrame di riferimento per questa chat, passato come input
+				ac.setFrame(cf);
+				
+				//Aggiungo l'oggetto ActiveChat alla lista di chat attive
+				addActiveChat(ac);
+				
+				//Dopo aver creato l'oggetto ActiveChat, devo mettermi in ascolto dei messaggi che
+				//saranno inviati dall'interlocutore sulla socket che ho creato precedentemente
+				//Passo tutte le informazioni precedentemente settate ad un MessageListenerThread,
+				//Che si occupera' di ricevere i messaggi dall'interlocutore 
+				MessageListenerThread mlt = new MessageListenerThread(ac, STARTER);
+				mlt.start();
+				
+				//Avvio gli aggiornamenti, che mi permetteranno di visualizzare i messaggi ricevuti sul chatFrame
+				//Che ho aperto per parlare con l'interlocutore 
+				startUpdates(destinationPort);
+				
+				//Richiamo la sendMessage, ora che la active chat ï¿½ presente
+				sendMessage(sender,destinationPort,msg,cf);
+				
+			}catch (Exception e1) {
+				e1.printStackTrace();
+				
+			}
+			
+		}catch(IOException e) {
+			e.printStackTrace();
+			
+		}
+		
+		return false;
+	
 	}
 	
 	

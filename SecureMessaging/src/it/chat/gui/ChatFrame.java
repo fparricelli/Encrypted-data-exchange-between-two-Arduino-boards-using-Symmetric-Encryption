@@ -24,15 +24,19 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
-import it.chat.gui.utility.LookAndFeelUtility;
 import it.chat.helpers.MessagingHelper;
 import it.chat.threads.MessageListenerThread;
+import it.sm.exception.OutOfBoundEncrypt;
 import it.sm.keystore.aeskeystore.AESHardwareKeystore;
 import it.sm.keystore.aeskeystore.MyAESKeystore;
+import it.sm.messages.EncryptedMessage;
 import it.sm.messages.Messaggio;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.Font;
+import java.awt.SystemColor;
+import javax.swing.ImageIcon;
 
 
 public class ChatFrame {
@@ -44,6 +48,10 @@ public class ChatFrame {
 	
 	private JPanel topPanel;
 	private JButton btnInvia;
+	
+	private SwingProgressBar bar;
+
+
 	private JButton btnChiudi;
 	private JLabel chatWith;
 	
@@ -56,6 +64,9 @@ public class ChatFrame {
 	private static final int STARTER = 1; //type = 1 starter
 
 	private int client_type; //type = 1 starter
+	
+	JFrame progressFrame;
+	private JLabel lblNewLabel;
 
 	//Main di test, da usare per lanciare autonomamente il frame
 	/*
@@ -81,24 +92,41 @@ public class ChatFrame {
 		this.chattingTarget= c;
 		this.destPort = p;
 		this.client_type = type;
-		aesKeyStore = new AESHardwareKeystore(client_type);
+		aesKeyStore = AESHardwareKeystore.getInstance(client_type);
+		bar = new SwingProgressBar();
+		progressFrame = new JFrame("Initializing Secure Chat...");
 		initialize();
 	}
 
 	
 	private void initialize() {
+		initializeLoadingBar();
+
+		progressFrame.setVisible(true);
 		
-		LookAndFeelUtility.setLookAndFeel(LookAndFeelUtility.GRAPHITE);
+		//setLookAndFeel();
 		initializeFrame();
 		initializeTopPanel();
 		initializeChatBox();
 		initializeButtons();
+
 		
 		if(client_type == STARTER) {
+			btnInvia.setEnabled(false);
+						
 			handshake();
-		}
+		}else progressFrame.dispose();
 	}
 	
+	private void initializeLoadingBar() {
+		progressFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		progressFrame.setBounds(200, 200, 1000, 312);
+		progressFrame.setResizable(false);
+		progressFrame.setContentPane(bar);
+		progressFrame.pack();
+	}
+
+
 	//Inizializza il frame.
 	private void initializeFrame() {
 		
@@ -107,7 +135,7 @@ public class ChatFrame {
 		frame.setBounds(100, 100, 451, 312);
 		frame.getContentPane().setLayout(null);
 		frame.setResizable(false);
-		frame.getContentPane().setBackground(Color.DARK_GRAY);
+		frame.getContentPane().setBackground(new Color(36, 47, 65));
 		
 		
 		frame.addWindowListener(new WindowAdapter() {
@@ -139,22 +167,31 @@ public class ChatFrame {
 	private void initializeTopPanel() {
 		
 		topPanel = new JPanel();
-		topPanel.setBounds(10, 11, 414, 26);
+		topPanel.setBounds(0, 0, 474, 48);
 		frame.getContentPane().add(topPanel);
 		topPanel.setLayout(null);
+		topPanel.setBackground(new Color(97, 212, 195));
 		
-		chatWith = new JLabel("Chatti con: "+this.chattingTarget);
+		chatWith = new JLabel(this.chattingTarget);
+		chatWith.setForeground(SystemColor.text);
+		chatWith.setFont(new Font("AppleGothic", Font.BOLD, 15));
 		chatWith.setHorizontalAlignment(SwingConstants.CENTER);
-		chatWith.setBounds(0, 0, 414, 25);
+		chatWith.setBounds(6, 6, 437, 37);
 		topPanel.add(chatWith);
+		
+		lblNewLabel = new JLabel("");
+		lblNewLabel.setIcon(new ImageIcon(ChatFrame.class.getResource("/it/chat/gui/icons/user_red.png")));
+		lblNewLabel.setBounds(394, -15, 61, 81);
+		topPanel.add(lblNewLabel);
 	}
 	
 	
 	//Inizializza i bottoni inferiori.
 	private void initializeButtons() {
 		
-		btnInvia = new JButton("Invia");
-		
+		btnInvia = new JButton("Send Message");
+		btnInvia.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+				
 		btnInvia.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
@@ -168,8 +205,12 @@ public class ChatFrame {
 				
 				MessagingHelper mh = MessagingHelper.getInstance();
 				
+				try {
+				
+				EncryptedMessage encryptedMessage = aesKeyStore.encrypt(messageBox.getText());
+				
 				//Invio il messaggio chiamando il metodo sendMessage
-				boolean res = mh.sendMessage(currentIdentity,getDestPort(), messageBox.getText(), getChatFrame());	
+				boolean res = mh.sendChatMessage(currentIdentity,getDestPort(), encryptedMessage.getEncryptedMessage(), encryptedMessage.getMsg_key(),getChatFrame());	
 				
 				//Se l'invio va a buon fine, mostro il messaggio all'interno del chat box
 				if(res) {
@@ -182,9 +223,13 @@ public class ChatFrame {
 	    			mh.closeChat(getDestPort(),true);
 	    			frame.dispose();
 				}
-					
+				}catch(OutOfBoundEncrypt ec){
+	    			JOptionPane.showMessageDialog(frame.getContentPane(), "Messaggio troppo lungo!","Errore!",JOptionPane.ERROR_MESSAGE);
+				}
 					
 				}
+			
+				
 				
 			}
 			
@@ -192,13 +237,14 @@ public class ChatFrame {
 		});
 		
 		
-		btnInvia.setBounds(335, 228, 89, 24);
+		btnInvia.setBounds(313, 260, 132, 24);
 		frame.getContentPane().add(btnInvia);
 		frame.getRootPane().setDefaultButton(btnInvia);
 		btnInvia.requestFocus();
 
 		
-		btnChiudi = new JButton("Chiudi");
+		btnChiudi = new JButton("Close Chat");
+		btnChiudi.setFont(new Font("AppleGothic", Font.PLAIN, 13));
 		btnChiudi.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
@@ -214,7 +260,7 @@ public class ChatFrame {
 				
 			}
 		});
-		btnChiudi.setBounds(236, 228, 89, 24);
+		btnChiudi.setBounds(10, 260, 112, 24);
 		frame.getContentPane().add(btnChiudi);
 		
 		
@@ -225,22 +271,36 @@ public class ChatFrame {
 	private void initializeChatBox() {
 		
 		chatBox = new JTextPane();
+		chatBox.setForeground(SystemColor.text);
+		chatBox.setFont(new Font("AppleGothic", Font.PLAIN, 13));
 		chatBox.setBounds(10, 48, 414, 138);
 		chatBox.setEditable(false);
+		chatBox.setBackground(new Color(36, 47, 65));
 		frame.getContentPane().add(chatBox);
 		
 		JScrollPane scrollPane = new JScrollPane(chatBox);
-		scrollPane.setBounds(10, 48, 414, 138);
+		scrollPane.setBounds(0, 48, 451, 186);
 		frame.getContentPane().add(scrollPane);
 		
 		messageBox = new JTextField();
-		messageBox.setBounds(10, 197, 414, 20);
+		messageBox.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+		messageBox.setBounds(10, 234, 435, 20);
 		frame.getContentPane().add(messageBox);
 		messageBox.setColumns(10);
 	}
 	
 	
-	
+	//Inizializza il lookAndFeel del frame.
+	private void setLookAndFeel() {
+		
+		try {
+			
+			UIManager.setLookAndFeel("com.jtattoo.plaf.graphite.GraphiteLookAndFeel");
+			
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+	}
 	
 	/**
 	 * Funzione che si occupa di effettuare l'handshke per lo scambio della chiave 
@@ -248,16 +308,19 @@ public class ChatFrame {
 	
 	private void handshake() {
 		
+		bar.updateBar(15);
 		
 		MessagingHelper mh = MessagingHelper.getInstance();
-		
-		String token_to_send = "PO";//aesKeyStore.requireTokenToShare();
+				
+		String token_to_send = aesKeyStore.requireTokenToShare(client_type);
 		
 		System.out.println("[ChatFrame - STARTER] Avvio Handshake con token:"+token_to_send);
 		
+		bar.updateBar(30);
+		
 		mh.sendMessage(currentIdentity,getDestPort(), token_to_send, getChatFrame());
 		
-		
+		this.progressFrame.dispose();
 	}
 		
 	
@@ -291,6 +354,15 @@ public class ChatFrame {
 	
 	public JTextPane getChatBox() {
 		return this.chatBox;
+	}
+	
+	public JButton getBtnInvia() {
+		return btnInvia;
+	}
+
+
+	public void setBtnInvia(JButton btnInvia) {
+		this.btnInvia = btnInvia;
 	}
 	
 }

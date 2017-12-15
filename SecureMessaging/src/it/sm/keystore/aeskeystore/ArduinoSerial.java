@@ -21,17 +21,14 @@ import gnu.io.UnsupportedCommOperationException;
 		private int client_type;
 		
 	        /** The port we're normally going to use. */
-		private static final String PORT_NAMES_1[] = { 
-				"/dev/cu.usbmodem1411", // Mac OS X
-				"/dev/cu.usbmodem1431",
-				"/dev/cu.usbmodem14321",
+		private static final String PORT_NAMES_2[] = { 
+				"/dev/cu.usbmodem14321","/dev/cu.usbmodem14121",
 		};
 		
-		private static final String PORT_NAMES_2[] = { 
-				"/dev/cu.usbmodem1411", // Mac OS X
-				"/dev/cu.usbmodem1431",
-				"/dev/cu.usbmodem14321",
+		private static final String PORT_NAMES_1[] = { 
+				"/dev/cu.usbmodem14311","/dev/cu.usbmodem14111",
 		};
+		
 		
 		/**
 		* A BufferedReader which will be fed by a InputStreamReader 
@@ -71,7 +68,7 @@ import gnu.io.UnsupportedCommOperationException;
 					break;
 			case 2: while (portEnum.hasMoreElements()) {
 					CommPortIdentifier currPortId = (CommPortIdentifier) portEnum.nextElement();
-					for (String portName : PORT_NAMES_1) {
+					for (String portName : PORT_NAMES_2) {
 						if (currPortId.getName().equals(portName)) {
 							portId = currPortId;
 							break;
@@ -87,7 +84,7 @@ import gnu.io.UnsupportedCommOperationException;
 				System.out.println("[Arduino] Could not find COM port.");
 				return;
 			}
-
+			
 				// open serial port, and use class name for the appName.
 
 				serialPort = (SerialPort) portId.open(this.getClass().getName(),
