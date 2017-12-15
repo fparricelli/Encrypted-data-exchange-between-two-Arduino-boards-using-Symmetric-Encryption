@@ -1,7 +1,5 @@
 package it.authentication.twofactors;
 
-import java.sql.SQLException;
-
 import it.dao.DAOTrustedIPs;
 import it.dao.DAOUsers;
 import it.utility.MutableBoolean;

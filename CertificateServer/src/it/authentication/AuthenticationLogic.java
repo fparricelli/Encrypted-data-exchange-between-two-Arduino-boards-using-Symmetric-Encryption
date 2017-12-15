@@ -141,6 +141,11 @@ public class AuthenticationLogic {
 	{
 	 DAOLogins.handleLockedUserPerIp(ip, needsUpdate, locktimeout, attempts);
 	}
+	
+	public static HashMap<String,String> getUserDetails(String username) throws SQLException
+	{
+		return DAOUsers.getUserDetails(username);
+	}
 
 	
 }

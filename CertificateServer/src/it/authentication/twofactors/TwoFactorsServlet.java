@@ -19,7 +19,6 @@ public class TwoFactorsServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) {
 		Integer httpCode = 0;
 		try {
-			OutputStream out = response.getOutputStream();
 			String username = request.getParameter("username");
 			String code = request.getParameter("code");
 			

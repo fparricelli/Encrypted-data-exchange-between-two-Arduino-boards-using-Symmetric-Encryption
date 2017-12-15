@@ -1,17 +1,18 @@
 package it.debug.authentication;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.interfaces.RSAKey;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
+
+import org.apache.commons.lang.SerializationUtils;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
@@ -119,7 +120,7 @@ testServlet("Luca","Pirozzi");
 	{
 		for (int i=0; i<5; i++)
 		{
-			testServlet("wewe","passwordanchesbagliata");
+			testServlet("Luca","passwordanchesbagliata");
 		}
 	}
 	
@@ -156,6 +157,7 @@ testServlet("Luca","Pirozzi");
 
 
 
+@SuppressWarnings("unchecked")
 public static String testServlet (String usr, String pwd) throws Exception
 {
 	
@@ -163,6 +165,8 @@ public static String testServlet (String usr, String pwd) throws Exception
 		HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
 		URL url = new URL("https://localhost:8443/CertificateServer/authenticate");
 		Map<String, Object> params = new LinkedHashMap<>();
+		byte[] data;
+		HashMap<String, String> parameters;
 		params.put("username", usr);
 		params.put("password", pwd);
 		String token = null;
@@ -186,11 +190,13 @@ public static String testServlet (String usr, String pwd) throws Exception
 		System.out.println("HTTP CODE :" + conn.getResponseCode());
 		if(conn.getResponseCode()==200)
 		{
-		Reader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-		token = "";
-		for (int c; (c = in.read()) >= 0;)
-		token = token.concat(String.valueOf((char)c));
-		
+		ObjectInputStream in = new ObjectInputStream(conn.getInputStream());
+	parameters= (HashMap<String,String>)in.readObject();
+		System.out.println(parameters.get("token"));
+		System.out.println(parameters.get("telephone"));
+		System.out.println(parameters.get("name"));
+		System.out.println(parameters.get("surname"));
+		System.out.println(parameters.get("role"));
 		}
 		return token;
 	}

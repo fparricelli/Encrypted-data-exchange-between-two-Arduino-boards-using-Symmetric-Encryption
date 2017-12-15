@@ -1,11 +1,16 @@
 package it.authentication;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.SerializationUtils;
 
 import it.authentication.twofactors.TwoFactorsManager;
 import it.exception.authentication.InvalidHopException;
@@ -56,11 +61,14 @@ public class AuthenticationServlet extends HttpServlet {
 
 		try {
 			OutputStream out = response.getOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(out);
 			String username = request.getParameter("username");
 			String password = request.getParameter("password");
 			MutableBoolean needsUpdate = new MutableBoolean(false);
 			MutableBoolean lockTimeout = new MutableBoolean(false);
 			MutableInteger failed_account_attempts = new MutableInteger();
+			HashMap<String,String> returnParameters = new HashMap<String,String>();
+			byte[] bytes;
 			if(AuthenticationLogic.isIPLocked(request.getRemoteAddr(), needsUpdate, lockTimeout, failed_account_attempts))
 			{
 				throw new LockedIP();
@@ -74,12 +82,13 @@ public class AuthenticationServlet extends HttpServlet {
 				if (AuthenticationLogic.isTrusted(username, request.getRemoteAddr())) {
 					AuthenticationLogic.deleteFailedLogins(username, request.getRemoteAddr());
 					String authenticationToken = AuthenticationLogic.generateAuthenticationToken(username);
+					returnParameters.put("token", authenticationToken);
+					returnParameters.putAll(AuthenticationLogic.getUserDetails(username));
 					httpCode = HTTP_SUCCESS;
 					response.setContentType("application/octet-stream");
-					response.setContentLength(authenticationToken.length());
-					out.write(authenticationToken.getBytes());
+					oos.writeObject(returnParameters);
 					response.setStatus(httpCode);
-					out.flush();
+					oos.flush();
 				} else {
 					TwoFactorsManager.sendMail(username,request.getRemoteAddr());
 					HTTPCommonMethods.sendReplyHeaderOnly(response,HTTPCodesClass.TEMPORARY_REDIRECT);

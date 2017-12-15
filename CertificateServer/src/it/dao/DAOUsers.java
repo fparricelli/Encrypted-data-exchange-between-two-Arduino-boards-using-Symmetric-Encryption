@@ -1,96 +1,105 @@
 package it.dao;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 
 import it.exception.authentication.NoSuchUserException;
 import it.utility.database.DatabaseTriple;
 import it.utility.database.DatabaseUtility;
 
 public class DAOUsers {
-	
-	
-	
 
 	private static DatabaseUtility db = DatabaseUtility.getInstance();
-	public static boolean usernameAlreadyTaken (String u) throws SQLException
-	{
-	String query = "SELECT USERNAME FROM USERS WHERE USERNAME = ?";
-	DatabaseTriple triple = new DatabaseTriple(db.connect());
-	Boolean alreadyTaken = false;
-	triple.setPreparedStatement(triple.getConn().prepareStatement(query));
-	triple.getPreparedStatement().setString(1, u);
-	triple.setResultSet(triple.getPreparedStatement().executeQuery());
-	alreadyTaken = triple.getResultSet().next();
-	triple.closeAll();
-	return alreadyTaken;
+
+	public static boolean usernameAlreadyTaken(String u) throws SQLException {
+		String query = "SELECT USERNAME FROM USERS WHERE USERNAME = ?";
+		DatabaseTriple triple = new DatabaseTriple(db.connect());
+		Boolean alreadyTaken = false;
+		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
+		triple.getPreparedStatement().setString(1, u);
+		triple.setResultSet(triple.getPreparedStatement().executeQuery());
+		alreadyTaken = triple.getResultSet().next();
+		triple.closeAll();
+		return alreadyTaken;
 	}
-	
-	
-	
-	
-	public static void store (String username, String hash) throws SQLException
-	{
+
+	public static void store(String username, String hash) throws SQLException {
 		String query1 = "INSERT INTO USERS ";
 		String query2 = "(USERNAME,PASSWORD) VALUES ";
 		String query3 = "(?,?);";
-		String query = query1+query2+query3;
-		DatabaseTriple triple = new DatabaseTriple(db.connect());
-		
-			triple.setPreparedStatement(triple.getConn().prepareStatement(query));
-			triple.getPreparedStatement().setString(1, username);
-			triple.getPreparedStatement().setString(2, hash);
-			triple.getPreparedStatement().executeUpdate();
-			triple.closeAll();
-		
-		
-	}
-	
-	public static String load_hash(String username) throws NoSuchUserException, SQLException
-	{
-		String hash = null;
-		String query1= "SELECT PASSWORD FROM USERS ";
-		String query2= "WHERE USERNAME=?";
-		String query = query1+query2;
-		DatabaseTriple triple = new DatabaseTriple(db.connect());
-	
-		triple.setPreparedStatement(triple.getConn().prepareStatement(query));	
-		triple.getPreparedStatement().setString(1, username);
-		triple.setResultSet(triple.getPreparedStatement().executeQuery());
-		if(triple.getResultSet().next())
-		{
-			hash =triple.getResultSet().getString(1);
-			
-		}
-		else
-		{
-			throw new NoSuchUserException();
-		}
-		
-		
-	
-		
-	
-				
-		return hash;
-	}
-	
-	public static String getUserMail(String username) throws SQLException
-	{
-		String mail = null;
-		String query1= "SELECT EMAIL FROM USERS ";
-		String query2= "WHERE USERNAME=?";
-		String query = query1+query2;
+		String query = query1 + query2 + query3;
 		DatabaseTriple triple = new DatabaseTriple(db.connect());
 
-		triple.setPreparedStatement(triple.getConn().prepareStatement(query));	
+		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
+		triple.getPreparedStatement().setString(1, username);
+		triple.getPreparedStatement().setString(2, hash);
+		triple.getPreparedStatement().executeUpdate();
+		triple.closeAll();
+
+	}
+
+	public static String load_hash(String username) throws NoSuchUserException, SQLException {
+		String hash = null;
+		String query1 = "SELECT PASSWORD FROM USERS ";
+		String query2 = "WHERE USERNAME=?";
+		String query = query1 + query2;
+		DatabaseTriple triple = new DatabaseTriple(db.connect());
+
+		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
 		triple.getPreparedStatement().setString(1, username);
 		triple.setResultSet(triple.getPreparedStatement().executeQuery());
-		if(triple.getResultSet().next())
-		{
-			mail =triple.getResultSet().getString(1);
-			
+		if (triple.getResultSet().next()) {
+			hash = triple.getResultSet().getString(1);
+
+		} else {
+			throw new NoSuchUserException();
+		}
+
+		return hash;
+	}
+
+	public static String getUserMail(String username) throws SQLException {
+		String mail = null;
+		String query1 = "SELECT EMAIL FROM USERS ";
+		String query2 = "WHERE USERNAME=?";
+		String query = query1 + query2;
+		DatabaseTriple triple = new DatabaseTriple(db.connect());
+
+		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
+		triple.getPreparedStatement().setString(1, username);
+		triple.setResultSet(triple.getPreparedStatement().executeQuery());
+		if (triple.getResultSet().next()) {
+			mail = triple.getResultSet().getString(1);
+
 		}
 		return mail;
-		
+
+	}
+
+	public static HashMap<String, String> getUserDetails(String username) throws SQLException {
+		HashMap<String, String> map = new HashMap<String, String>();
+		String name;
+		String surname;
+		String telephone;
+		String role;
+		String query = "SELECT * FROM USERS WHERE USERNAME=?";
+		ResultSet set;
+		DatabaseTriple triple = new DatabaseTriple(db.connect());
+		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
+		triple.getPreparedStatement().setString(1, username);
+		triple.setResultSet(triple.getPreparedStatement().executeQuery());
+		set = triple.getResultSet();
+		set.next();
+		name = set.getString(3);
+		surname = set.getString(4);
+		telephone = String.valueOf(set.getInt(6));
+		role = set.getString(7);
+		triple.closeAll();
+		map.put("name", name);
+		map.put("surname", surname);
+		map.put("telephone", telephone);
+		map.put("role", role);
+		return map;
 	}
 }
