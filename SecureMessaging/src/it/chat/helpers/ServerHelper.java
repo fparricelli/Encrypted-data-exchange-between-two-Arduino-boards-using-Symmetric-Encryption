@@ -13,9 +13,12 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
@@ -59,7 +62,7 @@ public class ServerHelper {
 	
 	
 	
-	public File getContactList(String listType, String currentRole, String token) throws AccessDeniedException, PolicyConflictException, ServerErrorException, RedirectToLoginException{
+	public File getContactList(String listType, String currentRole, String token,AuthUser u) throws AccessDeniedException, PolicyConflictException, ServerErrorException, RedirectToLoginException{
 		
 	try {
 		Map<String, Object> params = new LinkedHashMap<>();
@@ -77,6 +80,7 @@ public class ServerHelper {
 		System.out.println("getContList respCode:"+responseCode);
 		if(responseCode == HTTPCodesClass.SUCCESS) {
 				
+			
 			//Definisco dove salvare la lista
 			File f = new File(this.contactListPath+"/"+listType+"-list.xml");
 			
@@ -90,6 +94,12 @@ public class ServerHelper {
 			while ((length = is.read(buffer)) != -1) {
 			    fos.write(buffer, 0, length);
 			}
+			
+			String myToken = con.getHeaderField("NEWTOKEN");
+			
+			System.out.println("New token received:"+myToken);
+			
+			u.setToken(myToken);
 			    
 			fos.flush();
 			fos.close();
