@@ -40,7 +40,6 @@ public class RequestBuilder
   static final String SUBJECT_IDENTIFIER = "urn:oasis:names:tc:xacml:1.0:subject:subject-id";
   static final String RESOURCE_IDENTIFIER = "urn:oasis:names:tc:xacml:1.0:resource:resource-id";
   static final String SUBJECT_ROLE_IDENTIFIER = "ruolo";    
-  static final String RATING_FILM_IDENTIFIER = "rating";
    
     
     public static Set setupSubjects(HttpServletRequest request) throws URISyntaxException {
@@ -79,7 +78,6 @@ public class RequestBuilder
         StringAttribute requestedRes =
             new StringAttribute("https://localhost:8443"+request.getRequestURI());
         
-        System.out.println("Request builder, request uri:"+request.getRequestURI());
         
         
         String res = "https://localhost:8443"+request.getRequestURI();
@@ -90,6 +88,7 @@ public class RequestBuilder
         String lista = (String)((HttpServletRequest)request).getSession().getAttribute("lista");
         
         String resID = subres2+lista+"/";
+        
         
         StringAttribute resAtt = new StringAttribute(resID);
         

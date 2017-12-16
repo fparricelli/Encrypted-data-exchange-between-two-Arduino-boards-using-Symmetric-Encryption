@@ -68,6 +68,7 @@ public class ContactListFilter implements Filter {
 	
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		
+		//Sessioni vengono invalidate al chiudersi della risposta
 		String token = ((HttpServletRequest)request).getParameter("token");
 		System.out.println("[contactListServlet] Token:"+token);
 		String newToken = "newToken";
@@ -91,9 +92,15 @@ public class ContactListFilter implements Filter {
 			
 			
 			
+			String listIntm = listMap.getDirectReference(listp);
+			String ruoloIntm = roleMap.getDirectReference(ruolop);
 			
-			String list = listMap.getDirectReference(listp);
-			String ruolo = roleMap.getDirectReference(ruolop);
+			
+			
+			String list = convertList(listIntm);
+			String ruolo = convertRole(ruoloIntm);
+			
+			
 			
 			
 			((HttpServletRequest)request).getSession().setAttribute("lista", list);
@@ -154,11 +161,13 @@ public class ContactListFilter implements Filter {
 			} else if (dec == 1) {//deny
 				System.out.println("DENY");
 				HTTPCommonMethods.sendReplyHeaderWithToken(((HttpServletResponse)response), HTTPCodesClass.UNAUTHORIZED,newToken);
-        	
+				((HttpServletRequest)request).getSession().invalidate();
+			
 			} else if (dec == 2||dec==3) {//not applicable o indeterminate
         	
 				System.out.println("NOT APPLICABLE");
 				HTTPCommonMethods.sendReplyHeaderWithToken(((HttpServletResponse)response), HTTPCodesClass.CONFLICT,newToken);
+				((HttpServletRequest)request).getSession().invalidate();
 			}
 		}
     
@@ -167,6 +176,7 @@ public class ContactListFilter implements Filter {
         	
         System.out.println(e.getMessage());
         HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.TEMPORARY_REDIRECT);
+        ((HttpServletRequest)request).getSession().invalidate();
         
     }catch(IOException ex) {
         ex.printStackTrace();
@@ -177,6 +187,7 @@ public class ContactListFilter implements Filter {
 	   
 	   //In caso di altri fallimenti, non permetto l'accesso (fail-safe default)
        HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.UNAUTHORIZED);
+       ((HttpServletRequest)request).getSession().invalidate();
    }
         
 		
@@ -185,17 +196,26 @@ public class ContactListFilter implements Filter {
 	
 	public void init(FilterConfig fConfig) throws ServletException {
 		Set listSet = new HashSet();
-		listSet.add("tecnici");
-		listSet.add("admins");
-		listSet.add("utenti");
+		listSet.add("listTecnici");
+		listSet.add("listAdmins");
+		listSet.add("listUtenti");
 		listMap = new IntegerAccessReferenceMap(listSet);
+		
+		System.out.println(listMap.getIndirectReference("listTecnici"));//2
+		System.out.println(listMap.getIndirectReference("listUtenti"));//3
+		System.out.println(listMap.getIndirectReference("listAdmins"));//1
+
 		
 		
 		Set roleSet = new HashSet();
-		roleSet.add("tecnico");
-		roleSet.add("admin");
-		roleSet.add("utente");
+		roleSet.add("roleTecnico");
+		roleSet.add("roleAdmin");
+		roleSet.add("roleUtente");
 		roleMap = new IntegerAccessReferenceMap(roleSet);
+		
+		System.out.println(roleMap.getIndirectReference("roleTecnico"));//2
+		System.out.println(roleMap.getIndirectReference("roleAdmin"));//1
+		System.out.println(roleMap.getIndirectReference("roleUtente"));//3
 			
 	}
 	
@@ -251,6 +271,8 @@ public class ContactListFilter implements Filter {
 		outs.flush();
 		
 		
+		((HttpServletRequest)request).getSession().invalidate();
+		
 		
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -259,8 +281,25 @@ public class ContactListFilter implements Filter {
 		
 	}
 	
-	
+	private String convertList(String list) {
+		if(list.equals("listAdmins")) {
+			return "admins";
+		}else if(list.equals("listUtenti")) {
+			return "utenti";
+		}else {
+			return "tecnici";
+		}
+	}
 
+	private String convertRole(String role) {
+		if(role.equals("roleAdmin")) {
+			return "admin";
+		}else if(role.equals("roleUtente")) {
+			return "utente";
+		}else {
+			return "tecnico";
+		}
+	}
 	
 	 
 

@@ -25,6 +25,7 @@ public class MessageStringUtility {
 	public final static String ACC_DENIED = "Access denied!";
 	public final static String POL_ERR = "Policy application error, please retry.";
 	public final static String CONT_LIST_ERR = "Unable to retrieve contact list, please logout and try again.";
+	public final static String ERR_LISTEN = "Listening Error, please try again.";
 	
 	//Login frame
 	public final static String INSERT_CP = "Insert captcha code to continue.";

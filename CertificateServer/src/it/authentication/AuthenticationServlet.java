@@ -85,6 +85,8 @@ public class AuthenticationServlet extends HttpServlet {
 					System.out.println("[Server]Auth token:"+authenticationToken);
 					returnParameters.put("token", authenticationToken);
 					returnParameters.putAll(AuthenticationLogic.getUserDetails(username));
+					int roleNumber = extractRoleNumber(returnParameters.get("role"));
+					returnParameters.put("roleN", String.valueOf(roleNumber));
 					httpCode = HTTP_SUCCESS;
 					response.setContentType("application/octet-stream");
 					oos.writeObject(returnParameters);
@@ -161,5 +163,20 @@ public class AuthenticationServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 	}
+	
+	private int extractRoleNumber(String role) {
+		
+		if(role.equals("tecnico")) {
+			return 2;
+		}else if(role.equals("utente")) {
+			return 3;
+		}else{
+			return 1;
+		}
+	}
+	
+	
+	
+	
 
 }

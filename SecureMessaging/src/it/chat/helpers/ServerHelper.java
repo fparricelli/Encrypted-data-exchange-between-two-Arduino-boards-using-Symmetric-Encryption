@@ -68,7 +68,7 @@ public class ServerHelper {
 		Map<String, Object> params = new LinkedHashMap<>();
 		
 		int numList = Integer.valueOf(listType);
-		int numRole = extractRoleParameter(currentRole);
+		int numRole = Integer.valueOf(currentRole);
 		
 		System.out.println("list type:"+listType+", num:"+numList);
 		System.out.println("role type:"+currentRole+",num:"+numRole);
@@ -228,10 +228,11 @@ public class ServerHelper {
 			String token = respParam.get("token");
 			String tel = respParam.get("telephone");
 			String role = respParam.get("role");
+			String roleNumber = respParam.get("roleN");
 			String name = respParam.get("name");
 			String surname = respParam.get("surname");
 			System.out.println("AUTH token:"+token);
-			AuthUser u = new AuthUser(token,name,surname,role,Integer.valueOf(tel));
+			AuthUser u = new AuthUser(token,name,surname,role,Integer.valueOf(tel),Integer.valueOf(roleNumber));
 			ois.close();
 			return u;
 		
@@ -408,21 +409,6 @@ public class ServerHelper {
 		
 	}
 	
-	
-	
-	
-	private int extractRoleParameter(String role) {
-		
-		if(role.equals("tecnico")) {
-			return 3;
-		}else if(role.equals("utente")) {
-			return 1;
-		}else{
-			return 2;
-		}
-	}
-	
-	
-	
+
 
 }
