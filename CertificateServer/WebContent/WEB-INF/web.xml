@@ -31,7 +31,7 @@
     <description></description>
     <display-name>TwoFactorsServlet</display-name>
     <servlet-name>TwoFactorsServlet</servlet-name>
-    <servlet-class>it.authentication.twofactors.TwoFactorsServlet</servlet-class>
+    <servlet-class>it.authentication.twosteps.TwoStepsServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>CertificateServlet</servlet-name>

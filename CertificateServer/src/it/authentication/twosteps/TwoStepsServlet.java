@@ -13,7 +13,7 @@ import it.exception.twofactors.NoValidCodeExists;
 import it.utility.network.HTTPCodesClass;
 import it.utility.network.HTTPCommonMethods;
 
-public class TwoFactorsServlet extends HttpServlet {
+public class TwoStepsServlet extends HttpServlet {
 
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) {
