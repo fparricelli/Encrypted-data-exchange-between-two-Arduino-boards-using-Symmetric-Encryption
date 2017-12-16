@@ -24,7 +24,7 @@ public class MessageStringUtility {
 	public final static String CLOSE_ACT_CHATS = "Close your active chats before continuing.";
 	public final static String ACC_DENIED = "Access denied!";
 	public final static String POL_ERR = "Policy application error, please retry.";
-	public final static String CONT_LIST_ERR = "Unable to retrieve contact list, please logout and try again.";
+	public final static String CONT_LIST_ERR = "Unable to retrieve contact list.\nPlease logout and try again.";
 	public final static String ERR_LISTEN = "Listening Error, please try again.";
 	
 	//Login frame
@@ -37,7 +37,11 @@ public class MessageStringUtility {
 	
 	//2 factor frame
 	public final static String EMPTY_CODE = "Insert Code before continuing.";
-	public final static String WRONG_CODE = "The code you entered was wrong, please try again.";
-	public final static String NO_CODE = "No verification codes found for your account, retry to login.";
-	public final static String OK_CODE = "Verification Code accepted, you'll be now redirected to the Login Page.";
+	public final static String WRONG_CODE = "The code you entered was wrong.\nPlease try again.";
+	public final static String NO_CODE = "No verification codes found for your account.\nPlease, login again.";
+	public final static String OK_CODE = "Verification Code accepted.\nYou'll be now redirected to the Login Panel.";
+	
+	//Registration frame
+	public final static String ERR_REG = "Username already taken, please choose a different one.";
+	public final static String REG_OK = "Registration completed.\nYou'll be now redirected to the Login Panel.";
 }

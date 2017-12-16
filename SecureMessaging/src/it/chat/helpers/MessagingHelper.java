@@ -35,7 +35,7 @@ public class MessagingHelper {
 	//(Nonostante abbiamo previsto una sola chat per volta, se dovessimo avere tempo rimanente provo a realizzarlo multichat)
 	private ArrayList<ActiveChat> chats;
 	
-	private static MessagingHelper instance;
+	private volatile static MessagingHelper instance = null;
 	
 	private SSLServerSocket listeningSocket;
 	
@@ -45,9 +45,14 @@ public class MessagingHelper {
 	
 	public static MessagingHelper getInstance() {
 		if (instance == null) {
-
-			instance = new MessagingHelper();
-
+			
+			synchronized(MessagingHelper.class) {
+				
+				if(instance == null) {
+					instance = new MessagingHelper();
+				}
+			
+			}
 		}
 
 	return instance;

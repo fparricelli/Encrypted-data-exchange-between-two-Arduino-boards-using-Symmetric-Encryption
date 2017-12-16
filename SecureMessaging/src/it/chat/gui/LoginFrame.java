@@ -294,7 +294,9 @@ public class LoginFrame {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				lblNotRegisteredSign.setForeground(new Color(97, 212, 195));
-				System.out.println("Registrazione");
+				frame.dispose();
+				RegistrationFrame rf = new RegistrationFrame();
+				rf.setVisible(true);
 
 			}
 			@Override

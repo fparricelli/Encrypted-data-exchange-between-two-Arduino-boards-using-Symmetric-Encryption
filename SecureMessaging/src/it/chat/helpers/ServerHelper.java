@@ -26,6 +26,7 @@ import javax.security.auth.login.FailedLoginException;
 
 import it.chat.user.AuthUser;
 import it.sm.exception.AccessDeniedException;
+import it.sm.exception.AlreadyRegisteredUsernameException;
 import it.sm.exception.CertificateNotFoundException;
 import it.sm.exception.CodeNotFoundException;
 import it.sm.exception.ForbiddenAccessException;
@@ -40,9 +41,7 @@ public class ServerHelper {
 	private final String contactListPath = "./contact-lists";
 	private final String configPath = "./configs/config.dat";
 	
-	public ServerHelper() {
-		initializeContactListPath();
-	}
+	
 	
 	
 	private void trustLocalhost() {
@@ -63,6 +62,8 @@ public class ServerHelper {
 	
 	
 	public File getContactList(String listType, String currentRole, String token,AuthUser u) throws AccessDeniedException, PolicyConflictException, ServerErrorException, RedirectToLoginException{
+	
+	initializeContactListPath();
 		
 	try {
 		Map<String, Object> params = new LinkedHashMap<>();
@@ -287,12 +288,58 @@ public class ServerHelper {
 			throw new ServerErrorException();
 		}
 		
+	}
+	
+	
+	public void register(Map<String, Object> params) throws AlreadyRegisteredUsernameException, ServerErrorException{
 		
+	try {
+		String postURL = readRegisterURL();
 		
+		HttpsURLConnection con = sendPost(postURL,params);
+		
+		if(con.getResponseCode() == HTTPCodesClass.SUCCESS) {
+			
+			System.out.println("Registrazione completata");
+			
+		}else if(con.getResponseCode() == HTTPCodesClass.CONFLICT) {
+			throw new AlreadyRegisteredUsernameException();
+		}else {
+			throw new ServerErrorException();
+		}
+		
+	}catch(IOException e) {
+		e.printStackTrace();
+		throw new ServerErrorException();
+	}
 		
 		
 		
 	}
+	
+	
+	private String readRegisterURL() throws IOException {
+		
+		String registerURL = null;
+	try {
+		
+		String line2 = Files.readAllLines(Paths.get(this.configPath)).get(4);
+		String [] p = line2.split("=");
+		registerURL = p[1];
+		
+	}catch(Exception e) {
+		e.printStackTrace();
+	}
+	
+	if(registerURL != null) {
+		return registerURL;
+	}else {
+		throw new IOException();
+	}
+		
+	}
+	
+	
 	
 	private String readAuthenticationURL() throws IOException {
 		

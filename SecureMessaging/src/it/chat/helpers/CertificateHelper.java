@@ -31,13 +31,19 @@ public class CertificateHelper {
 	private String dataFilePath;
 	private KeyStore trustStore;
 	
-	private static CertificateHelper instance;
+	private volatile static CertificateHelper instance;
 	
 	
 	public static CertificateHelper getInstance() {
 		if (instance == null) {
-
-			instance = new CertificateHelper();
+			
+			synchronized(CertificateHelper.class) {
+				
+				if(instance == null) {
+					instance = new CertificateHelper();
+				}
+			
+			}
 
 		}
 
@@ -45,15 +51,13 @@ public class CertificateHelper {
 
 	}
 	
-	private CertificateHelper() {
-		
-	}
+	private CertificateHelper() {}
 	
 	public void init(String userName) {
 		this.currentUser = userName;
 		this.certificatesPath = "."+File.separator+"secure_place_"+this.currentUser.toLowerCase()+File.separator+"certificates"+File.separator+"";
 		this.truststorePath = "."+File.separator+"secure_place_"+this.currentUser.toLowerCase()+File.separator+this.currentUser.toLowerCase()+"_truststore"+File.separator+this.currentUser.toLowerCase()+"_truststore.keystore";
-		this.keystorePath = "."+File.separator+"secure_place_"+this.currentUser.toLowerCase()+File.separator+this.currentUser.toLowerCase()+"_keystore.keystore";
+		this.keystorePath = "."+File.separator+"secure_place_"+this.currentUser.toLowerCase()+File.separator+this.currentUser.toLowerCase()+"_keystore.jks";
 		this.dataFilePath = "."+File.separator+"secure_place_"+this.currentUser.toLowerCase()+File.separator+this.currentUser.toLowerCase()+"data.txt";
 		initTrustStore();
 		initKeystoreProperties();
@@ -202,6 +206,38 @@ public class CertificateHelper {
 			e.printStackTrace();
 		}
 		
+	}
+
+	public String getCertificatesPath() {
+		return certificatesPath;
+	}
+
+	public void setCertificatesPath(String certificatesPath) {
+		this.certificatesPath = certificatesPath;
+	}
+
+	public String getTruststorePath() {
+		return truststorePath;
+	}
+
+	public void setTruststorePath(String truststorePath) {
+		this.truststorePath = truststorePath;
+	}
+
+	public String getKeystorePath() {
+		return keystorePath;
+	}
+
+	public void setKeystorePath(String keystorePath) {
+		this.keystorePath = keystorePath;
+	}
+
+	public String getDataFilePath() {
+		return dataFilePath;
+	}
+
+	public void setDataFilePath(String dataFilePath) {
+		this.dataFilePath = dataFilePath;
 	}
 	
 	
