@@ -98,6 +98,7 @@ public class MailUtility {
 	}
 
 	public static void handleSMTP(String[] receivers,String object, String content, HashMap<String, String> parameters) {
+		
 		String username = parameters.get("username");
 		String password = parameters.get("password");
 		String host = parameters.get("mail.smtp.host");

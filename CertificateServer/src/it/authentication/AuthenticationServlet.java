@@ -1,6 +1,5 @@
 package it.authentication;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
@@ -10,9 +9,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.SerializationUtils;
-
-import it.authentication.twofactors.TwoFactorsManager;
+import it.accessControl.IDS;
+import it.authentication.twosteps.TwoStepsManager;
 import it.exception.authentication.InvalidHopException;
 import it.exception.authentication.LockedIP;
 import it.exception.authentication.LockedUser;
@@ -69,11 +67,11 @@ public class AuthenticationServlet extends HttpServlet {
 			MutableInteger failed_account_attempts = new MutableInteger();
 			HashMap<String,String> returnParameters = new HashMap<String,String>();
 			byte[] bytes;
-			if(AuthenticationLogic.isIPLocked(request.getRemoteAddr(), needsUpdate, lockTimeout, failed_account_attempts))
+			if(IDS.isIPLocked(request.getRemoteAddr(), needsUpdate, lockTimeout, failed_account_attempts))
 			{
 				throw new LockedIP();
 			}
-			if (AuthenticationLogic.isLockedOut(username, request.getRemoteAddr())) {
+			if (IDS.isLockedOut(username, request.getRemoteAddr())) {
 				System.out.println("Account is locked");
 				throw new LockedUser();
 			}
@@ -81,7 +79,7 @@ public class AuthenticationServlet extends HttpServlet {
 			if (authenticated) {
 				if (AuthenticationLogic.isTrusted(username, request.getRemoteAddr())) {
 					AuthenticationLogic.deleteFailedLogins(username, request.getRemoteAddr());
-					String authenticationToken = AuthenticationLogic.generateAuthenticationToken(username);
+					String authenticationToken = AuthenticationLogic.generateAuthenticationToken(username,request.getRemoteAddr());
 					System.out.println("[Server]Auth token:"+authenticationToken);
 					returnParameters.put("token", authenticationToken);
 					returnParameters.putAll(AuthenticationLogic.getUserDetails(username));
@@ -91,7 +89,7 @@ public class AuthenticationServlet extends HttpServlet {
 					response.setStatus(httpCode);
 					oos.flush();
 				} else {
-					TwoFactorsManager.sendMail(username,request.getRemoteAddr());
+					TwoStepsManager.sendMail(username,request.getRemoteAddr());
 					HTTPCommonMethods.sendReplyHeaderOnly(response,HTTPCodesClass.TEMPORARY_REDIRECT);
 				}
 

@@ -2,7 +2,7 @@ package it.debug.authentication;
 
 import java.sql.SQLException;
 
-import it.dao.DAOLogins;
+import it.dao.DAOIDS;
 import it.utility.MutableBoolean;
 import it.utility.MutableInteger;
 
@@ -21,15 +21,15 @@ public class DebugIPLockdown {
 	MutableInteger failed_account_attempts = new MutableInteger();
 		for (int i=0; i<5; i++)
 		{
-			DAOLogins.isIPLocked(ip, needsUpdate, lockTimeout, failed_account_attempts);
-			DAOLogins.handleLockedUserPerIp(ip, needsUpdate , lockTimeout, failed_account_attempts);
+			DAOIDS.isIPLocked(ip, needsUpdate, lockTimeout, failed_account_attempts);
+			DAOIDS.handleLockedUserPerIp(ip, needsUpdate , lockTimeout, failed_account_attempts);
 		}
-	return DAOLogins.isIPLocked(ip, needsUpdate, lockTimeout, failed_account_attempts);
+	return DAOIDS.isIPLocked(ip, needsUpdate, lockTimeout, failed_account_attempts);
 	}
 	
 	public static Boolean test1(String ip) throws SQLException
 	{
-		return DAOLogins.isIPLocked(ip, new MutableBoolean(true), new MutableBoolean(true), new MutableInteger());
+		return DAOIDS.isIPLocked(ip, new MutableBoolean(true), new MutableBoolean(true), new MutableInteger());
 	}
 	
 	public static Boolean test2(String ip) throws SQLException 
@@ -37,7 +37,7 @@ public class DebugIPLockdown {
 		MutableBoolean needsUpdate = new MutableBoolean(false);
 		MutableBoolean lockTimeout = new MutableBoolean(false);
 		MutableInteger failed_account_attempts = new MutableInteger();
-		Boolean isLocked = DAOLogins.isIPLocked(ip, needsUpdate, lockTimeout, failed_account_attempts);
+		Boolean isLocked = DAOIDS.isIPLocked(ip, needsUpdate, lockTimeout, failed_account_attempts);
 		System.out.println("NEEDS UPDATE " + needsUpdate.isFlag());
 		System.out.println("HAS LOCKDOWN EXPIRED " +lockTimeout.isFlag());
 		System.out.println("FAILED_ATTEMPTS " +failed_account_attempts);
@@ -50,11 +50,11 @@ public class DebugIPLockdown {
 		MutableBoolean needsUpdate = new MutableBoolean(false);
 		MutableBoolean lockTimeout = new MutableBoolean(false);
 		MutableInteger failed_account_attempts = new MutableInteger();
-		Boolean isLocked = DAOLogins.isIPLocked(ip, needsUpdate, lockTimeout, failed_account_attempts);
+		Boolean isLocked = DAOIDS.isIPLocked(ip, needsUpdate, lockTimeout, failed_account_attempts);
 		System.out.println("NEEDS UPDATE " + needsUpdate.isFlag());
 		System.out.println("HAS LOCKDOWN EXPIRED " +lockTimeout.isFlag());
 		System.out.println("FAILED_ATTEMPTS " +failed_account_attempts);
-		DAOLogins.handleLockedUserPerIp(ip, needsUpdate, lockTimeout, failed_account_attempts);
+		DAOIDS.handleLockedUserPerIp(ip, needsUpdate, lockTimeout, failed_account_attempts);
 		return isLocked;
 	}
 }

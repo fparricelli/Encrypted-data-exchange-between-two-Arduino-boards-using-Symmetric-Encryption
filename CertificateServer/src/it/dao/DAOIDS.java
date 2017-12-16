@@ -8,7 +8,7 @@ import it.utility.MutableInteger;
 import it.utility.database.DatabaseTriple;
 import it.utility.database.DatabaseUtility;
 
-public class DAOLogins {
+public class DAOIDS {
 	private static DatabaseUtility db = DatabaseUtility.getInstance();
 	private static final Integer LOCKOUT_DURATION = 20;
 	private static final Integer MILLISECONDS_TO_MINUTES = 60 * 1000;

@@ -20,7 +20,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import it.authentication.AuthenticationLogic;
-import it.dao.DAOLogins;
+import it.dao.DAOIDS;
 import it.sm.keystore.rsakeystore.RSADevice;
 import it.utility.MutableBoolean;
 import it.utility.MutableInteger;
@@ -99,7 +99,7 @@ public class DebugAuthenticationServlet {
 				testServlet(username, password);
 			}
 		}
-		return DAOLogins.isIPLocked(ip, new MutableBoolean(false), new MutableBoolean(false), new MutableInteger());
+		return DAOIDS.isIPLocked(ip, new MutableBoolean(false), new MutableBoolean(false), new MutableInteger());
 	}
 	public static void createFailedLogins () throws Exception
 	{

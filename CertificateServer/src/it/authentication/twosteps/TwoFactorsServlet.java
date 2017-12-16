@@ -1,4 +1,4 @@
-package it.authentication.twofactors;
+package it.authentication.twosteps;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -22,7 +22,7 @@ public class TwoFactorsServlet extends HttpServlet {
 			String username = request.getParameter("username");
 			String code = request.getParameter("code");
 			
-			boolean rightCode = TwoFactorsLogic.handleCode(username, request.getRemoteAddr(), code);
+			boolean rightCode = TwoStepsLogic.handleCode(username, request.getRemoteAddr(), code);
 			if(rightCode)
 			{
 				httpCode = HTTPCodesClass.SUCCESS;

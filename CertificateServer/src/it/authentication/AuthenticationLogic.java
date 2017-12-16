@@ -13,7 +13,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-import it.dao.DAOLogins;
+import it.dao.DAOIDS;
 import it.dao.DAOTrustedIPs;
 import it.dao.DAOUsers;
 import it.exception.authentication.InvalidHopException;
@@ -39,6 +39,31 @@ public class AuthenticationLogic {
 		}
 
 		return authenticated;
+	}
+	
+	
+	public static String generateToken(String username, Integer hops, String ip) throws IllegalArgumentException, Exception
+	{
+		if (hops > maximumHops || hops < 0) {
+			throw new InvalidHopException();
+		}
+		System.out.println("Sto generando un token con hops: " + hops + " e username: " + username);
+		Builder tokenBuilder = JWT.create();
+		String token = null;
+		Integer interval = tokenDurationMinutes * 1000 * 60;
+		Date issuedAt, expiresAt;
+		tokenBuilder.withIssuer(issuer);
+		tokenBuilder.withClaim("username", username);
+		tokenBuilder.withClaim("ip", ip);
+		tokenBuilder.withClaim("hops", hops);
+		issuedAt = new Date(System.currentTimeMillis());
+		tokenBuilder.withIssuedAt(issuedAt);
+		expiresAt = new Date(issuedAt.getTime() + interval);
+		tokenBuilder.withExpiresAt(expiresAt);
+		RSADevice rsa = RSADevice.getInstance();
+		token = rsa.signToken(tokenBuilder);
+		System.out.println("TOKEN RIGENERATO: " + token);
+		return token;
 	}
 
 	public static String generateToken(String username, Integer hops)
@@ -69,6 +94,10 @@ public class AuthenticationLogic {
 		return generateToken(username, maximumHops);
 	}
 
+	public static String generateAuthenticationToken (String username, String ip) throws IllegalArgumentException, Exception
+	{
+		return generateToken(username, maximumHops, ip);
+	}
 	public static boolean isValidToken(String token, HashMap<String, Object> parameters) {
 		boolean valid = false;
 		long issuedAt, expiresAt;
@@ -83,6 +112,37 @@ public class AuthenticationLogic {
 			hops = tokenJWT.getClaims().get("hops").asInt();
 			
 			if (expiresAt > issuedAt && (System.currentTimeMillis() < expiresAt) && hops>0 && hops<=maximumHops) {
+				parameters.put("username", tokenJWT.getClaims().get("username").asString());
+				parameters.put("hops", hops);
+				valid = true;
+			}
+
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return valid;
+	}
+	
+	public static boolean isValidToken (String token, String ip, HashMap<String, Object> parameters)
+	{
+		boolean valid = false;
+		long issuedAt, expiresAt;
+		Integer hops;
+		String providedIp;
+
+		try {
+			Algorithm algorithm = Algorithm.RSA512((RSAKey) RSADevice.getInstance().extractPublicKey());
+			JWTVerifier verifier = JWT.require(algorithm).withIssuer(issuer).build();
+			DecodedJWT tokenJWT = verifier.verify(token);
+			issuedAt = tokenJWT.getIssuedAt().getTime();
+			expiresAt = tokenJWT.getExpiresAt().getTime();
+			hops = tokenJWT.getClaims().get("hops").asInt();
+			providedIp = tokenJWT.getClaims().get("ip").asString();
+			
+			if (expiresAt > issuedAt && (System.currentTimeMillis() < expiresAt) && hops>0 && hops<=maximumHops && providedIp.equals(ip)) {
 				parameters.put("username", tokenJWT.getClaims().get("username").asString());
 				parameters.put("hops", hops);
 				valid = true;
@@ -116,20 +176,39 @@ public class AuthenticationLogic {
 		}
 		return newToken;
 	}
+	public static String regenToken (String token, String ip) throws IllegalArgumentException, InvalidHopException, Exception
+	{
+		String newToken = null, username = null;
+		Integer newHops;
+		HashMap<String, Object> parameters = new HashMap<String,Object>();
+		if(isValidToken(token,ip, parameters))
+		{
+			System.out.println("Token entra con hops : " + (Integer)parameters.get("hops"));
+			newHops =((Integer) parameters.get("hops")) - 1;
+			System.out.println("Token in uscita con hops: " + newHops);
+		    if(newHops >= 0)
+		    {
+		    	username = (String) parameters.get("username");
+		    	newToken = generateToken(username,newHops,ip);
+		    }
+			
+		}
+		return newToken;
+	}
 
 	public static void handleFailedLogin (String username, String ip, MutableBoolean needsUpdate, MutableBoolean locktimeout, MutableInteger attempts) throws SQLException
 	{
-	 DAOLogins.handleFailedLogin(username, ip, needsUpdate, locktimeout, attempts);
+	 DAOIDS.handleFailedLogin(username, ip, needsUpdate, locktimeout, attempts);
 	}
 	
 	public static void deleteFailedLogins (String username, String ip ) throws SQLException
 	{
-		DAOLogins.deleteFailedLogin(username, ip);
+		DAOIDS.deleteFailedLogin(username, ip);
 	}
 	
 	public static boolean isLockedOut (String username,String ip) throws SQLException
 	{
-		return DAOLogins.isLockedOut(username, ip);
+		return DAOIDS.isLockedOut(username, ip);
 	}
 	public static boolean isTrusted (String username, String ip) throws SQLException
 	{
@@ -138,12 +217,12 @@ public class AuthenticationLogic {
 	
 	public static boolean isIPLocked (String ip, MutableBoolean needsUpdate, MutableBoolean lockTimeout, MutableInteger failed_account_attempts) throws SQLException
 	{
-		return DAOLogins.isIPLocked(ip, needsUpdate, lockTimeout, failed_account_attempts);
+		return DAOIDS.isIPLocked(ip, needsUpdate, lockTimeout, failed_account_attempts);
 	}
 	
 	public static void handleLockedUser(String ip, MutableBoolean needsUpdate, MutableBoolean locktimeout, MutableInteger attempts) throws SQLException
 	{
-	 DAOLogins.handleLockedUserPerIp(ip, needsUpdate, locktimeout, attempts);
+	 DAOIDS.handleLockedUserPerIp(ip, needsUpdate, locktimeout, attempts);
 	}
 	
 	public static HashMap<String,String> getUserDetails(String username) throws SQLException

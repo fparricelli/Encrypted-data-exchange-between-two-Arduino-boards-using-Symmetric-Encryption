@@ -1,14 +1,14 @@
-package it.authentication.twofactors;
+package it.authentication.twosteps;
 
 import java.sql.SQLException;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-import it.dao.DAOLogins;
+import it.dao.DAOIDS;
 import it.dao.DAOTrustedIPs;
 import it.exception.twofactors.NoValidCodeExists;
 
-public class TwoFactorsLogic {
+public class TwoStepsLogic {
 	public static final Integer CODE_DURATION = DAOTrustedIPs.CODE_DURATION;
 
 	public static boolean validCodeExists (String username, String ip) throws SQLException

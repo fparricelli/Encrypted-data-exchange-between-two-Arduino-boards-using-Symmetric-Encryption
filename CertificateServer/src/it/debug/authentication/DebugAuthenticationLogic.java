@@ -32,23 +32,27 @@ public class DebugAuthenticationLogic {
 			//tryToken();
 			//tokenExample();
 			//tokenExample2();
+			Boolean result2 = false;
 			String token = DebugAuthenticationServlet.testServlet("Luca", "Pirozzi");
 			String token2;
 			System.out.println(token);
 			token2 = AuthenticationLogic.regenToken(token);
+			String token3;
+			token3 = AuthenticationLogic.regenToken(token2);
 			System.out.println("TOKEN RIGENERATO: " + token);
 			System.out.println("I token sono diversi? " + Objects.equals(token, token2));
 			boolean result = true;
 			System.out.println("MI ASPETTO FALSE : " + TokenUtility.compareTokens(token, token2));
 			result = true;
-			System.out.println("MI ASPETO TRUE : " + TokenUtility.compareTokens(token, token));
+			System.out.println("MI ASPETTO TRUE : " + TokenUtility.compareTokens(token, token));
 			token2 = new String(token);
-			System.out.println("MI ASPETO TRUE : " + TokenUtility.compareTokens(token, token2));
-			String token3;
-			token3 = AuthenticationLogic.regenToken(token2);
-			System.out.println("MI ASPETO FALSE : " + TokenUtility.compareTokens(token3, token));
-			
-	   
+			System.out.println("MI ASPETTO TRUE : " + TokenUtility.compareTokens(token, token2));
+			System.out.println("MI ASPETTO FALSE : " + TokenUtility.compareTokens(token3, token));
+			token = AuthenticationLogic.generateToken("Luca", 10, "127.0.0.1");
+			result2 = AuthenticationLogic.isValidToken(token, "127.0.0.1", new HashMap<String,Object> ());
+			System.out.println("MI ASPETTO TRUE: " + result2);
+			result2 = AuthenticationLogic.isValidToken(token, "130.0.0.1", new HashMap<String,Object> ());
+			System.out.println("MI ASPETTO FALSE: " + result2);
 	
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

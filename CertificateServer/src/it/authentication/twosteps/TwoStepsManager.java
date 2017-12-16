@@ -1,4 +1,4 @@
-package it.authentication.twofactors;
+package it.authentication.twosteps;
 
 import it.dao.DAOTrustedIPs;
 import it.dao.DAOUsers;
@@ -6,7 +6,7 @@ import it.utility.MutableBoolean;
 import it.utility.RandomStringGenerator;
 import it.utility.mail.MailUtility;
 
-public class TwoFactorsManager {
+public class TwoStepsManager {
 	public static final Integer codeLength = 10;
 	public static final String TWO_FACTORS_SUBJECT = "Confirm your access";
 	public static final String TWO_FACTORS_BODY = "Please enter code: ";
@@ -20,7 +20,7 @@ public class TwoFactorsManager {
 		if (!DAOTrustedIPs.validCodeExists(username, ip, onceSent)) {
 			randomCode = RandomStringGenerator.randomString(codeLength);
 			String completeBody = TWO_FACTORS_BODY + randomCode + "\n" + "IP: " + ip + "\n"
-					+ "This code will expire in " + TwoFactorsLogic.CODE_DURATION + " minutes "
+					+ "This code will expire in " + TwoStepsLogic.CODE_DURATION + " minutes "
 					+ "Don't recognize that access attempt?"+ "\n" + "Please send a mail to the contact center:"
 					+ "securemessagingssd@gmail.com";
 			if (!onceSent.isFlag()) {

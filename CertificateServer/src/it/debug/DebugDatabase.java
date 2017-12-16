@@ -5,7 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-import it.dao.DAOLogins;
+import it.dao.DAOIDS;
 import it.dao.DAOUsers;
 import it.utility.database.DatabaseTriple;
 import it.utility.database.DatabaseUtility;
@@ -21,7 +21,7 @@ public class DebugDatabase {
 
 	public static void checkDBFunctions (String ip) throws SQLException
 	{
-		DAOLogins.handleCountLockedUser(ip);
+		DAOIDS.handleCountLockedUser(ip);
 	}
 	public static void debugSHA() throws SQLException 
 	{

@@ -69,7 +69,7 @@ public class ContactListFilter implements Filter {
 	
 		try {
 		
-		newToken = AuthenticationLogic.regenToken(token);
+		newToken = AuthenticationLogic.regenToken(token,request.getRemoteAddr());
 		
 		
 		if(newToken == null) {

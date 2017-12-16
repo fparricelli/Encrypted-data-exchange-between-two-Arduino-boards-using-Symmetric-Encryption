@@ -11,7 +11,7 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import it.authentication.twofactors.TwoFactorsLogic;
+import it.authentication.twosteps.TwoStepsLogic;
 import it.utility.mail.MailUtility;
 
 public class DebugTwoFactors {
@@ -21,7 +21,7 @@ public class DebugTwoFactors {
 		//System.out.println(org.apache.commons.codec.digest.DigestUtils.sha256Hex("ZAYnvkbZe8"));
 		//boolean result = TwoFactorsLogic.isCodeRight("Luca", "127.0.0.1", "ZAYnvkbZe8");
 		//System.out.println(result);
-		boolean result = TwoFactorsLogic.handleCode("Luca", "127.0.0.1", "ZAYnvkbZe8");
+		boolean result = TwoStepsLogic.handleCode("Luca", "127.0.0.1", "ZAYnvkbZe8");
 		System.out.println(result);
 	}
 	
