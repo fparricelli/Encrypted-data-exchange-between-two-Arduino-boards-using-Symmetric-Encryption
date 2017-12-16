@@ -23,6 +23,7 @@ public class DAOIDS {
 	private static final Integer HOURS_TO_DAYS = 24;
 	private static final Integer SECONDS_LOCKOUT_CHECK = LOCKOUT_CHECK_DAYS * HOURS_TO_DAYS * MINUTES_TO_HOURS * SECONDS_TO_MINUTES;
 
+	
 	public static boolean isLockedOut(String username, String ip) throws SQLException {
 		boolean locked = false;
 		Timestamp startinglockout;
@@ -174,15 +175,21 @@ public class DAOIDS {
 		boolean locked = false;
 		needsUpdate.setFlag(false);
 		Timestamp lockingTime;
-		String query = "SELECT * FROM LOCKDOWN_IPS WHERE IP = ?";
+		String query = "SELECT * FROM LOCKDOWN_IPS WHERE IP = ? ORDER BY LOCKDOWN_IPS.STARTING DESC LIMIT 1";
 		DatabaseTriple triple = new DatabaseTriple(db.connect());
 		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
 		triple.getPreparedStatement().setString(1, ip);
 		triple.setResultSet(triple.getPreparedStatement().executeQuery());
 		if (triple.getResultSet().next()) {
-			needsUpdate.setFlag(true);
+			if(triple.getResultSet().getInt(2)<MAXIMUM_ACCOUNTS_ATTEMPTS_FOR_IP && triple.getResultSet().getTimestamp(3).getTime()<System.currentTimeMillis() + IP_LOCKOUT *24 * 3600 * 1000)
+			{
+		needsUpdate.setFlag(true);
+			}
 			lockingTime = triple.getResultSet().getTimestamp(3);
-
+			if(lockingTime.getTime()+ IP_LOCKOUT * MILLISECONDS_TO_HOURS> System.currentTimeMillis())
+			{
+				lockTimeout.setFlag(true);
+			}
 			if (lockingTime.getTime() + IP_LOCKOUT * MILLISECONDS_TO_HOURS > System.currentTimeMillis()) {
 				if (failed_account_attempts.getInteger() >= MAXIMUM_ACCOUNTS_ATTEMPTS_FOR_IP) {
 					locked = true;
@@ -197,12 +204,17 @@ public class DAOIDS {
 	}
 
 	public static void handleLockedUserPerIp(String ip, MutableBoolean needsUpdate, MutableBoolean locktimeout, MutableInteger attempts) throws SQLException {
-		if (needsUpdate.isFlag()) {
-			if (locktimeout.isFlag()) {
-				updateLockedUsersPerIP(ip);
+		
+			System.out.println("NEEDSUPDATE : " + needsUpdate.isFlag() + " LOCKTIMEOUT : " + locktimeout);
+		
+		
+		if (!needsUpdate.isFlag()) {
+				System.out.println("Branch 1");
+				insertLockedUsersPerIP(ip);
 			}
 
 			else {
+				System.out.println("Branch 2");
 				if(attempts.getInteger() > MAXIMUM_ACCOUNTS_ATTEMPTS_FOR_IP)
 				{
 					attempts.setInteger(MAXIMUM_ACCOUNTS_ATTEMPTS_FOR_IP-1);
@@ -211,10 +223,7 @@ public class DAOIDS {
 				updateLockedUsersPerIP(ip, attempts.getInteger()+1);
 
 			}
-		} else {
-			System.out.println("Ho inserito un nuovo account bloccato per l'ip");
-			insertLockedUsersPerIP(ip);
-		}
+		
 
 	}
 
@@ -241,7 +250,7 @@ public class DAOIDS {
 	}
 
 	public static void updateLockedUsersPerIP(String ip, Integer attempts) throws SQLException {
-		String query = "UPDATE LOCKDOWN_IPS SET FAILED = ? WHERE IP = ?";
+		String query = "UPDATE LOCKDOWN_IPS SET FAILED = ? WHERE IP = ? ORDER BY LOCKDOwN_IPS.STARTING DESC LIMIT 1";
 		DatabaseTriple triple = new DatabaseTriple(db.connect());
 		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
 		triple.getPreparedStatement().setInt(1, attempts);
@@ -249,6 +258,8 @@ public class DAOIDS {
 		triple.getPreparedStatement().executeUpdate();
 		triple.closeAll();
 	}
+	
+	
 	
 	public static Integer countLockedUser(String ip, Timestamp lastLocked) throws SQLException
 	{
@@ -310,6 +321,7 @@ public class DAOIDS {
 		triple.setResultSet(triple.getPreparedStatement().executeQuery());
 		triple.getResultSet().next();
 		count = triple.getResultSet().getInt(1);
+		triple.closeAll();
 		return count;
 	}
 	public static Integer countLockedUsers (String ip) throws SQLException

@@ -96,7 +96,10 @@ public class AuthenticationServlet extends HttpServlet {
 				}
 
 			} else {
-				AuthenticationLogic.handleFailedLogin(username, request.getRemoteAddr(),needsUpdate,lockTimeout,failed_account_attempts);
+				synchronized (AuthenticationServlet.class) {
+					AuthenticationLogic.handleFailedLogin(username, request.getRemoteAddr(),needsUpdate,lockTimeout,failed_account_attempts);
+				}
+				
 				httpCode = HTTP_UNAUTHORIZED;
 				HTTPCommonMethods.sendReplyHeaderOnly(response, httpCode);
 			}
