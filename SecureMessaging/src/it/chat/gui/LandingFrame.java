@@ -108,7 +108,8 @@ public class LandingFrame {
 	
 	private void initialize() {
 		initializeStores();
-		setLookAndFeel();
+		if(!System.getProperty("os.name").toLowerCase().contains("mac")) 
+			setLookAndFeel();
 		initializeFrame();
 		initializeWelcomePanel();
 		initializeAdminPanel();
@@ -205,7 +206,7 @@ public class LandingFrame {
 					try {
 						
 						ServerHelper sh = new ServerHelper();
-						File cList = sh.getContactList("admins", currentRole,currentUser.getToken(),currentUser);
+						File cList = sh.getContactList("1", String.valueOf(currentUser.getRoleNumber()),currentUser.getToken(),currentUser);
 						
 						ContactFrame cf = new ContactFrame(currentNome,currentCognome,"Admins",cList);
 						cf.setVisible(true);
@@ -316,7 +317,7 @@ public class LandingFrame {
 					try {
 						
 						ServerHelper sh = new ServerHelper();
-						File cList = sh.getContactList("utenti", currentRole,currentUser.getToken(),currentUser);
+						File cList = sh.getContactList("3", String.valueOf(currentUser.getRoleNumber()),currentUser.getToken(),currentUser);
 						
 						ContactFrame cf = new ContactFrame(currentNome,currentCognome,"Utenti",cList);
 						cf.setVisible(true);
@@ -370,7 +371,7 @@ public class LandingFrame {
 						ServerHelper sh = new ServerHelper();
 						
 						
-						File cList = sh.getContactList("tecnici", currentRole,currentUser.getToken(),currentUser);
+						File cList = sh.getContactList("2", String.valueOf(currentUser.getRoleNumber()),currentUser.getToken(),currentUser);
 						
 						ContactFrame cf = new ContactFrame(currentNome,currentCognome,"Tecnici",cList);
 						cf.setVisible(true);
@@ -444,7 +445,7 @@ public class LandingFrame {
 		
 		//Se l'inizializzazione dell'ascolto non va a buon fine (ad es: porta gi� occupata) allora mostro dialog
 		if(!res) {
-			JOptionPane.showMessageDialog(frame.getContentPane(), "Errore in ascolto messaggi, riprovare.","Errore!",JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.ERR_LISTEN,MessageStringUtility.ERROR,JOptionPane.ERROR_MESSAGE);
 		}
 	
 	}

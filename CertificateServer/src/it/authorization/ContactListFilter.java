@@ -27,6 +27,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.owasp.esapi.AccessReferenceMap;
+import org.owasp.esapi.reference.IntegerAccessReferenceMap;
+
 import com.sun.org.apache.xml.internal.security.utils.Base64;
 import com.sun.xacml.PDP;
 import com.sun.xacml.PDPConfig;
@@ -50,9 +53,11 @@ import it.utility.network.HTTPCommonMethods;
 
 public class ContactListFilter implements Filter {
 
+	private IntegerAccessReferenceMap listMap;
+	private IntegerAccessReferenceMap roleMap;
    
     public ContactListFilter() {
-        // TODO Auto-generated constructor stub
+    	
     }
 
 	
@@ -63,6 +68,7 @@ public class ContactListFilter implements Filter {
 	
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		
+		//Sessioni vengono invalidate al chiudersi della risposta
 		String token = ((HttpServletRequest)request).getParameter("token");
 		System.out.println("[contactListServlet] Token:"+token);
 		String newToken = "newToken";
@@ -80,11 +86,26 @@ public class ContactListFilter implements Filter {
 			
 			System.out.println("[ContactListFilter] Token valido!");
 			System.out.println("[ContactListFilter] new Token:"+newToken);
-			String list = ((HttpServletRequest)request).getParameter("list");
-			String ruolo = ((HttpServletRequest)request).getParameter("ruolo");
-		
-			checkList(list);
-			checkRuolo(ruolo);
+			String listp = ((HttpServletRequest)request).getParameter("list");
+			String ruolop = ((HttpServletRequest)request).getParameter("ruolo");
+			
+			
+			
+			
+			String listIntm = listMap.getDirectReference(listp);
+			String ruoloIntm = roleMap.getDirectReference(ruolop);
+			
+			
+			
+			String list = convertList(listIntm);
+			String ruolo = convertRole(ruoloIntm);
+			
+			
+			
+			
+			((HttpServletRequest)request).getSession().setAttribute("lista", list);
+			((HttpServletRequest)request).getSession().setAttribute("ruolo", ruolo);
+			
 		
 		
 			System.out.println("[ContactListFilter] Ho trovato i seguenti parametri:");
@@ -140,11 +161,13 @@ public class ContactListFilter implements Filter {
 			} else if (dec == 1) {//deny
 				System.out.println("DENY");
 				HTTPCommonMethods.sendReplyHeaderWithToken(((HttpServletResponse)response), HTTPCodesClass.UNAUTHORIZED,newToken);
-        	
+				((HttpServletRequest)request).getSession().invalidate();
+			
 			} else if (dec == 2||dec==3) {//not applicable o indeterminate
         	
 				System.out.println("NOT APPLICABLE");
 				HTTPCommonMethods.sendReplyHeaderWithToken(((HttpServletResponse)response), HTTPCodesClass.CONFLICT,newToken);
+				((HttpServletRequest)request).getSession().invalidate();
 			}
 		}
     
@@ -153,6 +176,7 @@ public class ContactListFilter implements Filter {
         	
         System.out.println(e.getMessage());
         HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.TEMPORARY_REDIRECT);
+        ((HttpServletRequest)request).getSession().invalidate();
         
     }catch(IOException ex) {
         ex.printStackTrace();
@@ -163,6 +187,7 @@ public class ContactListFilter implements Filter {
 	   
 	   //In caso di altri fallimenti, non permetto l'accesso (fail-safe default)
        HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.UNAUTHORIZED);
+       ((HttpServletRequest)request).getSession().invalidate();
    }
         
 		
@@ -170,7 +195,28 @@ public class ContactListFilter implements Filter {
 
 	
 	public void init(FilterConfig fConfig) throws ServletException {
-		// TODO Auto-generated method stub
+		Set listSet = new HashSet();
+		listSet.add("listTecnici");
+		listSet.add("listAdmins");
+		listSet.add("listUtenti");
+		listMap = new IntegerAccessReferenceMap(listSet);
+		
+		System.out.println(listMap.getIndirectReference("listTecnici"));//2
+		System.out.println(listMap.getIndirectReference("listUtenti"));//3
+		System.out.println(listMap.getIndirectReference("listAdmins"));//1
+
+		
+		
+		Set roleSet = new HashSet();
+		roleSet.add("roleTecnico");
+		roleSet.add("roleAdmin");
+		roleSet.add("roleUtente");
+		roleMap = new IntegerAccessReferenceMap(roleSet);
+		
+		System.out.println(roleMap.getIndirectReference("roleTecnico"));//2
+		System.out.println(roleMap.getIndirectReference("roleAdmin"));//1
+		System.out.println(roleMap.getIndirectReference("roleUtente"));//3
+			
 	}
 	
 	
@@ -179,7 +225,7 @@ public class ContactListFilter implements Filter {
 	
 		try {
 		ServletContext context = ((HttpServletRequest)request).getServletContext();
-		String list = ((HttpServletRequest)request).getParameter("list");
+		String list = (String)((HttpServletRequest)request).getSession().getAttribute("lista");
 		
 		
 		
@@ -225,6 +271,8 @@ public class ContactListFilter implements Filter {
 		outs.flush();
 		
 		
+		((HttpServletRequest)request).getSession().invalidate();
+		
 		
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -233,16 +281,23 @@ public class ContactListFilter implements Filter {
 		
 	}
 	
-	
-	private void checkList(String list) throws IllegalArgumentException {
-		if(!(list.equals("admins") || list.equals("utenti") || list.equals("tecnici"))) {
-			throw new IllegalArgumentException();
+	private String convertList(String list) {
+		if(list.equals("listAdmins")) {
+			return "admins";
+		}else if(list.equals("listUtenti")) {
+			return "utenti";
+		}else {
+			return "tecnici";
 		}
 	}
-	
-	private void checkRuolo(String ruolo) throws IllegalArgumentException {
-		if(!(ruolo.equals("admin") || ruolo.equals("utente") || ruolo.equals("tecnico"))) {
-			throw new IllegalArgumentException();
+
+	private String convertRole(String role) {
+		if(role.equals("roleAdmin")) {
+			return "admin";
+		}else if(role.equals("roleUtente")) {
+			return "utente";
+		}else {
+			return "tecnico";
 		}
 	}
 	

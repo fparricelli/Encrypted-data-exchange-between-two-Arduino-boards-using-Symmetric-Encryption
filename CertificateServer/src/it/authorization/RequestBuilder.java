@@ -29,6 +29,9 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
+import org.owasp.esapi.reference.IntegerAccessReferenceMap;
+
 
 public class RequestBuilder
 {
@@ -37,14 +40,14 @@ public class RequestBuilder
   static final String SUBJECT_IDENTIFIER = "urn:oasis:names:tc:xacml:1.0:subject:subject-id";
   static final String RESOURCE_IDENTIFIER = "urn:oasis:names:tc:xacml:1.0:resource:resource-id";
   static final String SUBJECT_ROLE_IDENTIFIER = "ruolo";    
-  static final String RATING_FILM_IDENTIFIER = "rating";
    
     
     public static Set setupSubjects(HttpServletRequest request) throws URISyntaxException {
         HashSet attributes = new HashSet();
         HashSet subjects = new HashSet();
           
-		String ruolo = ((HttpServletRequest)request).getParameter("ruolo");
+		String ruolo = (String)((HttpServletRequest)request).getSession().getAttribute("ruolo");
+		System.out.println("[RequestBuilder] Ruolo:"+ruolo);
 		
        //Questo è l'attributo del soggetto a cui fare riferimento nella policy xml, attraverso il suo identificatore
         
@@ -74,9 +77,23 @@ public class RequestBuilder
         
         StringAttribute requestedRes =
             new StringAttribute("https://localhost:8443"+request.getRequestURI());
+        
+        
+        
+        String res = "https://localhost:8443"+request.getRequestURI();
+        String subres = StringUtils.chop(res);
+        String subres2 = StringUtils.chop(subres);
        
+        
+        String lista = (String)((HttpServletRequest)request).getSession().getAttribute("lista");
+        
+        String resID = subres2+lista+"/";
+        
+        
+        StringAttribute resAtt = new StringAttribute(resID);
+        
         resource.add(new Attribute(new URI(RESOURCE_IDENTIFIER),
-                                   null, null, requestedRes));
+                                   null, null, resAtt));
          
         return resource;
     }

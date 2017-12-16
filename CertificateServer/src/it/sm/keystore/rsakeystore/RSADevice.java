@@ -15,9 +15,14 @@ public class RSADevice extends RSASoftwareKeystore {
 				RSADevice inst = instance;
 				if (inst == null) {
 					synchronized (DatabaseUtility.class) {
-
-						String current = new String(System.getenv("SECURE_MESSAGING_HOME"));
-						current = current.concat("\\secure_place\\app_keystore.keystore");
+						
+						String current;
+						if(!System.getProperty("os.name").toLowerCase().contains("mac")) {
+							current = new String(System.getenv("SECURE_MESSAGING_HOME"));
+							current = current.concat("\\secure_place\\app_keystore.keystore");
+						}
+						else
+							current = "/Users/francescoparricelli/Documents/Laurea_Magistrale/Secure_System_Design/Progetto-Finale-SSD/CertificateServer/secure_place/app_keystore.keystore";
 						instance = new RSADevice(current, "secure_messaging", "changeit");
 
 					}

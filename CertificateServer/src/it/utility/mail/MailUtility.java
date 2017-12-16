@@ -56,8 +56,17 @@ public class MailUtility {
 	private static HashMap<String, String> readParameters() throws Exception {
 		HashMap<String, String> parameters = new HashMap<String, String>();
 		RSADevice rsa = RSADevice.getInstance();
-		String path = System.getenv("SECURE_MESSAGING_HOME");
-		FileInputStream fileIn = new FileInputStream(path + "\\mail_place\\config.dat");
+		String path;
+		FileInputStream fileIn;
+		if(!System.getProperty("os.name").toLowerCase().contains("mac")) {
+			 path = System.getenv("SECURE_MESSAGING_HOME");
+			 fileIn = new FileInputStream(path + "\\mail_place\\config.dat");
+		}
+		else {
+			path = "/Users/francescoparricelli/Documents/Laurea_Magistrale/Secure_System_Design/Progetto-Finale-SSD/CertificateServer/mail_place/config.dat";
+			fileIn = new FileInputStream(path);
+
+		}
 		ObjectInputStream objectIn = new ObjectInputStream(fileIn);
 		@SuppressWarnings("unchecked")
 		Vector<byte[]> vector = (Vector<byte[]>) objectIn.readObject();

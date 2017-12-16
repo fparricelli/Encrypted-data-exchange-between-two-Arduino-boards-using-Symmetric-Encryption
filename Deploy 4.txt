@@ -1,0 +1,4 @@
+Inserite il contenuto della cartella esapi nella vostra cartella utente
+Windows: C:/Utenti/<utente>/esapi
+
+Per Mac: penso sia lo stesso, eventualmente non dovesse andare @Parricels fammi sapere

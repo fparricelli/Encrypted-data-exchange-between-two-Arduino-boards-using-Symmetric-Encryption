@@ -6,14 +6,16 @@ public class AuthUser {
 	private String name;
 	private String surname;
 	private String role;
+	private int roleNumber;
 	private int telephone;
 	
-	public AuthUser(String t, String n, String s, String r, int tel) {
+	public AuthUser(String t, String n, String s, String r, int tel,int rn) {
 		this.token = t;
 		this.name = n;
 		this.surname = s;
 		this.role = r;
 		this.telephone = tel;
+		this.roleNumber = rn;
 	}
 
 	public String getToken() {
@@ -54,6 +56,14 @@ public class AuthUser {
 
 	public void setTelephone(int telephone) {
 		this.telephone = telephone;
+	}
+
+	public int getRoleNumber() {
+		return roleNumber;
+	}
+
+	public void setRoleNumber(int roleNumber) {
+		this.roleNumber = roleNumber;
 	}
 	
 	

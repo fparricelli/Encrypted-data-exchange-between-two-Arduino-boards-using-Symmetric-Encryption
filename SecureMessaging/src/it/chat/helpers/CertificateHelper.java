@@ -78,6 +78,7 @@ public class CertificateHelper {
 			System.setProperty("javax.net.ssl.trustStorePassword", p[1]);
 			System.setProperty("javax.net.ssl.trustAnchors",path);
 			
+			
 			fis.close();
 		}
 		

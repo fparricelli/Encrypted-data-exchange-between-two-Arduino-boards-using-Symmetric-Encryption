@@ -16,6 +16,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -112,7 +113,8 @@ public class ContactFrame {
 	
 	private void initialize() {
 		initializeLoadingBar();
-		LookAndFeelUtility.setLookAndFeel(LookAndFeelUtility.GRAPHITE);
+		if(!System.getProperty("os.name").toLowerCase().contains("mac")) 
+			LookAndFeelUtility.setLookAndFeel(LookAndFeelUtility.GRAPHITE);
 		initializeFrame();
 		initializeTopPanel();
 		initializeCenterPanel();
@@ -275,6 +277,9 @@ public class ContactFrame {
 			
 			
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			
+			protectXML(dbFactory);
+			
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			Document doc = dBuilder.parse(this.contactList);
 
@@ -320,6 +325,8 @@ public class ContactFrame {
 		    } catch (Exception e) {
 			e.printStackTrace();
 			this.contactList.delete();
+			JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.CONT_LIST_ERR,MessageStringUtility.ERROR,JOptionPane.ERROR_MESSAGE);
+
 		    }
 		  }
 		
@@ -329,6 +336,39 @@ public class ContactFrame {
 	}
 	
 	
-	
+	//Protezione contro attacchi XXE
+	private void protectXML(DocumentBuilderFactory dbf) throws Exception{
+		
+			String FEATURE = null;
+			// This is the PRIMARY defense. If DTDs (doctypes) are disallowed, almost all XML entity attacks are prevented
+			// Xerces 2 only - http://xerces.apache.org/xerces2-j/features.html#disallow-doctype-decl
+	       FEATURE = "http://apache.org/xml/features/disallow-doctype-decl";
+	       dbf.setFeature(FEATURE, true);
+	 
+	       // If you can't completely disable DTDs, then at least do the following:
+	       // Xerces 1 - http://xerces.apache.org/xerces-j/features.html#external-general-entities
+	       // Xerces 2 - http://xerces.apache.org/xerces2-j/features.html#external-general-entities
+	       // JDK7+ - http://xml.org/sax/features/external-general-entities    
+	       FEATURE = "http://xml.org/sax/features/external-general-entities";
+	       dbf.setFeature(FEATURE, false);
+	 
+	       // Xerces 1 - http://xerces.apache.org/xerces-j/features.html#external-parameter-entities
+	       // Xerces 2 - http://xerces.apache.org/xerces2-j/features.html#external-parameter-entities
+	       // JDK7+ - http://xml.org/sax/features/external-parameter-entities    
+	       FEATURE = "http://xml.org/sax/features/external-parameter-entities";
+	       dbf.setFeature(FEATURE, false);
+	 
+	       // Disable external DTDs as well
+	       FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+	       dbf.setFeature(FEATURE, false);
+	 
+	       // and these as well, per Timothy Morgan's 2014 paper: "XML Schema, DTD, and Entity Attacks"
+	       dbf.setXIncludeAware(false);
+	       dbf.setExpandEntityReferences(false);
+	       
+	       dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+		
+		
+	}
 	
 }

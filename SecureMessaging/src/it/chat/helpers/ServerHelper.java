@@ -67,8 +67,14 @@ public class ServerHelper {
 	try {
 		Map<String, Object> params = new LinkedHashMap<>();
 		
-		params.put("list", listType);
-		params.put("ruolo", currentRole);
+		int numList = Integer.valueOf(listType);
+		int numRole = Integer.valueOf(currentRole);
+		
+		System.out.println("list type:"+listType+", num:"+numList);
+		System.out.println("role type:"+currentRole+",num:"+numRole);
+		
+		params.put("list", numList);
+		params.put("ruolo", numRole);
 		params.put("token", token);
 		
 		String postURL = readContactListURL()+listType+"/";
@@ -222,10 +228,11 @@ public class ServerHelper {
 			String token = respParam.get("token");
 			String tel = respParam.get("telephone");
 			String role = respParam.get("role");
+			String roleNumber = respParam.get("roleN");
 			String name = respParam.get("name");
 			String surname = respParam.get("surname");
 			System.out.println("AUTH token:"+token);
-			AuthUser u = new AuthUser(token,name,surname,role,Integer.valueOf(tel));
+			AuthUser u = new AuthUser(token,name,surname,role,Integer.valueOf(tel),Integer.valueOf(roleNumber));
 			ois.close();
 			return u;
 		
@@ -402,5 +409,6 @@ public class ServerHelper {
 		
 	}
 	
+
 
 }

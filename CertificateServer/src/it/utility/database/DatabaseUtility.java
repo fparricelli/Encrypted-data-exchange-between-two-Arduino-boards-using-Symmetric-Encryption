@@ -96,7 +96,7 @@ public class DatabaseUtility {
 		/*
 		 * In linea di principio "avremmo" sostituito una password harcoded con un'altra
 		 * password hardcoded: non sembrerebbe, a un primo sguardo, un modo sicuro di
-		 * programmare. Possiamo però ipotizzare che tale password sia prelevata a sua
+		 * programmare. Possiamo perï¿½ ipotizzare che tale password sia prelevata a sua
 		 * volta da un mezzo elettronico sicuro (smartcard o equivalente), evitando
 		 * quindi l'hardcoding.
 		 * 
@@ -105,8 +105,17 @@ public class DatabaseUtility {
 
 		String name = null, password = null, url = null;
 		RSADevice rsa = RSADevice.getInstance();
-		String  path= System.getenv("SECURE_MESSAGING_HOME");
-		FileInputStream fileIn = new FileInputStream(path + "\\other_place\\config.dat");
+		String path;
+		FileInputStream fileIn;
+		if(!System.getProperty("os.name").toLowerCase().contains("mac")) {
+			path= System.getenv("SECURE_MESSAGING_HOME");
+			fileIn = new FileInputStream(path + "\\other_place\\config.dat");
+		}
+		else { 
+			path = "/Users/francescoparricelli/Documents/Laurea_Magistrale/Secure_System_Design/Progetto-Finale-SSD/CertificateServer/other_place/config.dat";
+			fileIn = new FileInputStream(path);
+
+		}
 		ObjectInputStream objectIn = new ObjectInputStream(fileIn);
 		@SuppressWarnings("unchecked")
 		Vector<byte[]> vector = (Vector<byte[]>) objectIn.readObject();
