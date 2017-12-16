@@ -27,6 +27,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.owasp.esapi.AccessReferenceMap;
+import org.owasp.esapi.reference.IntegerAccessReferenceMap;
+
 import com.sun.org.apache.xml.internal.security.utils.Base64;
 import com.sun.xacml.PDP;
 import com.sun.xacml.PDPConfig;
@@ -50,9 +53,11 @@ import it.utility.network.HTTPCommonMethods;
 
 public class ContactListFilter implements Filter {
 
+	private IntegerAccessReferenceMap listMap;
+	private IntegerAccessReferenceMap roleMap;
    
     public ContactListFilter() {
-        // TODO Auto-generated constructor stub
+    	
     }
 
 	
@@ -80,11 +85,20 @@ public class ContactListFilter implements Filter {
 			
 			System.out.println("[ContactListFilter] Token valido!");
 			System.out.println("[ContactListFilter] new Token:"+newToken);
-			String list = ((HttpServletRequest)request).getParameter("list");
-			String ruolo = ((HttpServletRequest)request).getParameter("ruolo");
-		
-			checkList(list);
-			checkRuolo(ruolo);
+			String listp = ((HttpServletRequest)request).getParameter("list");
+			String ruolop = ((HttpServletRequest)request).getParameter("ruolo");
+			
+			
+			
+			
+			
+			String list = listMap.getDirectReference(listp);
+			String ruolo = roleMap.getDirectReference(ruolop);
+			
+			
+			((HttpServletRequest)request).getSession().setAttribute("lista", list);
+			((HttpServletRequest)request).getSession().setAttribute("ruolo", ruolo);
+			
 		
 		
 			System.out.println("[ContactListFilter] Ho trovato i seguenti parametri:");
@@ -170,7 +184,19 @@ public class ContactListFilter implements Filter {
 
 	
 	public void init(FilterConfig fConfig) throws ServletException {
-		// TODO Auto-generated method stub
+		Set listSet = new HashSet();
+		listSet.add("tecnici");
+		listSet.add("admins");
+		listSet.add("utenti");
+		listMap = new IntegerAccessReferenceMap(listSet);
+		
+		
+		Set roleSet = new HashSet();
+		roleSet.add("tecnico");
+		roleSet.add("admin");
+		roleSet.add("utente");
+		roleMap = new IntegerAccessReferenceMap(roleSet);
+			
 	}
 	
 	
@@ -179,7 +205,7 @@ public class ContactListFilter implements Filter {
 	
 		try {
 		ServletContext context = ((HttpServletRequest)request).getServletContext();
-		String list = ((HttpServletRequest)request).getParameter("list");
+		String list = (String)((HttpServletRequest)request).getSession().getAttribute("lista");
 		
 		
 		
@@ -234,17 +260,7 @@ public class ContactListFilter implements Filter {
 	}
 	
 	
-	private void checkList(String list) throws IllegalArgumentException {
-		if(!(list.equals("admins") || list.equals("utenti") || list.equals("tecnici"))) {
-			throw new IllegalArgumentException();
-		}
-	}
-	
-	private void checkRuolo(String ruolo) throws IllegalArgumentException {
-		if(!(ruolo.equals("admin") || ruolo.equals("utente") || ruolo.equals("tecnico"))) {
-			throw new IllegalArgumentException();
-		}
-	}
+
 	
 	 
 

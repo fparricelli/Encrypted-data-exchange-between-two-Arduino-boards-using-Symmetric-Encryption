@@ -205,7 +205,7 @@ public class LandingFrame {
 					try {
 						
 						ServerHelper sh = new ServerHelper();
-						File cList = sh.getContactList("admins", currentRole,currentUser.getToken(),currentUser);
+						File cList = sh.getContactList("3", currentRole,currentUser.getToken(),currentUser);
 						
 						ContactFrame cf = new ContactFrame(currentNome,currentCognome,"Admins",cList);
 						cf.setVisible(true);
@@ -316,7 +316,7 @@ public class LandingFrame {
 					try {
 						
 						ServerHelper sh = new ServerHelper();
-						File cList = sh.getContactList("utenti", currentRole,currentUser.getToken(),currentUser);
+						File cList = sh.getContactList("2", currentRole,currentUser.getToken(),currentUser);
 						
 						ContactFrame cf = new ContactFrame(currentNome,currentCognome,"Utenti",cList);
 						cf.setVisible(true);
@@ -370,7 +370,7 @@ public class LandingFrame {
 						ServerHelper sh = new ServerHelper();
 						
 						
-						File cList = sh.getContactList("tecnici", currentRole,currentUser.getToken(),currentUser);
+						File cList = sh.getContactList("1", currentRole,currentUser.getToken(),currentUser);
 						
 						ContactFrame cf = new ContactFrame(currentNome,currentCognome,"Tecnici",cList);
 						cf.setVisible(true);

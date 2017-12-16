@@ -70,6 +70,8 @@ public class MessagingHelper {
 			//Creo ServerSocket
 			SSLServerSocketFactory sslserversocketfactory = (SSLServerSocketFactory)SSLContext.getDefault().getServerSocketFactory();
 			this.listeningSocket = (SSLServerSocket)sslserversocketfactory.createServerSocket(port);
+			this.listeningSocket.setNeedClientAuth(true);
+			this.listeningSocket.setWantClientAuth(true);
 			this.listeningPort = port;
 			
 			//Avvio thread di ascolto sulla socket precedentemente creata

@@ -23,7 +23,6 @@ public class ListenerThread extends Thread{
 	
 	public ListenerThread(SSLServerSocket s, String ci) {
 		this.ss = s;
-		this.ss.setWantClientAuth(true);
 		this.currentIdentity = ci;
 		
 	}

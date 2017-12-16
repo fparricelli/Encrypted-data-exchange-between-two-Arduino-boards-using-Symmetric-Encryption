@@ -67,8 +67,14 @@ public class ServerHelper {
 	try {
 		Map<String, Object> params = new LinkedHashMap<>();
 		
-		params.put("list", listType);
-		params.put("ruolo", currentRole);
+		int numList = Integer.valueOf(listType);
+		int numRole = extractRoleParameter(currentRole);
+		
+		System.out.println("list type:"+listType+", num:"+numList);
+		System.out.println("role type:"+currentRole+",num:"+numRole);
+		
+		params.put("list", numList);
+		params.put("ruolo", numRole);
 		params.put("token", token);
 		
 		String postURL = readContactListURL()+listType+"/";
@@ -401,6 +407,22 @@ public class ServerHelper {
 		return con;
 		
 	}
+	
+	
+	
+	
+	private int extractRoleParameter(String role) {
+		
+		if(role.equals("tecnico")) {
+			return 3;
+		}else if(role.equals("utente")) {
+			return 1;
+		}else{
+			return 2;
+		}
+	}
+	
+	
 	
 
 }
