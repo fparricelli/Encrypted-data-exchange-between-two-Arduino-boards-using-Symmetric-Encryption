@@ -70,8 +70,6 @@ public class ServerHelper {
 		int numList = Integer.valueOf(listType);
 		int numRole = Integer.valueOf(currentRole);
 		
-		System.out.println("list type:"+listType+", num:"+numList);
-		System.out.println("role type:"+currentRole+",num:"+numRole);
 		
 		params.put("list", numList);
 		params.put("ruolo", numRole);
@@ -104,10 +102,16 @@ public class ServerHelper {
 			String myToken = con.getHeaderField("NEWTOKEN");
 			
 			u.setToken(myToken);
+			
+			
 			    
 			fos.flush();
 			fos.close();
 			is.close();
+			
+			if(myToken == null) {
+				throw new RedirectToLoginException();
+			}
 			    
 			System.out.println("[getContactList] Lista "+listType+" scaricata!");
 			System.out.println("[getContactList] Percorso:"+this.contactListPath+"/"+listType+"-list.xml");
@@ -231,7 +235,6 @@ public class ServerHelper {
 			String roleNumber = respParam.get("roleN");
 			String name = respParam.get("name");
 			String surname = respParam.get("surname");
-			System.out.println("AUTH token:"+token);
 			AuthUser u = new AuthUser(token,name,surname,role,Integer.valueOf(tel),Integer.valueOf(roleNumber));
 			ois.close();
 			return u;

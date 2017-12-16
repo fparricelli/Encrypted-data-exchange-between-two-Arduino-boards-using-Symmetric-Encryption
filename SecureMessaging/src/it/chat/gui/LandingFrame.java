@@ -101,7 +101,6 @@ public class LandingFrame {
 		this.currentCognome = u.getSurname();
 		this.currentRole = u.getRole();
 		this.currentNumber = u.getTelephone();
-		System.out.println("Landing frame, token:"+this.currentUser.getToken());
 		initialize();
 	}
 

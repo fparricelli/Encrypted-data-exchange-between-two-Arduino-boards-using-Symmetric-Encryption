@@ -1,0 +1,13 @@
+Ho collegato l'applicazione ad un servizio di Logging esterno, per evitare la necessità di conservare log su file system del server.
+Il sito è: https://logentries.com/
+l'account che ho usato è:
+email: aldolive@hotmail.it
+password: securemessaging17
+
+Se cliccate su SecureMessaging potete vedere tutti i log che vengono presi.
+PS: io ho dato una prima configurazione per quanto riguarda i messaggi di log, sentitevi liberi di apportare modifiche o
+suggerire messaggi più dettagliati (il problema fondamentale è sempre quello: vorrei evitare di usare log troppo verbosi,
+altrimenti ci dobbiamo preoccupare anche di come vengono gestiti e da chi)
+PS: questo simpatico strumento usa anche SSL per l'invio dei log :D
+
+Aldo

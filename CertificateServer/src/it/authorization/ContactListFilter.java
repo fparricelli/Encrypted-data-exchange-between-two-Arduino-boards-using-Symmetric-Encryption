@@ -11,7 +11,10 @@ import java.nio.file.Files;
 import java.security.InvalidParameterException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -27,7 +30,10 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.owasp.esapi.AccessReferenceMap;
+import org.owasp.esapi.errors.AccessControlException;
 import org.owasp.esapi.reference.IntegerAccessReferenceMap;
 
 import com.sun.org.apache.xml.internal.security.utils.Base64;
@@ -55,6 +61,7 @@ public class ContactListFilter implements Filter {
 
 	private IntegerAccessReferenceMap listMap;
 	private IntegerAccessReferenceMap roleMap;
+	private static Logger log;
    
     public ContactListFilter() {
     	
@@ -71,7 +78,8 @@ public class ContactListFilter implements Filter {
 		//Sessioni vengono invalidate al chiudersi della risposta
 		String token = ((HttpServletRequest)request).getParameter("token");
 		System.out.println("[contactListServlet] Token:"+token);
-		String newToken = "newToken";
+		String list,ruolo = "";
+		String newToken = "";
 	
 		try {
 		
@@ -81,7 +89,10 @@ public class ContactListFilter implements Filter {
 		if(newToken == null) {
 			System.out.println("[ContactListFilter] Token scaduto!");
 			HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.TEMPORARY_REDIRECT);
+			String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
 			
+			log.warn("["+timeStamp+"] - Request from "+request.getRemoteAddr()+" - expired token");
+		
 		}else{
 			
 			System.out.println("[ContactListFilter] Token valido!");
@@ -97,11 +108,8 @@ public class ContactListFilter implements Filter {
 			
 			
 			
-			String list = convertList(listIntm);
-			String ruolo = convertRole(ruoloIntm);
-			
-			
-			
+			list = convertList(listIntm);
+			ruolo = convertRole(ruoloIntm);
 			
 			((HttpServletRequest)request).getSession().setAttribute("lista", list);
 			((HttpServletRequest)request).getSession().setAttribute("ruolo", ruolo);
@@ -162,32 +170,70 @@ public class ContactListFilter implements Filter {
 				System.out.println("DENY");
 				HTTPCommonMethods.sendReplyHeaderWithToken(((HttpServletResponse)response), HTTPCodesClass.UNAUTHORIZED,newToken);
 				((HttpServletRequest)request).getSession().invalidate();
-			
+				
+				String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+				log.warn("["+timeStamp+"] - Request from "+request.getRemoteAddr()+" - access denied for requested list="+list+"");
+				//waitLog();
+				
 			} else if (dec == 2||dec==3) {//not applicable o indeterminate
         	
 				System.out.println("NOT APPLICABLE");
 				HTTPCommonMethods.sendReplyHeaderWithToken(((HttpServletResponse)response), HTTPCodesClass.CONFLICT,newToken);
 				((HttpServletRequest)request).getSession().invalidate();
+				
+				String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+				log.warn("["+timeStamp+"] - Request from "+request.getRemoteAddr()+" - unapplicable policy for requested list="+list+" and role="+ruolo);
+				//waitLog();
 			}
 		}
     
 	
-    }catch(IllegalArgumentException | InvalidHopException e) {
+    }catch(InvalidHopException e) {
         	
         System.out.println(e.getMessage());
+        
         HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.TEMPORARY_REDIRECT);
         ((HttpServletRequest)request).getSession().invalidate();
+        
+        String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+        
+		log.error("["+timeStamp+"] - Request from "+request.getRemoteAddr()+" token error (invalid hop) for supplied token");
+		
         
     }catch(IOException ex) {
         ex.printStackTrace();
         //In caso di IOException, non posso mandare risposta su output stream
         
+       String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+       //Se inviamo lo stack trace come log, è necessario fare le opportune considerazioni di sicurezza riguardo
+       //..tale scelta.
+       log.error("["+timeStamp+"] - Request from "+request.getRemoteAddr()+" IOException occured");
+        
+        ((HttpServletRequest)request).getSession().invalidate();
+        
+    }catch(AccessControlException ac) {
+    	ac.printStackTrace();
+    	HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.UNAUTHORIZED);
+	    ((HttpServletRequest)request).getSession().invalidate();
+    	
+    	String listp = ((HttpServletRequest)request).getParameter("list");
+		String ruolop = ((HttpServletRequest)request).getParameter("ruolo");
+		
+		String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+        log.error("["+timeStamp+"] - Request from "+request.getRemoteAddr()+" no parameter mapping for supplied role:"+listp+"and list:"+ruolop);
+        
+        
     }catch(Exception exx) {
 	   exx.printStackTrace();
-	   
-	   //In caso di altri fallimenti, non permetto l'accesso (fail-safe default)
-       HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.UNAUTHORIZED);
+	   HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.UNAUTHORIZED);
        ((HttpServletRequest)request).getSession().invalidate();
+	   
+	   String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+	   //Anche qui, vanno fatte considerazioni sul fatto di allegare o meno lo stacktrace nel log.
+       log.error("["+timeStamp+"] - Request from "+request.getRemoteAddr()+" Exception:"+exx.getMessage()+" occured");
+      
+       
+       
    }
         
 		
@@ -201,11 +247,6 @@ public class ContactListFilter implements Filter {
 		listSet.add("listUtenti");
 		listMap = new IntegerAccessReferenceMap(listSet);
 		
-		System.out.println(listMap.getIndirectReference("listTecnici"));//2
-		System.out.println(listMap.getIndirectReference("listUtenti"));//3
-		System.out.println(listMap.getIndirectReference("listAdmins"));//1
-
-		
 		
 		Set roleSet = new HashSet();
 		roleSet.add("roleTecnico");
@@ -213,9 +254,7 @@ public class ContactListFilter implements Filter {
 		roleSet.add("roleUtente");
 		roleMap = new IntegerAccessReferenceMap(roleSet);
 		
-		System.out.println(roleMap.getIndirectReference("roleTecnico"));//2
-		System.out.println(roleMap.getIndirectReference("roleAdmin"));//1
-		System.out.println(roleMap.getIndirectReference("roleUtente"));//3
+		log = LogManager.getRootLogger();
 			
 	}
 	
@@ -259,6 +298,7 @@ public class ContactListFilter implements Filter {
 		OutputStream outs = response.getOutputStream();
 		
 		
+		
 		try (FileInputStream in = new FileInputStream(reqList)) {
 		    byte[] buffer = new byte[4096];
 		    int length;
@@ -270,7 +310,10 @@ public class ContactListFilter implements Filter {
 		
 		outs.flush();
 		
-		
+		String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+        log.info("["+timeStamp+"] - Request from "+request.getRemoteAddr()+" - sent requested list");
+        //waitLog();
+        
 		((HttpServletRequest)request).getSession().invalidate();
 		
 		
@@ -300,6 +343,9 @@ public class ContactListFilter implements Filter {
 			return "tecnico";
 		}
 	}
+	
+	
+	
 	
 	 
 
