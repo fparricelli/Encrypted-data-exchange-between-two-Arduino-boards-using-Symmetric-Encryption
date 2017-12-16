@@ -19,6 +19,8 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.Font;
+import javax.swing.JSeparator;
 
 public class TwoFactorFrame {
 
@@ -28,8 +30,6 @@ public class TwoFactorFrame {
 	private JPanel topPanel;
 	private JLabel firstLabel;
 	private JLabel secondLabel;
-	
-	private JPanel bottomPanel;
 	private JButton btnVerifica;
 	private JTextField codeField;
 	private JButton btnIndietro;
@@ -38,6 +38,7 @@ public class TwoFactorFrame {
 	private LoginFrame caller;
 	private boolean verified = false;
 	private boolean debug = true;
+	private JSeparator separator;
 
 	/**
 	 * Launch the application.
@@ -68,7 +69,8 @@ public class TwoFactorFrame {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		LookAndFeelUtility.setLookAndFeel(LookAndFeelUtility.GRAPHITE);
+		if(!System.getProperty("os.name").toLowerCase().contains("mac")) 
+			LookAndFeelUtility.setLookAndFeel(LookAndFeelUtility.GRAPHITE);
 		initializeFrame();
 		initializeTopPanel();
 		initializeBottomPanel();
@@ -82,7 +84,7 @@ public class TwoFactorFrame {
 		frame.getContentPane().setLayout(null);
 		frame.setResizable(false);
 		frame.setTitle("Verification Step");
-		frame.getContentPane().setBackground(Color.DARK_GRAY);
+		frame.getContentPane().setBackground(new Color(97, 212, 195));
 		frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
 	}
@@ -91,35 +93,50 @@ public class TwoFactorFrame {
 	private void initializeTopPanel() {
 		
 		topPanel = new JPanel();
-		topPanel.setBounds(10, 11, 417, 48);
+		topPanel.setBounds(0, 0, 453, 93);
+		topPanel.setBackground(new Color(36,47,65));
 		frame.getContentPane().add(topPanel);
 		topPanel.setLayout(null);
 		
 		firstLabel = new JLabel("We sent a message to the email address linked to your account.");
+		firstLabel.setForeground(new Color(255, 255, 255));
+		firstLabel.setFont(new Font("AppleGothic", Font.PLAIN, 13));
 		firstLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		firstLabel.setBounds(0, 0, 417, 24);
+		firstLabel.setBounds(19, 22, 417, 24);
 		topPanel.add(firstLabel);
 		
 		secondLabel = new JLabel("Insert the code found inside the message to continue.");
+		secondLabel.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+		secondLabel.setForeground(new Color(255, 255, 255));
 		secondLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		secondLabel.setBounds(0, 25, 417, 23);
+		secondLabel.setBounds(19, 51, 417, 23);
 		topPanel.add(secondLabel);
 	}
 	
 	
 	private void initializeBottomPanel() {
 		
-		bottomPanel = new JPanel();
-		bottomPanel.setBounds(10, 70, 417, 79);
-		frame.getContentPane().add(bottomPanel);
-		bottomPanel.setLayout(null);
-		
 		codeField = new JTextField();
-		codeField.setBounds(10, 11, 397, 20);
-		bottomPanel.add(codeField);
+		codeField.setBackground(new Color(97, 212, 195));
+		codeField.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+		codeField.setBounds(22, 113, 405, 20);
+		frame.getContentPane().add(codeField);
 		codeField.setColumns(10);
 		
+		btnIndietro = new JButton("Back");
+		btnIndietro.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+		btnIndietro.setBounds(262, 145, 89, 26);
+		frame.getContentPane().add(btnIndietro);
+		
 		btnVerifica = new JButton("Verify");
+		btnVerifica.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+		btnVerifica.setBounds(358, 145, 89, 26);
+		frame.getContentPane().add(btnVerifica);
+		
+		separator = new JSeparator();
+		separator.setForeground(new Color(255, 255, 255));
+		separator.setBounds(22, 132, 405, 12);
+		frame.getContentPane().add(separator);
 		btnVerifica.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
@@ -159,10 +176,6 @@ public class TwoFactorFrame {
 				
 			}
 		});
-		btnVerifica.setBounds(318, 42, 89, 26);
-		bottomPanel.add(btnVerifica);
-		
-		btnIndietro = new JButton("Back");
 		btnIndietro.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if(!verified) {
@@ -175,8 +188,6 @@ public class TwoFactorFrame {
 				}
 			}
 		});
-		btnIndietro.setBounds(219, 42, 89, 26);
-		bottomPanel.add(btnIndietro);
 		
 	}
 	

@@ -160,12 +160,14 @@ public class MessageListenerThread extends Thread{
 							this.actChat.getFrame().setVisible(true);
 						}
 
+						if(!decrypted_msg.contains("HASHING") && !decrypted_msg.contains("wrong")) {
 						//Scrivo il contenuto del messaggio sulla pipe che � connessa all'updater thread, cosi
 						//che possa mostrarli sul chatBox
 						dos.writeUTF(decrypted_msg);
 		
 						//Risveglio l'updater thread, che era in attesa sul semaforo
 						this.actChat.getChatSem().release();
+						}
 					}
 		
 				}else{

@@ -1,6 +1,7 @@
 package it.sm.keystore.aeskeystore;
 import java.io.IOException;
 import java.util.Base64;
+import java.util.concurrent.Semaphore;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -42,6 +43,8 @@ public class AESHardwareKeystore implements MyAESKeystore{
 	
 	private Integer client_type;
 	
+	private static Semaphore mutex;
+	
 	static private AESHardwareKeystore instance;
 	
 	static public AESHardwareKeystore getInstance(int c_type) {
@@ -54,10 +57,11 @@ public class AESHardwareKeystore implements MyAESKeystore{
 	private AESHardwareKeystore(int client_type) {
 		this.client_type = client_type;
 		uno = new ArduinoSerial(client_type);
+		mutex = new Semaphore(1);
 	};
 	
 	@Override
-	public String requireTokenToShare(int c_type) {
+	public String requireTokenToShare(Integer c_type) {
 
 		/* Send Command -- Command ref da ridefinire */
 		initialize();
@@ -70,7 +74,9 @@ public class AESHardwareKeystore implements MyAESKeystore{
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-				
+		
+		uno.writeData(c_type.toString());
+
 		while(!uno.available());
 		String token = uno.readData();	
 		closeConnection();
@@ -176,12 +182,14 @@ public class AESHardwareKeystore implements MyAESKeystore{
 	
 	public void closeConnection() {
 		uno.close();
+		mutex.release();
 	}
 	
 	public void initialize() {
 		try {
+			mutex.acquire();
 			uno.initialize();
-		} catch (PortInUseException | UnsupportedCommOperationException | IOException e) {
+		} catch (PortInUseException | UnsupportedCommOperationException | IOException | InterruptedException e) {
 			closeConnection();
 			e.printStackTrace();
 		}

@@ -5,6 +5,7 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.UIManager;
+import javax.swing.border.Border;
 
 import com.octo.captcha.service.image.AbstractManageableImageCaptchaService;
 import com.octo.captcha.service.image.DefaultManageableImageCaptchaService;
@@ -30,32 +31,32 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.util.UUID;
 import java.awt.event.ActionEvent;
+import java.awt.Font;
+import javax.swing.JSeparator;
+import java.awt.SystemColor;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class LoginFrame {
 
 	private JFrame frame;
 	
-	
-	private JPanel topPanel;
-	private JLabel welcomeLabel;
-	
 	private JPanel centerPanel;
 	private JPasswordField passwordField;
 	private JTextField userNameField;
-	private JLabel lblUsername;
-	private JLabel lblPassword;
-	
-	private JPanel bottomPanel;
 	private JButton loginButton;
-	private JButton chiudiButton;
 	private JLabel label;
 	
 	private JLabel captchaLabel;
 	private JTextField captchaField;
-	private JLabel labelInserisciCodice;
 	private String randString;
 	private DefaultManageableImageCaptchaService a;
 	private BufferedImage captchaImage;
+	private JLabel lblPassword;
+	private JSeparator separator_1;
+	private JLabel lblInsertCaptcha;
+	private JSeparator separator_2;
+	private JLabel lblNotRegisteredSign;
 	
 	
 	
@@ -91,7 +92,8 @@ public class LoginFrame {
 	 */
 	private void initialize() {
 		
-		LookAndFeelUtility.setLookAndFeel(LookAndFeelUtility.GRAPHITE);
+		if(!System.getProperty("os.name").toLowerCase().contains("mac"))
+			LookAndFeelUtility.setLookAndFeel(LookAndFeelUtility.GRAPHITE);
 		initializeFrame();
 		initializeTopPanel();
 		initializeCenterPanel();
@@ -109,72 +111,53 @@ public class LoginFrame {
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
-		frame.getContentPane().setBackground(Color.DARK_GRAY);
+		frame.getContentPane().setBackground(new Color(97, 212, 195));
 	}
 	
 	private void initializeTopPanel() {
-		
-		topPanel = new JPanel();
-		topPanel.setBounds(10, 11, 414, 47);
-		frame.getContentPane().add(topPanel);
-		topPanel.setLayout(null);
-		
-		welcomeLabel = new JLabel("Login Panel");
-		welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		welcomeLabel.setBounds(0, 0, 414, 49);
-		topPanel.add(welcomeLabel);
 	}
 	
 	private void initializeCenterPanel() {
 		
 		centerPanel = new JPanel();
-		centerPanel.setBounds(10, 69, 414, 140);
+		centerPanel.setBounds(81, 0, 299, 318);
 		frame.getContentPane().add(centerPanel);
 		centerPanel.setLayout(null);
-		
+		centerPanel.setBackground(new Color(36, 47, 65));
 		userNameField = new JTextField();
-		userNameField.setBounds(10, 62, 143, 20);
+		userNameField.setForeground(new Color(255, 255, 255));
+		userNameField.setBackground(new Color(36, 47, 65));
+		userNameField.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+		userNameField.setToolTipText("");
+		userNameField.setBounds(77, 18, 143, 23);
 		centerPanel.add(userNameField);
 		userNameField.setColumns(10);
 		
-		lblUsername = new JLabel("Username");
-		lblUsername.setBounds(10, 42, 143, 14);
-		centerPanel.add(lblUsername);
-		
-		lblPassword = new JLabel("Password");
-		lblPassword.setBounds(10, 93, 143, 14);
-		centerPanel.add(lblPassword);
-		
 		passwordField = new JPasswordField();
-		passwordField.setBounds(10, 109, 143, 20);
+		passwordField.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+		passwordField.setBounds(77, 75, 143, 23);
+
+		passwordField.setForeground(new Color(255, 255, 255));
+		passwordField.setBackground(new Color(36, 47, 65));
 		centerPanel.add(passwordField);
 		
 		captchaLabel = new JLabel("");
-		captchaLabel.setBounds(203, 11, 201, 71);
+		captchaLabel.setBounds(52, 123, 201, 71);
 		
 		centerPanel.add(captchaLabel);
 		
 		captchaField = new JTextField();
-		captchaField.setBounds(203, 109, 201, 20);
+		captchaField.setBounds(52, 195, 201, 20);
 		captchaField.setVisible(false);
+		captchaField.setForeground(new Color(255, 255, 255));
+		captchaField.setBackground(new Color(36, 47, 65));
 		centerPanel.add(captchaField);
 		captchaField.setColumns(10);
 		
-		labelInserisciCodice = new JLabel(MessageStringUtility.INSERT_CP);
-		labelInserisciCodice.setBounds(203, 93, 211, 14);
-		labelInserisciCodice.setVisible(false);
-		centerPanel.add(labelInserisciCodice);
-	}
-	
-	
-	private void initializeBottomPanel() {
-		
-		bottomPanel = new JPanel();
-		bottomPanel.setBounds(10, 220, 414, 70);
-		frame.getContentPane().add(bottomPanel);
-		bottomPanel.setLayout(null);
-		
 		loginButton = new JButton("Login");
+		loginButton.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+		loginButton.setBounds(103, 250, 89, 23);
+		centerPanel.add(loginButton);
 		loginButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
@@ -234,7 +217,8 @@ public class LoginFrame {
 						captchaImage = a.getImageChallengeForID(randString);
 						captchaLabel.setIcon(new ImageIcon(captchaImage));
 						captchaLabel.setVisible(true);
-						labelInserisciCodice.setVisible(true);
+						separator_2.setVisible(true);
+						lblInsertCaptcha.setVisible(true);
 						captchaField.setVisible(true);
 						
 					}catch(TwoFactorRequiredException e1) {
@@ -247,14 +231,14 @@ public class LoginFrame {
 						System.out.println(e2.getMessage());
 						JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.ACC_BLOCKED, MessageStringUtility.ERROR, JOptionPane.ERROR_MESSAGE);
 						captchaField.setVisible(false);
-						labelInserisciCodice.setVisible(false);
+						lblInsertCaptcha.setVisible(false);
 						captchaLabel.setVisible(false);
 					
 					}catch(ServerErrorException e3) {
 						System.out.println(e3.getMessage());
 						JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.COMM_ERR, MessageStringUtility.ERROR, JOptionPane.ERROR_MESSAGE);
 						captchaField.setVisible(false);
-						labelInserisciCodice.setVisible(false);
+						lblInsertCaptcha.setVisible(false);
 						captchaLabel.setVisible(false);
 					}
 					
@@ -263,21 +247,70 @@ public class LoginFrame {
 				
 			}
 		});
-		
-		
-		loginButton.setBounds(315, 36, 89, 23);
 		loginButton.requestFocus();
 		frame.getRootPane().setDefaultButton(loginButton);
-		bottomPanel.add(loginButton);
 		
-		chiudiButton = new JButton("Register");
-		chiudiButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
+		JSeparator separator = new JSeparator();
+		separator.setForeground(SystemColor.activeCaption);
+		separator.setBounds(77, 39, 143, 12);
+		centerPanel.add(separator);
+		
+		JLabel lblUsername = new JLabel("username");
+		lblUsername.setForeground(SystemColor.activeCaption);
+		lblUsername.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+		lblUsername.setBounds(163, 47, 61, 16);
+		centerPanel.add(lblUsername);
+		
+		lblPassword = new JLabel("password");
+		lblPassword.setForeground(Color.WHITE);
+		lblPassword.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+		lblPassword.setBounds(159, 105, 61, 16);
+		centerPanel.add(lblPassword);
+		
+		separator_1 = new JSeparator();
+		separator_1.setForeground(Color.WHITE);
+		separator_1.setBounds(77, 99, 143, 12);
+		centerPanel.add(separator_1);
+		
+		lblInsertCaptcha = new JLabel("Insert Captcha");
+		lblInsertCaptcha.setForeground(Color.WHITE);
+		lblInsertCaptcha.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+		lblInsertCaptcha.setBounds(163, 220, 90, 16);
+		lblInsertCaptcha.setVisible(false);
+		centerPanel.add(lblInsertCaptcha);
+		
+		separator_2 = new JSeparator();
+		separator_2.setForeground(Color.WHITE);
+		separator_2.setBounds(52, 214, 201, 12);
+		separator_2.setVisible(false);
+		centerPanel.add(separator_2);
+		
+		lblNotRegisteredSign = new JLabel("Not Registered? Sign Up");
+		lblNotRegisteredSign.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				lblNotRegisteredSign.setForeground(new Color(97, 212, 195));
+			}
+			@Override
+			public void mousePressed(MouseEvent e) {
+				lblNotRegisteredSign.setForeground(new Color(97, 212, 195));
 				System.out.println("Registrazione");
+
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+				lblNotRegisteredSign.setForeground(new Color(255, 255, 255));
+
 			}
 		});
-		chiudiButton.setBounds(216, 36, 89, 23);
-		bottomPanel.add(chiudiButton);
+		lblNotRegisteredSign.setForeground(new Color(255, 255, 255));
+		lblNotRegisteredSign.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+		lblNotRegisteredSign.setBounds(77, 285, 147, 16);
+		centerPanel.add(lblNotRegisteredSign);
+	}
+	
+	
+	private void initializeBottomPanel() {
 	}
 	
 	
