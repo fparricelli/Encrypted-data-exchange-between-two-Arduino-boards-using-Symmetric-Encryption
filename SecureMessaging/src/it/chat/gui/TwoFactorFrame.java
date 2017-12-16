@@ -117,6 +117,7 @@ public class TwoFactorFrame {
 	private void initializeBottomPanel() {
 		
 		codeField = new JTextField();
+		codeField.setForeground(new Color(255, 255, 255));
 		codeField.setBackground(new Color(97, 212, 195));
 		codeField.setFont(new Font("AppleGothic", Font.PLAIN, 13));
 		codeField.setBounds(22, 113, 405, 20);
