@@ -3,7 +3,9 @@ package it.dao;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Vector;
 
+import it.entity.User;
 import it.exception.authentication.NoSuchUserException;
 import it.utility.database.DatabaseTriple;
 import it.utility.database.DatabaseUtility;
@@ -11,17 +13,44 @@ import it.utility.database.DatabaseUtility;
 public class DAOUsers {
 
 	private static DatabaseUtility db = DatabaseUtility.getInstance();
+	public static Vector<User> utenti = getAll();
+
+	public static Vector<User> getAll() {
+		Vector<User> vettore = new Vector<User>();
+
+		try {
+			ResultSet res;
+			String query = "SELECT * FROM USERS";
+			DatabaseTriple triple = new DatabaseTriple(db.connect());
+			triple.setPreparedStatement(triple.getConn().prepareStatement(query));
+			triple.setResultSet(triple.getPreparedStatement().executeQuery());
+			triple.setPreparedStatement(triple.getConn().prepareStatement(query));
+			while (triple.getResultSet().next()) {
+				res = triple.getResultSet();
+				String username = res.getString(1);
+				String name = res.getString(3);
+				String surname = res.getString(4);
+				String password = res.getString(2);
+				String email = res.getString(5);
+				Integer telephone = res.getInt(6);
+				String role = res.getString(7);
+				vettore.add(new User(username, name, surname, password, email, role, telephone));
+			}
+			triple.closeAll();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return vettore;
+	}
 
 	public static boolean usernameAlreadyTaken(String u) throws SQLException {
-		String query = "SELECT USERNAME FROM USERS WHERE USERNAME = ?";
-		DatabaseTriple triple = new DatabaseTriple(db.connect());
-		Boolean alreadyTaken = false;
-		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
-		triple.getPreparedStatement().setString(1, u);
-		triple.setResultSet(triple.getPreparedStatement().executeQuery());
-		alreadyTaken = triple.getResultSet().next();
-		triple.closeAll();
-		return alreadyTaken;
+	if(getUser(u)!=null)
+	{
+		return true;
+	}
+	
+	return false;
 	}
 
 	public static void store(String username, String hash) throws SQLException {
@@ -36,70 +65,41 @@ public class DAOUsers {
 		triple.getPreparedStatement().setString(2, hash);
 		triple.getPreparedStatement().executeUpdate();
 		triple.closeAll();
+		utenti.add(new User(username, null, null, hash, null, null, null));
 
 	}
 
 	public static String load_hash(String username) throws NoSuchUserException, SQLException {
-		String hash = null;
-		String query1 = "SELECT PASSWORD FROM USERS ";
-		String query2 = "WHERE USERNAME=?";
-		String query = query1 + query2;
-		DatabaseTriple triple = new DatabaseTriple(db.connect());
+		for (int i = 0; i < utenti.size(); i++) {
+			if (utenti.get(i).getUsername().equals(username)) {
+				return utenti.get(i).getPasword();
+			}
+		}
+		throw new NoSuchUserException();
 
-		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
-		triple.getPreparedStatement().setString(1, username);
-		triple.setResultSet(triple.getPreparedStatement().executeQuery());
-		if (triple.getResultSet().next()) {
-			hash = triple.getResultSet().getString(1);
+	}
 
-		} else {
-			throw new NoSuchUserException();
+	public static User getUser(String username) {
+		for (int i = 0; i < utenti.size(); i++) {
+			if (utenti.get(i).getUsername().equals(username)) {
+				return utenti.get(i);
+			}
 		}
 
-		return hash;
+		return null;
 	}
 
 	public static String getUserMail(String username) throws SQLException {
-		String mail = null;
-		String query1 = "SELECT EMAIL FROM USERS ";
-		String query2 = "WHERE USERNAME=?";
-		String query = query1 + query2;
-		DatabaseTriple triple = new DatabaseTriple(db.connect());
-
-		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
-		triple.getPreparedStatement().setString(1, username);
-		triple.setResultSet(triple.getPreparedStatement().executeQuery());
-		if (triple.getResultSet().next()) {
-			mail = triple.getResultSet().getString(1);
-
-		}
-		return mail;
-
+		return getUser(username).getEmail();
 	}
 
 	public static HashMap<String, String> getUserDetails(String username) throws SQLException {
 		HashMap<String, String> map = new HashMap<String, String>();
-		String name;
-		String surname;
-		String telephone;
-		String role;
-		String query = "SELECT * FROM USERS WHERE USERNAME=?";
-		ResultSet set;
-		DatabaseTriple triple = new DatabaseTriple(db.connect());
-		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
-		triple.getPreparedStatement().setString(1, username);
-		triple.setResultSet(triple.getPreparedStatement().executeQuery());
-		set = triple.getResultSet();
-		set.next();
-		name = set.getString(3);
-		surname = set.getString(4);
-		telephone = String.valueOf(set.getInt(6));
-		role = set.getString(7);
-		triple.closeAll();
-		map.put("name", name);
-		map.put("surname", surname);
-		map.put("telephone", telephone);
-		map.put("role", role);
+		User u = getUser(username);
+		map.put("name", u.getName());
+		map.put("surname", u.getSurname());
+		map.put("telephone", u.getTelephone().toString());
+		map.put("role", u.getRole());
 		return map;
 	}
 }

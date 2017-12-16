@@ -230,7 +230,7 @@ public class DAOIDS {
 	}
 
 	public static void updateLockedUsersPerIP(String ip) throws SQLException {
-		String query = "UPDATE LOCKDOWN_IPS SET FAILED = ?, STARTING = ? WHERE IP = ?;";
+		String query = "UPDATE LOCKDOWN_IPS SET LOCKDOWN_IPS.FAILED = ?, LOCKDOWN_IPS.STARTING = ? WHERE LOCKDOWN_IPS.IP = ?";
 		DatabaseTriple triple = new DatabaseTriple(db.connect());
 		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
 		triple.getPreparedStatement().setInt(1, 1);
@@ -241,7 +241,7 @@ public class DAOIDS {
 	}
 
 	public static void updateLockedUsersPerIP(String ip, Integer attempts) throws SQLException {
-		String query = "UPDATE LOCKDOWN_IPS SET FAILED = ? WHERE IP = ?;";
+		String query = "UPDATE LOCKDOWN_IPS SET FAILED = ? WHERE IP = ?";
 		DatabaseTriple triple = new DatabaseTriple(db.connect());
 		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
 		triple.getPreparedStatement().setInt(1, attempts);
@@ -252,12 +252,14 @@ public class DAOIDS {
 	
 	public static Integer countLockedUser(String ip, Timestamp lastLocked) throws SQLException
 	{
+		System.out.println("Effettuo il conteggio");
 		boolean oneDay = true;
 		Integer count;
 		if(lastLocked!=null)
-		{
+		{System.out.println("Ho confermato che l'ho già bloccato prima");
 			if(lastLocked.getTime() > System.currentTimeMillis() - 24*60*60*1000)
 			{
+				System.out.println("Non è passato un giorno");
 				oneDay = false;
 			}
 		}
@@ -265,6 +267,7 @@ public class DAOIDS {
 		{
 			return countLockedUsers(ip);
 		}
+
 		DatabaseTriple triple = new DatabaseTriple(db.connect());
 		String query = "SELECT COUNT(*) from ACCOUNT_LOCKDOWN WHERE ACCOUNT_LOCKDOWN.STARTING >? AND IP=?";
 		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
@@ -281,13 +284,37 @@ public class DAOIDS {
 	public static Integer handleCountLockedUser(String ip) throws SQLException
 	{
 		Timestamp time = lastIPLocked(ip);
+		if(time!=null)
+		{
+			if(System.currentTimeMillis() < time.getTime() + IP_LOCKOUT * MILLISECONDS_TO_HOURS)
+		{
+			if(countLockedUsersInterval(ip, time)>=MAXIMUM_ACCOUNTS_ATTEMPTS_FOR_IP)
+			{
+			return MAXIMUM_ACCOUNTS_ATTEMPTS_FOR_IP;
+			}
+		}
+		}
 		Integer count = countLockedUser(ip, time);
 		System.out.println(count);
 		return count;
 	}
 	
-	public static Integer countLockedUsers (String ip) throws SQLException
+	public static Integer countLockedUsersInterval (String ip, Timestamp time) throws SQLException
 	{
+		Integer count = 0;
+		String query =	"SELECT FAILED from LOCKDOWN_IPS WHERE LOCKDOWN_IPS.STARTING=? AND LOCKDOWN_IPS.IP=?";
+		DatabaseTriple triple = new DatabaseTriple(db.connect());
+		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
+		triple.getPreparedStatement().setTimestamp(1, time);
+		triple.getPreparedStatement().setString(2, ip);
+		triple.setResultSet(triple.getPreparedStatement().executeQuery());
+		triple.getResultSet().next();
+		count = triple.getResultSet().getInt(1);
+		return count;
+	}
+	public static Integer countLockedUsers (String ip) throws SQLException
+	{ 
+		
 	Integer count = 0;
 	String query =	"SELECT COUNT(*) from ACCOUNT_LOCKDOWN WHERE ACCOUNT_LOCKDOWN.STARTING > CURRENT_TIMESTAMP-? AND IP=?";
 	DatabaseTriple triple = new DatabaseTriple(db.connect());
@@ -316,6 +343,11 @@ public class DAOIDS {
 		if(triple.getResultSet().next())
 		{
 			time = triple.getResultSet().getTimestamp(1);
+			System.out.println("DEBUG: Già bloccato prima il " + time);
+		}
+		else
+		{
+			System.out.println("Non l'ho bloccato prima");
 		}
 		return time;
 		

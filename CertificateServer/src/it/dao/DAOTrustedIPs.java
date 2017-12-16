@@ -2,34 +2,54 @@ package it.dao;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Vector;
 
+import it.entity.TrustedDevice;
 import it.utility.MutableBoolean;
 import it.utility.database.DatabaseTriple;
 import it.utility.database.DatabaseUtility;
+
+
 
 public class DAOTrustedIPs {
 	public static final Integer CODE_DURATION = 30;
 	private static final Integer MINUTES_TO_MILLISECONDS = 60*1000;
 	private static DatabaseUtility db = DatabaseUtility.getInstance();
+	public static Vector<TrustedDevice> vector = getAll();
+	
+	
+	public static Vector<TrustedDevice> getAll ()
+	{ Vector<TrustedDevice> vector = new Vector<TrustedDevice>();
+		try {
+		String query = "SELECT * FROM TRUSTED_DEVICES";
+		DatabaseTriple triple = new DatabaseTriple(db.connect());
+		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
+		triple.setResultSet(triple.getPreparedStatement().executeQuery());
+		while(triple.getResultSet().next())
+		{
+			vector.add(new TrustedDevice(triple.getResultSet().getString(1), triple.getResultSet().getString(2)));
+		}
+		
+		triple.closeAll();
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+		return vector;
+	}
+	
 	
 	public static boolean isTrusted (String username, String ip) throws SQLException
 	{
-		boolean isTrusted = false;
-		String query = "SELECT COUNT(*) FROM TRUSTED_DEVICES WHERE USERNAME=? AND IP = ?";
-		DatabaseTriple triple = new DatabaseTriple(db.connect());
-		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
-		triple.getPreparedStatement().setString(1, username);
-		triple.getPreparedStatement().setString(2, ip);
-		triple.setResultSet(triple.getPreparedStatement().executeQuery());
-		if(triple.getResultSet().next())
+		for (int i=0; i<vector.size(); i++)
 		{
-			if(triple.getResultSet().getInt(1)>0)
+			if(vector.get(i).getIp().equals(ip) && vector.get(i).getUsername().equals(username))
 			{
-			isTrusted = true;
+				return true;
 			}
 		}
-		triple.closeAll();
-		return isTrusted;
+		return false;
 	}
 	
 	public static String retrieveCode(String username,String ip) throws SQLException
@@ -124,7 +144,7 @@ public class DAOTrustedIPs {
 		triple.getPreparedStatement().setString(2, ip);
 		triple.getPreparedStatement().executeUpdate();
 		triple.closeAll();
-		
+		vector.add(new TrustedDevice(username, ip));
 	}
 	
 }

@@ -33,8 +33,8 @@ public class DebugAuthenticationServlet {
 		//almostLockDown();
 	//	createFailedLogins();
 //testServlet("bob","password");
-	//	System.out.println("IP LOCKDOWN: " + createIPLockdownFromFailedLogins());
-		testServlet("Luca","Pirozzi");
+		System.out.println("IP LOCKDOWN: " + createIPLockdownFromFailedLogins());
+	//	testServlet("Luca","Pirozzi");
 	}
 	
 	public static boolean createIPLockdownFromFailedLogins () throws Exception
