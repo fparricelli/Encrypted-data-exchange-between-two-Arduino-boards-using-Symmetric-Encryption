@@ -209,14 +209,11 @@ public class RegistrationFrame {
 				
 				params.put("username", usernameField.getText());
 				params.put("password", String.valueOf(passwordField.getPassword()));
-				
-				//Da de commentare quando la servlet viene allineata con tutti i parametri
-				
-				/*params.put("name", nameField.getText());
+				params.put("name", nameField.getText());
 				params.put("surname", surnameField.getText());
 				params.put("email", emailField.getText());
 				params.put("telephone", telephoneField.getText());
-				params.put("role", String.valueOf(roleBox.getSelectedItem()).toLowerCase());*/
+				params.put("role", String.valueOf(roleBox.getSelectedItem()).toLowerCase());
 				
 				ServerHelper sh = new ServerHelper();
 				sh.register(params);

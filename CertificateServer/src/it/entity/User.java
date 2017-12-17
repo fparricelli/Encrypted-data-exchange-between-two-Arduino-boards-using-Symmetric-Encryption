@@ -1,13 +1,12 @@
 package it.entity;
 
 public class User {
-	public User(String username, String name, String surname, String pasword, String email, String role,
+	public User(String username, String name, String surname, String email, String role,
 			Integer telephone) {
 		super();
 		this.username = username;
 		this.name = name;
 		this.surname = surname;
-		this.pasword = pasword;
 		this.email = email;
 		this.role = role;
 		this.telephone = telephone;
@@ -15,7 +14,6 @@ public class User {
 	private String username;
 	private String name;
 	private String surname;
-	private String pasword;
 	private String email;
 	private String role;
 	private Integer telephone;
@@ -36,12 +34,6 @@ public class User {
 	}
 	public void setSurname(String surname) {
 		this.surname = surname;
-	}
-	public String getPasword() {
-		return pasword;
-	}
-	public void setPasword(String pasword) {
-		this.pasword = pasword;
 	}
 	public String getEmail() {
 		return email;

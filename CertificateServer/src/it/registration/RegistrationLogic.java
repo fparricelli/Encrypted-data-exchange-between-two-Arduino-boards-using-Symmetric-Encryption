@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import org.mindrot.jbcrypt.BCrypt;
 
 import it.dao.DAOUsers;
+import it.exception.registration.MailAlreadyExistsException;
 import it.exception.registration.UserAlreadyExistsException;
 
 public class RegistrationLogic {
@@ -12,14 +13,19 @@ public class RegistrationLogic {
 	//Il massimo è 30 ma il tempo aumenta esponenzialmente ad ogni passaggio: già 15 richiede molto tempo, 20 tantissimo.
 	private static Integer rounds = 12;
 	
-	public static void store(String username, String pasword) throws SQLException, UserAlreadyExistsException
+	public static void store(String username, String password, String mail, String name, String surname, Integer telephone) throws SQLException, UserAlreadyExistsException, MailAlreadyExistsException
 	{
+	
 		if(DAOUsers.usernameAlreadyTaken(username))
 		{
 			throw new UserAlreadyExistsException();
 		}
-		String bcrypted = BCrypt.hashpw(pasword, BCrypt.gensalt(rounds));
-		DAOUsers.store(username,bcrypted);
+		if(DAOUsers.mailAlreadyTaken(mail))
+		{
+			throw new MailAlreadyExistsException();
+		}
+		String bcrypted = BCrypt.hashpw(password, BCrypt.gensalt(rounds));
+		DAOUsers.store(username,bcrypted,mail,name,surname,telephone);
 	}
 
 }
