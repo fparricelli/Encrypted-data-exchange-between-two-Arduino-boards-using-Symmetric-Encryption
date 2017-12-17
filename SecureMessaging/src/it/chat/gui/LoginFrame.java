@@ -57,6 +57,7 @@ public class LoginFrame {
 	private JLabel lblInsertCaptcha;
 	private JSeparator separator_2;
 	private JLabel lblNotRegisteredSign;
+	private JLabel lblNewLabel;
 	
 	
 	
@@ -309,6 +310,11 @@ public class LoginFrame {
 		lblNotRegisteredSign.setFont(new Font("AppleGothic", Font.PLAIN, 13));
 		lblNotRegisteredSign.setBounds(77, 285, 147, 16);
 		centerPanel.add(lblNotRegisteredSign);
+		
+		lblNewLabel = new JLabel("");
+		lblNewLabel.setIcon(new ImageIcon(LoginFrame.class.getResource("/it/chat/gui/icons/icon_app.png")));
+		lblNewLabel.setBounds(6, -197, 470, 509);
+		frame.getContentPane().add(lblNewLabel);
 	}
 	
 	

@@ -1,0 +1,23 @@
+Istruzioni per abilitare client authentication su tomcat:
+Nella cartella CertificateServer/secure_place ho messo il nuovo keystore di tomcat.
+
+Andate nella cartella di installazione di tomcat>conf>aprite server.xml
+Navigate fino alla parte dove abbiamo abilitato il connettore che permetteva di usare SSL.
+Modificatelo in modo che appaia cosi:
+
+<Connector
+           protocol="org.apache.coyote.http11.Http11NioProtocol"
+           port="8443" maxThreads="200"
+           scheme="https" secure="true" SSLEnabled="true"
+           keystoreFile="${user.home}/tomcat_keystore.jks" keystorePass="tomcatkeystore"
+           clientAuth="true" sslProtocol="TLS"
+           truststoreFile="${user.home}/tomcat_keystore.jks"
+           truststorePass="tomcatkeystore"/>
+
+
+Notate bene: quando specifichiamo il file (keystoreFile, truststoreFile), è necessario che la voce in questione punti al keystore 
+aggiornato che vi ho messo nella cartella secure_place del Certificate Server (mettetelo da qualche parte e dategli il path).
+
+Dopodichè riavviate Tomcat, caricateci il progetto sopra, e verificate che tutto funzioni correttamente.
+
+

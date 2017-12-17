@@ -1,5 +1,6 @@
 package it.chat.gui;
 
+import java.awt.Color;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -28,28 +29,37 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JComboBox;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.awt.event.ActionEvent;
+import java.awt.Font;
+import javax.swing.JSeparator;
+import javax.swing.ImageIcon;
 
 public class RegistrationFrame {
 
 	private JFrame frame;
-	private JTextField usernameField;
+	private JPanel centerPanel;
+	private JPanel bottomPanel;
+	private JButton btnRegister;
 	private JPasswordField passwordField;
 	private JTextField nameField;
 	private JTextField surnameField;
+	private JLabel lblSurname;
+	private JSeparator separator_3;
 	private JTextField emailField;
+	private JLabel lblEmail;
+	private JSeparator separator_4;
 	private JTextField telephoneField;
-	
-	private JPanel topPanel;
-	private JPanel centerPanel;
-	private JPanel bottomPanel;
-	
-	private JButton btnBack;
-	private JButton btnRegister;
-	
-	private JComboBox roleBox;
+	private JLabel lblTelephone;
+	private JSeparator separator_5;
+	private JTextField usernameField;
+	private JLabel lblUsername;
+	private JSeparator separator;
+	private JLabel lblAlreadyAMember;
+	private JLabel lblNewLabel;
 
 	/**
 	 * Launch the application.
@@ -93,102 +103,168 @@ public class RegistrationFrame {
 	
 	private void initializeFrame() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 450, 358);
+		frame.setBounds(100, 100, 450, 400);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		frame.setResizable(false);
 		frame.setTitle("Registration Panel");
+		frame.getContentPane().setBackground(new Color(97, 212, 195));
+
 	}
 	
 	private void initializeTopPanel() {
-		
-		topPanel = new JPanel();
-		topPanel.setBounds(10, 11, 414, 34);
-		frame.getContentPane().add(topPanel);
-		topPanel.setLayout(null);
 		
 	}
 	
 	private void initializeCenterPanel() {
 		
 		centerPanel = new JPanel();
-		centerPanel.setBounds(10, 54, 414, 190);
+		centerPanel.setBounds(70, 0, 307, 378);
 		frame.getContentPane().add(centerPanel);
 		centerPanel.setLayout(null);
+		centerPanel.setBackground(new Color(36, 47, 65));
 		
-		JLabel lblUsername = new JLabel("Username");
-		lblUsername.setBounds(10, 22, 68, 14);
-		centerPanel.add(lblUsername);
-		
-		usernameField = new JTextField();
-		usernameField.setBounds(82, 19, 102, 20);
-		centerPanel.add(usernameField);
-		usernameField.setColumns(10);
-		
-		passwordField = new JPasswordField();
-		passwordField.setBounds(82, 47, 102, 20);
-		centerPanel.add(passwordField);
-		
-		JLabel lblPassword = new JLabel("Password");
-		lblPassword.setBounds(10, 50, 68, 14);
+		JLabel lblPassword = new JLabel("password");
+		lblPassword.setForeground(new Color(255, 255, 255));
+		lblPassword.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+		lblPassword.setBounds(175, 98, 68, 20);
 		centerPanel.add(lblPassword);
 		
-		nameField = new JTextField();
-		nameField.setBounds(296, 19, 108, 20);
-		centerPanel.add(nameField);
-		nameField.setColumns(10);
-		
-		JLabel lblNome = new JLabel("Name");
-		lblNome.setBounds(214, 22, 72, 14);
+		JLabel lblNome = new JLabel("name");
+		lblNome.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+		lblNome.setForeground(new Color(255, 255, 255));
+		lblNome.setBounds(197, 149, 72, 14);
 		centerPanel.add(lblNome);
 		
-		surnameField = new JTextField();
-		surnameField.setBounds(296, 47, 108, 20);
-		centerPanel.add(surnameField);
-		surnameField.setColumns(10);
+		btnRegister = new JButton("Register");
+		btnRegister.setBounds(115, 318, 89, 23);
+		centerPanel.add(btnRegister);
 		
-		JLabel lblSurname = new JLabel("Surname");
-		lblSurname.setBounds(214, 50, 77, 14);
+		passwordField = new JPasswordField();
+		passwordField.setForeground(new Color(255, 255, 255));
+		passwordField.setColumns(10);
+		passwordField.setBackground(new Color(36, 47, 65));
+		passwordField.setBounds(75, 72, 159, 20);
+		centerPanel.add(passwordField);
+		
+		JSeparator separator_1 = new JSeparator();
+		separator_1.setForeground(Color.WHITE);
+		separator_1.setBounds(74, 91, 159, 14);
+		centerPanel.add(separator_1);
+		
+		nameField = new JTextField();
+		nameField.setForeground(new Color(255, 255, 255));
+		nameField.setColumns(10);
+		nameField.setBackground(new Color(36, 47, 65));
+		nameField.setBounds(74, 117, 159, 20);
+		centerPanel.add(nameField);
+		
+		JSeparator separator_2 = new JSeparator();
+		separator_2.setForeground(Color.WHITE);
+		separator_2.setBounds(74, 138, 159, 14);
+		centerPanel.add(separator_2);
+		
+		surnameField = new JTextField();
+		surnameField.setForeground(new Color(255, 255, 255));
+		surnameField.setColumns(10);
+		surnameField.setBackground(new Color(36, 47, 65));
+		surnameField.setBounds(74, 164, 159, 20);
+		centerPanel.add(surnameField);
+		
+		lblSurname = new JLabel("surname");
+		lblSurname.setForeground(Color.WHITE);
+		lblSurname.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+		lblSurname.setBounds(175, 196, 68, 14);
 		centerPanel.add(lblSurname);
 		
-		emailField = new JTextField();
-		emailField.setBounds(296, 79, 108, 20);
-		centerPanel.add(emailField);
-		emailField.setColumns(10);
+		separator_3 = new JSeparator();
+		separator_3.setForeground(Color.WHITE);
+		separator_3.setBounds(74, 185, 159, 14);
+		centerPanel.add(separator_3);
 		
-		JLabel lblEmail = new JLabel("Email");
-		lblEmail.setBounds(214, 82, 68, 14);
+		emailField = new JTextField();
+		emailField.setForeground(new Color(255, 255, 255));
+		emailField.setColumns(10);
+		emailField.setBackground(new Color(36, 47, 65));
+		emailField.setBounds(74, 211, 159, 20);
+		centerPanel.add(emailField);
+		
+		lblEmail = new JLabel("email");
+		lblEmail.setForeground(Color.WHITE);
+		lblEmail.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+		lblEmail.setBounds(196, 243, 39, 14);
 		centerPanel.add(lblEmail);
 		
+		separator_4 = new JSeparator();
+		separator_4.setForeground(Color.WHITE);
+		separator_4.setBounds(74, 232, 159, 14);
+		centerPanel.add(separator_4);
+		
 		telephoneField = new JTextField();
-		telephoneField.setBounds(296, 113, 108, 20);
-		centerPanel.add(telephoneField);
+		telephoneField.setForeground(new Color(255, 255, 255));
 		telephoneField.setColumns(10);
+		telephoneField.setBackground(new Color(36, 47, 65));
+		telephoneField.setBounds(74, 259, 159, 20);
+		centerPanel.add(telephoneField);
 		
-		JLabel lblNumber = new JLabel("Telephone");
-		lblNumber.setBounds(214, 116, 77, 14);
-		centerPanel.add(lblNumber);
+		lblTelephone = new JLabel("telephone");
+		lblTelephone.setForeground(Color.WHITE);
+		lblTelephone.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+		lblTelephone.setBounds(175, 292, 72, 14);
+		centerPanel.add(lblTelephone);
 		
-		roleBox = new JComboBox();
-		roleBox.setBounds(296, 145, 108, 20);
-		roleBox.addItem("Tecnico");
-		roleBox.addItem("Utente");
-		roleBox.addItem("Admin");
-		centerPanel.add(roleBox);
+		separator_5 = new JSeparator();
+		separator_5.setForeground(Color.WHITE);
+		separator_5.setBounds(74, 280, 159, 14);
+		centerPanel.add(separator_5);
 		
-		JLabel lblRole = new JLabel("Role");
-		lblRole.setBounds(214, 148, 68, 14);
-		centerPanel.add(lblRole);
-	}
-	
-	private void initializeBottomPanel() {
+		usernameField = new JTextField();
+		usernameField.setForeground(new Color(255, 255, 255));
+		usernameField.setColumns(10);
+		usernameField.setBackground(new Color(36, 47, 65));
+		usernameField.setBounds(75, 22, 159, 20);
+		centerPanel.add(usernameField);
 		
-		JPanel bottomPanel = new JPanel();
-		bottomPanel.setBounds(10, 255, 414, 53);
-		frame.getContentPane().add(bottomPanel);
-		bottomPanel.setLayout(null);
+		lblUsername = new JLabel("username");
+		lblUsername.setForeground(Color.WHITE);
+		lblUsername.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+		lblUsername.setBounds(175, 54, 72, 14);
+		centerPanel.add(lblUsername);
 		
-		btnRegister = new JButton("Register");
+		separator = new JSeparator();
+		separator.setForeground(Color.WHITE);
+		separator.setBounds(75, 43, 159, 14);
+		centerPanel.add(separator);
+		
+		lblAlreadyAMember = new JLabel("Already a member? Sign in");
+		lblAlreadyAMember.setForeground(Color.WHITE);
+		lblAlreadyAMember.setFont(new Font("AppleGothic", Font.PLAIN, 13));
+		lblAlreadyAMember.setBounds(75, 345, 165, 16);
+		lblAlreadyAMember.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				lblAlreadyAMember.setForeground(new Color(97, 212, 195));
+			}
+			@Override
+			public void mousePressed(MouseEvent e) {
+				lblAlreadyAMember.setForeground(new Color(97, 212, 195));
+				frame.dispose();
+				LoginFrame lf = new LoginFrame();
+				lf.setVisible(true);
+
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+				lblAlreadyAMember.setForeground(new Color(255, 255, 255));
+
+			}
+		});
+		centerPanel.add(lblAlreadyAMember);
+		
+		lblNewLabel = new JLabel("");
+		lblNewLabel.setIcon(new ImageIcon(RegistrationFrame.class.getResource("/it/chat/gui/icons/icon_app.png")));
+		lblNewLabel.setBounds(6, -156, 477, 534);
+		frame.getContentPane().add(lblNewLabel);
 		btnRegister.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 			
@@ -198,7 +274,7 @@ public class RegistrationFrame {
 				String pass = String.valueOf(passwordField.getPassword());
 				checkPassword(pass);
 				
-				//Necessario controllo sulla validità degli parametri di input
+				//Necessario controllo sulla validitï¿½ degli parametri di input
 				
 				//Quando so che sono validi (e che non sono vuoti)..
 				
@@ -213,7 +289,7 @@ public class RegistrationFrame {
 				params.put("surname", surnameField.getText());
 				params.put("email", emailField.getText());
 				params.put("telephone", telephoneField.getText());
-				params.put("role", String.valueOf(roleBox.getSelectedItem()).toLowerCase());
+				
 				
 				ServerHelper sh = new ServerHelper();
 				sh.register(params);
@@ -239,12 +315,9 @@ public class RegistrationFrame {
 				
 			}
 		});
-		btnRegister.setBounds(315, 19, 89, 23);
-		bottomPanel.add(btnRegister);
-		
-		btnBack = new JButton("Back");
-		btnBack.setBounds(216, 19, 89, 23);
-		bottomPanel.add(btnBack);
+	}
+	
+	private void initializeBottomPanel() {
 	}
 	
 	
