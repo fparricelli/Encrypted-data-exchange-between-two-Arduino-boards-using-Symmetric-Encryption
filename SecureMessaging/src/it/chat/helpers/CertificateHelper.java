@@ -172,45 +172,7 @@ public class CertificateHelper {
 	}
 	
 	
-	/*private void initKeystoreProperties() {
-		String [] p = extractParameters();
-		String cm = System.getProperty("user.dir");
-		String path = cm+this.keystorePath.substring(1);
-		
-		System.setProperty("javax.net.ssl.keyStore",path);
-		System.setProperty("javax.net.ssl.keyStorePassword", p[1]);
-		
-	}
 	
-	private void initSSLContext() {
-		
-	try {
-		KeyStore ks = KeyStore.getInstance("JKS");
-	    InputStream ksIs = new FileInputStream(this.keystorePath);
-	    try {
-	        ks.load(ksIs, extractParameters()[1].toCharArray());
-	    } finally {
-	        if (ksIs != null) {
-	            ksIs.close();
-	        }
-	    }
-
-	    KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-	    kmf.init(ks, extractParameters()[1].toCharArray());
-	    
-	    TrustManager[] trustManagers = new TrustManager[] { 
-			    new ReloadableX509TrustManager(this.truststorePath, this.certificatesPath) 
-	    };
-	    
-	    SSLContext sslContext = SSLContext.getInstance("SSL");
-	    sslContext.init(kmf.getKeyManagers(), trustManagers, null);
-	    SSLContext.setDefault(sslContext);
-	
-	}catch(Exception e) {
-		e.printStackTrace();
-	}
-		
-	}*/
 	
 	private String [] extractParameters() {
 		try {
