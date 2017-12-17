@@ -1,10 +1,21 @@
 package it.chat.threads;
+import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PipedOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
-
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JProgressBar;
@@ -14,7 +25,10 @@ import it.chat.gui.ChatFrame;
 import it.chat.gui.SwingProgressBar;
 import it.chat.helpers.CertificateHelper;
 import it.chat.helpers.MessagingHelper;
+import it.chat.helpers.ServerHelper;
 import it.sm.exception.CertificateNotFoundException;
+import it.sm.exception.RedirectToLoginException;
+import it.sm.exception.ServerErrorException;
 import it.sm.keystore.aeskeystore.AESHardwareKeystore;
 import it.sm.keystore.aeskeystore.MyAESKeystore;
 import it.sm.messages.Messaggio;
@@ -97,13 +111,19 @@ public class MessageListenerThread extends Thread{
 							this.actChat.setFrame(cf);
 							
 						}
+						try {
+						verifySign(msg);
+						
+						}catch(Exception e) {
+							System.out.println("Verify Sign Failed");
+						}
 						
 						System.out.println("[MsgListenerThread] Ricevuto primo token:"+msg.getMsg()+", avvio handshake");
 
 						String token_to_send = aesKeystore.requireTokenToShare(c_type);
 						
 						first_token = msg.getMsg();
-
+						
 						mh.sendMessage(this.actChat.getCurrentIdentity(), this.actChat.getDest(), token_to_send, this.actChat.getFrame());
 					
 						System.out.println("[MsgListenerThread] Token "+token_to_send+" inviato");
@@ -224,6 +244,30 @@ public class MessageListenerThread extends Thread{
 		
 		
 	}
+	
+public boolean verifySign(Messaggio msg) throws CertificateNotFoundException, ServerErrorException, RedirectToLoginException, CertificateException, FileNotFoundException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+	CertificateHelper ch = CertificateHelper.getInstance();
+	ServerHelper sh = new ServerHelper();
+	
+	File cert = sh.getCertificate(msg.getSender().substring(0, msg.getSender().indexOf(" ")), msg.getSender().substring(1 + msg.getSender().indexOf(" "), msg.getSender().length()), ch.getCertificatesPath());
+	
+	CertificateFactory fact = CertificateFactory.getInstance("X.509");
+    FileInputStream fis = new FileInputStream (cert);
+    X509Certificate cer = (X509Certificate) fact.generateCertificate(fis);
+    Signature sig = Signature.getInstance("MD5withRSA");
+    sig.initVerify(cer.getPublicKey());
+ 
+    sig.update(msg.getMsg().getBytes());
+    
+   if(sig.verify(msg.getSignature())) {
+	   System.out.println("OK Firma");
+	   return true;
+   }
+   System.out.println("NO Firma");
+   return false;
+
+
+}
 	
 
 }

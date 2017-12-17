@@ -6,12 +6,15 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Base64;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -24,13 +27,26 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
+import java.security.InvalidKeyException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+
 import it.chat.gui.utility.LookAndFeelUtility;
 import it.chat.gui.utility.MessageStringUtility;
+import it.chat.helpers.CertificateHelper;
 import it.chat.helpers.MessagingHelper;
 import it.chat.threads.MessageListenerThread;
 import it.sm.exception.OutOfBoundEncrypt;
 import it.sm.keystore.aeskeystore.AESHardwareKeystore;
 import it.sm.keystore.aeskeystore.MyAESKeystore;
+import it.sm.keystore.rsakeystore.MyRSAKeystore;
+import it.sm.keystore.rsakeystore.RSASoftwareKeystore;
 import it.sm.messages.EncryptedMessage;
 import it.sm.messages.Messaggio;
 
@@ -316,17 +332,50 @@ public class ChatFrame {
 		
 		bar.updateBar(15);
 		
-		MessagingHelper mh = MessagingHelper.getInstance();
+		try {
+			String token_to_send = aesKeyStore.requireTokenToShare(client_type);
+			
+			byte[] token_to_send_sign = signToken(token_to_send);
+			
+			token_to_send = aesKeyStore.requireTokenToShare(client_type);
+			
+			System.out.println("[ChatFrame - STARTER] Avvio Handshake con token:"+token_to_send);
+
+			bar.updateBar(30);
+			
+			MessagingHelper mh = MessagingHelper.getInstance();
+			
+			//mh.sendMessage(currentIdentity,getDestPort(), token_to_send.toString(), getChatFrame());
+			
+			mh.sendHandshakeMessage(currentIdentity, getDestPort(), token_to_send, token_to_send_sign, getChatFrame());
+			
+			this.progressFrame.dispose();
+		
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			handshakeError();
+		}
+	}
+	
+	public byte[] signToken(String token_to_send) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, InvalidKeyException, UnrecoverableKeyException, SignatureException {
 				
-		String token_to_send = aesKeyStore.requireTokenToShare(client_type);
+		CertificateHelper ch = CertificateHelper.getInstance();
 		
-		System.out.println("[ChatFrame - STARTER] Avvio Handshake con token:"+token_to_send);
+		String ks_path = ch.getKeystorePath();
 		
-		bar.updateBar(30);
+		KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+		InputStream in = new FileInputStream(ks_path);
+	
+			ks.load(in, ch.extractParameters()[1].toCharArray());
 		
-		mh.sendMessage(currentIdentity,getDestPort(), token_to_send, getChatFrame());
+
+			Signature sign = Signature.getInstance("MD5withRSA");
+			sign.initSign((PrivateKey)ks.getKey(ch.extractParameters()[0], ch.extractParameters()[1].toCharArray()));
+			sign.update(token_to_send.getBytes());
+			
+		return sign.sign();
 		
-		this.progressFrame.dispose();
 	}
 		
 	

@@ -15,7 +15,7 @@ import javax.crypto.Cipher;
  */
 public class RSASoftwareKeystore implements MyRSAKeystore{
 	
-	//Path al quale è possibile trovare il keystore file
+	//Path al quale ï¿½ possibile trovare il keystore file
 	private String keystorePath;
 	
 	//Alias del keystore (nome)
@@ -64,12 +64,6 @@ public class RSASoftwareKeystore implements MyRSAKeystore{
 	public byte[] sign(byte[] messageBytes, String alg) throws Exception{
 		
 		String sigAlgorithm = alg+"withRSA";
-		
-		if(!sigAlgorithm.equals("MD5withRSA")) {	//Alg: solo md5
-			
-			throw new Exception("L'algoritmo specificato non è supportato.");
-		
-		}else {
 			
 			Signature sig = Signature.getInstance(sigAlgorithm);
 			sig.initSign(extractPrivateKey());
@@ -78,13 +72,13 @@ public class RSASoftwareKeystore implements MyRSAKeystore{
 			return sig.sign();
 		}
 		
-	}
+	
 	
 	/* Procedura chiamata per estrarre la chiave privata dal Keystore
 	 * ogniqualvolta ce ne fosse bisogno, in modo da non dover
 	 * salvare la PrivateKey come variabile membro.
 	 */
-	private PrivateKey extractPrivateKey() throws Exception {
+	public PrivateKey extractPrivateKey() throws Exception {
 		
 		FileInputStream fis = new FileInputStream(keystorePath);
 		

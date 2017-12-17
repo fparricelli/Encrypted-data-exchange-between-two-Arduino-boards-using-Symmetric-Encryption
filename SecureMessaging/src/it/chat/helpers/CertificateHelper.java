@@ -174,7 +174,7 @@ public class CertificateHelper {
 	
 	
 	
-	private String [] extractParameters() {
+	public String [] extractParameters() {
 		try {
 			
 			BufferedReader br = new BufferedReader(new FileReader(this.dataFilePath));

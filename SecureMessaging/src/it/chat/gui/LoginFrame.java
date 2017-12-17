@@ -34,6 +34,7 @@ import java.awt.event.ActionEvent;
 import java.awt.Font;
 import javax.swing.JSeparator;
 import java.awt.SystemColor;
+import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -102,7 +103,6 @@ public class LoginFrame {
 		
 	
 	}
-	
 	
 	
 	private void initializeFrame() {
