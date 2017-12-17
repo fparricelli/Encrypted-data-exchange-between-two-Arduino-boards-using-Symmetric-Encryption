@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.sun.xml.internal.ws.client.SenderException;
 
+import it.exception.registration.MailAlreadyExistsException;
 import it.exception.registration.UserAlreadyExistsException;
 import it.utility.network.HTTPCodesClass;
 import it.utility.network.HTTPCommonMethods;
@@ -32,19 +33,23 @@ public class RegistrationServlet extends HttpServlet {
 	 * Il do post restituisce:
 	 * 
 	 * 200 - Registrazione a buon fine
-	 * 409 - Username già presente
+	 * 409 - Username o mail già presente
 	 * 500 - errore interno al server
 	 * NIENTE: IOException
 	 * (non-Javadoc)
 	 * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
 
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)  {
 		Integer httpCode = null;
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
+		String name = request.getParameter("name");
+		String surname = request.getParameter("surname");
+		String email = request.getParameter("email");
+		Integer telephone  = Integer.valueOf(request.getParameter("telephone"));
 		try {
-		RegistrationLogic.store(username, password);
+		RegistrationLogic.store(username, password,email,name,surname,telephone);
 		httpCode = HTTPCodesClass.SUCCESS;
 		HTTPCommonMethods.sendReplyHeaderOnly(response, httpCode);
 		}
@@ -59,6 +64,19 @@ public class RegistrationServlet extends HttpServlet {
 				e1.printStackTrace();
 			}
 		}
+		
+		catch(MailAlreadyExistsException e)
+		{
+			httpCode = e.getHttpCode();
+			try {
+				HTTPCommonMethods.sendReplyHeaderOnly(response, httpCode);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+		
+		
 		catch (SQLException e)
 		{
 			httpCode = HTTPCodesClass.SERVER_ERROR;

@@ -3,6 +3,9 @@ package it.dao;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import it.utility.MutableBoolean;
 import it.utility.MutableInteger;
 import it.utility.database.DatabaseTriple;
@@ -17,12 +20,20 @@ public class DAOIDS {
 	private static final Integer IP_LOCKOUT = 2;
 	private static final Integer LOCKOUT_CHECK_DAYS = 1;
 	private static final Integer MILLISECONDS_TO_HOURS = 60 * MILLISECONDS_TO_MINUTES;
-	private static final Integer MAXIMUM_ACCOUNTS_ATTEMPTS_FOR_IP = 5;
+	
+	//Numero massimo di account che possono essere bloccati prima di ricevere un IPBAN.
+	//Da tenere in conto che in base alla logica dell'applicazione il numero reale di login falliti
+	//massimi è questo numero + 1 quindi se vale 4 si viene bloccati al quinto login fallito
+	//(la logica è che al massimo posso avere MAXIMUM_ACCOUNTS_ATTEMPTS_FOR_IP account bloccati prima di
+	//essere bloccato. Uno stesso account bloccato più volte conta (evita attacchi ripetuti ad uno stesso
+	//account
+	private static final Integer MAXIMUM_ACCOUNTS_ATTEMPTS_FOR_IP = 4;
 	private static final Integer SECONDS_TO_MINUTES = 60;
 	private static final Integer MINUTES_TO_HOURS = 60;
 	private static final Integer HOURS_TO_DAYS = 24;
 	private static final Integer SECONDS_LOCKOUT_CHECK = LOCKOUT_CHECK_DAYS * HOURS_TO_DAYS * MINUTES_TO_HOURS * SECONDS_TO_MINUTES;
 
+ public static Logger log = LogManager.getRootLogger();
 	
 	public static boolean isLockedOut(String username, String ip) throws SQLException {
 		boolean locked = false;
@@ -70,6 +81,7 @@ public class DAOIDS {
 		triple.getPreparedStatement().setTimestamp(3, new Timestamp(System.currentTimeMillis()));
 		triple.getPreparedStatement().executeUpdate();
 		triple.closeAll();
+		
 	}
 
 	public static void handleFailedLogin(String username, String ip, MutableBoolean needsUpdate, MutableBoolean locktimeout, MutableInteger attempts) throws SQLException {
@@ -96,6 +108,7 @@ public class DAOIDS {
 					System.out.println("Ho raggiunto il limite massimo di login falliti");
 					updateFailedLogin(username, ip, MAXIMUM_FAILED_LOGINS);
 					insertLockout(username, ip);
+					log.warn("["+ip+"] - TOO MANY ATTEMPTS FOR: "+username);
 					handleLockedUserPerIp(ip, needsUpdate, locktimeout, attempts);
 				}
 			}
@@ -221,7 +234,11 @@ public class DAOIDS {
 				}
 				System.out.println("Ho aggiornato gli account bloccati a " + attempts.getInteger());
 				updateLockedUsersPerIP(ip, attempts.getInteger()+1);
-
+				if(attempts.getInteger() + 1 >= MAXIMUM_ACCOUNTS_ATTEMPTS_FOR_IP)
+				{
+					
+					log.error(("["+ip+"] TEMPORARILY BANNED"));
+				}
 			}
 		
 
