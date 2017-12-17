@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
@@ -18,6 +19,8 @@ import java.util.Date;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 
 import it.sm.exception.CertificateNotFoundException;
 import it.sm.exception.ServerErrorException;
@@ -59,14 +62,12 @@ public class CertificateHelper {
 		this.truststorePath = "."+File.separator+"secure_place_"+this.currentUser.toLowerCase()+File.separator+this.currentUser.toLowerCase()+"_truststore"+File.separator+this.currentUser.toLowerCase()+"_truststore.keystore";
 		this.keystorePath = "."+File.separator+"secure_place_"+this.currentUser.toLowerCase()+File.separator+this.currentUser.toLowerCase()+"_keystore.jks";
 		this.dataFilePath = "."+File.separator+"secure_place_"+this.currentUser.toLowerCase()+File.separator+this.currentUser.toLowerCase()+"data.txt";
-		initTrustStore();
-		initKeystoreProperties();
-		initSSLContext();
+		initStores();
 		
 	}
 	
-	//Assumiamo che nel trust-store sia pre-caricato il certificato del server tomcat.
-	private void initTrustStore() {
+	
+	private void initStores() {
 	try {
 		this.trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
 		String [] p = extractParameters();
@@ -75,6 +76,7 @@ public class CertificateHelper {
 			char[] bytePassword = p[1].toCharArray();
 			FileInputStream fis = new FileInputStream(this.truststorePath);
 			this.trustStore.load(fis, bytePassword);
+			fis.close();
 			
 			String cm = System.getProperty("user.dir");
 			String path = cm+this.truststorePath.substring(1);
@@ -83,7 +85,84 @@ public class CertificateHelper {
 			System.setProperty("javax.net.ssl.trustAnchors",path);
 			
 			
-			fis.close();
+			String kpath = cm+this.keystorePath.substring(1);
+			System.setProperty("javax.net.ssl.keyStore",kpath);
+			System.setProperty("javax.net.ssl.keyStorePassword", p[1]);
+			
+			
+			TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+			tmf.init(this.trustStore);
+			
+			
+			X509TrustManager myTm = null;
+			for (TrustManager tm : tmf.getTrustManagers()) {
+			    if (tm instanceof X509TrustManager) {
+			        myTm = (X509TrustManager) tm;
+			        break;
+			    }
+			}
+
+			
+			final X509TrustManager finalMyTm = myTm;
+			X509TrustManager customTm = new X509TrustManager() {
+			    @Override
+			    public X509Certificate[] getAcceptedIssuers() {
+			        System.out.println("get Accepted Issuers..");
+			        for(int i = 0;i<finalMyTm.getAcceptedIssuers().length;i++) {
+			        	System.out.println("cert:"+finalMyTm.getAcceptedIssuers()[i].getSubjectDN().toString());
+			        }
+			        return finalMyTm.getAcceptedIssuers();
+			    }
+
+			    @Override
+			    public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+			        System.out.println("[Check server trusted, inizio..]");
+			    	try {
+			            finalMyTm.checkServerTrusted(chain, authType);
+			        } catch (CertificateException e) {
+			           System.out.println("[Check Server - certificate not found]");
+			        }
+			    	System.out.println("[Check server trusted, finito]");
+			    }
+
+			    @Override
+			    public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+			    	
+			        System.out.println("[Check client trusted, inizio..]");
+
+			    	
+			    	try {
+				            finalMyTm.checkServerTrusted(chain, authType);
+				        } catch (CertificateException e) {
+				           System.out.println("[Check Client - certificate not found]");
+				        }
+			    	
+			        System.out.println("[Check client trusted, finito..]");
+
+			    }
+			};
+
+			
+			KeyStore ks = KeyStore.getInstance("JKS");
+		    InputStream ksIs = new FileInputStream(this.keystorePath);
+		    try {
+		        ks.load(ksIs, extractParameters()[1].toCharArray());
+		    } finally {
+		        if (ksIs != null) {
+		            ksIs.close();
+		        }
+		    }
+
+		    KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+		    kmf.init(ks, extractParameters()[1].toCharArray());
+		    
+		    TrustManager[] trustManagers = new TrustManager[] {customTm};
+		    
+		    SSLContext sslCtx = SSLContext.getInstance("TLS");
+			sslCtx.init(kmf.getKeyManagers(), trustManagers, null);
+			SSLContext.setDefault(sslCtx);
+			
+			
 		}
 		
 	}catch(Exception e) {
@@ -92,7 +171,8 @@ public class CertificateHelper {
 		
 	}
 	
-	private void initKeystoreProperties() {
+	
+	/*private void initKeystoreProperties() {
 		String [] p = extractParameters();
 		String cm = System.getProperty("user.dir");
 		String path = cm+this.keystorePath.substring(1);
@@ -130,7 +210,7 @@ public class CertificateHelper {
 		e.printStackTrace();
 	}
 		
-	}
+	}*/
 	
 	private String [] extractParameters() {
 		try {
