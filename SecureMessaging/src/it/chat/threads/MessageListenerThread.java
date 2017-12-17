@@ -20,6 +20,12 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JProgressBar;
 
+import org.bouncycastle.asn1.x500.RDN;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x500.style.IETFUtils;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
+
 import it.chat.activechat.ActiveChat;
 import it.chat.gui.ChatFrame;
 import it.chat.gui.SwingProgressBar;
@@ -32,6 +38,7 @@ import it.sm.exception.ServerErrorException;
 import it.sm.keystore.aeskeystore.AESHardwareKeystore;
 import it.sm.keystore.aeskeystore.MyAESKeystore;
 import it.sm.messages.Messaggio;
+import it.chat.helpers.SignHelper;
 
 public class MessageListenerThread extends Thread{
 	
@@ -111,8 +118,11 @@ public class MessageListenerThread extends Thread{
 							this.actChat.setFrame(cf);
 							
 						}
+						SignHelper sih = SignHelper.getInstance();
+
 						try {
-						verifySign(msg);
+							
+						sih.verifySign(msg);
 						
 						}catch(Exception e) {
 							System.out.println("Verify Sign Failed");
@@ -124,7 +134,9 @@ public class MessageListenerThread extends Thread{
 						
 						first_token = msg.getMsg();
 						
-						mh.sendMessage(this.actChat.getCurrentIdentity(), this.actChat.getDest(), token_to_send, this.actChat.getFrame());
+						byte[] signature = sih.signToken(token_to_send);
+						
+						mh.sendHandshakeMessage(this.actChat.getCurrentIdentity(), this.actChat.getDest(), token_to_send, signature,this.actChat.getFrame());
 					
 						System.out.println("[MsgListenerThread] Token "+token_to_send+" inviato");
 						
@@ -153,6 +165,16 @@ public class MessageListenerThread extends Thread{
 					    frame.setVisible(true);
 												
 						System.out.println("[MsgListenerThread] Ricevuto Secondo token:"+msg.getMsg());
+						
+						SignHelper sih = SignHelper.getInstance();
+						
+						try {
+							
+							sih.verifySign(msg);
+							
+							}catch(Exception e) {
+								System.out.println("Verify Sign Failed");
+							}
 						
 						bar.updateBar(45);
 						
@@ -244,30 +266,6 @@ public class MessageListenerThread extends Thread{
 		
 		
 	}
-	
-public boolean verifySign(Messaggio msg) throws CertificateNotFoundException, ServerErrorException, RedirectToLoginException, CertificateException, FileNotFoundException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-	CertificateHelper ch = CertificateHelper.getInstance();
-	ServerHelper sh = new ServerHelper();
-	
-	File cert = sh.getCertificate(msg.getSender().substring(0, msg.getSender().indexOf(" ")), msg.getSender().substring(1 + msg.getSender().indexOf(" "), msg.getSender().length()), ch.getCertificatesPath());
-	
-	CertificateFactory fact = CertificateFactory.getInstance("X.509");
-    FileInputStream fis = new FileInputStream (cert);
-    X509Certificate cer = (X509Certificate) fact.generateCertificate(fis);
-    Signature sig = Signature.getInstance("MD5withRSA");
-    sig.initVerify(cer.getPublicKey());
- 
-    sig.update(msg.getMsg().getBytes());
-    
-   if(sig.verify(msg.getSignature())) {
-	   System.out.println("OK Firma");
-	   return true;
-   }
-   System.out.println("NO Firma");
-   return false;
-
-
-}
 	
 
 }
