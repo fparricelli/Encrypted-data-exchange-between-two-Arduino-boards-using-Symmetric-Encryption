@@ -128,8 +128,8 @@ public class LandingFrame {
 		userPanel.setLayout(null);
 		
 		JLabel lblNewLabel = new JLabel("");
-		lblNewLabel.setIcon(new ImageIcon(LandingFrame.class.getResource("/it/chat/gui/icons/user_red.png")));
-		lblNewLabel.setBounds(132, -119, 100, 480);
+		lblNewLabel.setIcon(new ImageIcon(LandingFrame.class.getResource("/it/chat/gui/icons/icon_app.png")));
+		lblNewLabel.setBounds(24, -247, 226, 499);
 		userPanel.add(lblNewLabel);
 
 		

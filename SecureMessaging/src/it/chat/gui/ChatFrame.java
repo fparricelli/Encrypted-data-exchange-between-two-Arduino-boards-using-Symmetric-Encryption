@@ -39,6 +39,7 @@ import java.awt.event.ActionEvent;
 import java.awt.Font;
 import java.awt.SystemColor;
 import javax.swing.ImageIcon;
+import javax.swing.JSeparator;
 
 
 public class ChatFrame {
@@ -69,6 +70,7 @@ public class ChatFrame {
 	
 	JFrame progressFrame;
 	private JLabel lblNewLabel;
+	private JSeparator separator;
 	
 	
 	
@@ -139,7 +141,7 @@ public class ChatFrame {
 		
 		frame = new JFrame();
 		frame.setTitle("Chat");
-		frame.setBounds(100, 100, 451, 312);
+		frame.setBounds(100, 100, 451, 320);
 		frame.getContentPane().setLayout(null);
 		frame.setResizable(false);
 		frame.getContentPane().setBackground(new Color(36, 47, 65));
@@ -179,17 +181,17 @@ public class ChatFrame {
 		topPanel.setLayout(null);
 		topPanel.setBackground(new Color(97, 212, 195));
 		
+		lblNewLabel = new JLabel("");
+		lblNewLabel.setBounds(174, 0, 469, 230);
+		topPanel.add(lblNewLabel);
+		lblNewLabel.setIcon(new ImageIcon(ChatFrame.class.getResource("/it/chat/gui/icons/icon_app.png")));
+		
 		chatWith = new JLabel(this.chattingTarget);
 		chatWith.setForeground(SystemColor.text);
 		chatWith.setFont(new Font("AppleGothic", Font.BOLD, 15));
 		chatWith.setHorizontalAlignment(SwingConstants.CENTER);
 		chatWith.setBounds(6, 6, 437, 37);
 		topPanel.add(chatWith);
-		
-		lblNewLabel = new JLabel("");
-		lblNewLabel.setIcon(new ImageIcon(ChatFrame.class.getResource("/it/chat/gui/icons/user_red.png")));
-		lblNewLabel.setBounds(394, -15, 61, 81);
-		topPanel.add(lblNewLabel);
 	}
 	
 	
@@ -245,7 +247,7 @@ public class ChatFrame {
 		});
 		
 		
-		btnInvia.setBounds(313, 260, 132, 24);
+		btnInvia.setBounds(313, 266, 132, 24);
 		frame.getContentPane().add(btnInvia);
 		frame.getRootPane().setDefaultButton(btnInvia);
 		btnInvia.requestFocus();
@@ -268,8 +270,12 @@ public class ChatFrame {
 				
 			}
 		});
-		btnChiudi.setBounds(10, 260, 112, 24);
+		btnChiudi.setBounds(6, 266, 112, 24);
 		frame.getContentPane().add(btnChiudi);
+		
+		separator = new JSeparator();
+		separator.setBounds(10, 252, 437, 12);
+		frame.getContentPane().add(separator);
 		
 		
 		
@@ -287,14 +293,16 @@ public class ChatFrame {
 		frame.getContentPane().add(chatBox);
 		
 		JScrollPane scrollPane = new JScrollPane(chatBox);
-		scrollPane.setBounds(0, 48, 451, 186);
+		scrollPane.setBounds(0, 48, 451, 182);
 		frame.getContentPane().add(scrollPane);
 		
 		messageBox = new JTextField();
+		messageBox.setForeground(new Color(255, 255, 255));
 		messageBox.setFont(new Font("AppleGothic", Font.PLAIN, 13));
 		messageBox.setBounds(10, 234, 435, 20);
 		frame.getContentPane().add(messageBox);
 		messageBox.setColumns(10);
+		messageBox.setBackground(new Color(36, 47, 65));
 	}
 	
 	

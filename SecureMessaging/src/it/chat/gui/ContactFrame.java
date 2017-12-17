@@ -10,6 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -61,7 +62,7 @@ public class ContactFrame {
 	
 	JFrame progressFrame;
 	
-	SwingProgressBar bar = new SwingProgressBar();
+	SwingProgressBar bar;
 	
 
 	
@@ -104,10 +105,11 @@ public class ContactFrame {
 	
 	private void initializeLoadingBar() {
 		progressFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		progressFrame.setBounds(200, 200, 1000, 312);
+		progressFrame.setBounds(200, 200, 300, 50);
+		progressFrame.pack();
 		progressFrame.setResizable(false);
 		progressFrame.setContentPane(bar);
-		progressFrame.pack();
+		
 	}
 
 	
