@@ -5,7 +5,7 @@ public class DebugThread implements Runnable{
 	@Override
 	public void run() {
 		try {
-			DebugAuthenticationServlet.createIPLockdownFromFailedLogins();
+			DebugAuthenticationServlet.createIPLockdownFromFailedLoginsTime();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

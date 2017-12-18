@@ -30,19 +30,109 @@ public class DebugAuthenticationServlet {
 		//almostLockDown();
 	//	createFailedLogins();
 //testServlet("bob","password");
-		Vector<DebugThread> threads = new Vector<DebugThread>();
+	/*	Vector<DebugThread> threads = new Vector<DebugThread>();
 		Thread thread;
-		for (int i=0; i<100; i++)
+		for (int i=0; i<5; i++)
 		{
 			threads.add(new DebugThread());
 		}
 		
-		for (int i=0; i<100; i++)
+		for (int i=0; i<5; i++)
 		{
 			thread = new Thread(threads.get(i));
 			thread.start();
-		}
+		} */
 	//	testServlet("Luca","Pirozzi");
+		
+		/*Vector<DebugThreadCorrectLogin> threads = new Vector<DebugThreadCorrectLogin>();
+		Thread thread;
+		for (int i=0; i<100; i++)
+		{
+			threads.add(new DebugThreadCorrectLogin());
+		}
+		
+		for (int i=0; i<100; i++)
+		{
+		thread = new Thread(new DebugThreadCorrectLogin());
+		thread.start();
+		*/
+		createIPLockdownFromFailedLogins();
+		}
+		
+	}
+	
+	
+	public static boolean createIPLockdownFromFailedLoginsTime () throws Exception
+	{Boolean ipLocked;
+	long starting;
+	long ending;
+	long interval;
+	String ip = "127.0.0.1";
+	String password = "passwordsbagliata";
+	String username = "";
+		for(int i=0; i<8; i++)
+		{
+			switch(i)
+			{
+		
+			
+			case 0:
+			{
+				username = new String ("paperino");
+				break;
+			}
+
+			case 1:
+			{
+				username = new String("username");
+				break;
+			}
+			case 2:
+			{
+				username = new String ("wewe");
+				break;
+			}
+			
+			case 3:
+			{
+				username = new String("topolino");
+				break;
+			}
+			case 4:
+			{
+				username = new String("Luca");
+				break;
+			}
+			case 5:
+			{
+				username = new String("linux");
+				break;
+			}
+			case 6:
+			{
+				username = new String("pepp");
+				break;
+			}
+			case 7:
+			{
+				username = new String("aldo");
+				break;
+			}
+			}
+			for(int j=0; j<8; j++)
+			{
+				//Thread.sleep(1000);
+				System.out.println("I: " + i + "J :" + j);
+				System.out.println("USERNAME" + username);
+				starting = System.nanoTime();
+				testServlet(username, password);
+				ending = System.nanoTime();
+				interval = ending - starting;
+				System.out.println("Elapsed Time: "  + ((double) ((double) interval/1000000))+ " ms");
+				
+			}
+		}
+		return DAOIDS.isIPLocked(ip, new MutableBoolean(false), new MutableBoolean(false), new MutableInteger());
 	}
 	
 	public static boolean createIPLockdownFromFailedLogins () throws Exception

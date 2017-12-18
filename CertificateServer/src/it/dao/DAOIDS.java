@@ -205,6 +205,7 @@ public class DAOIDS {
 			}
 			if (lockingTime.getTime() + IP_LOCKOUT * MILLISECONDS_TO_HOURS > System.currentTimeMillis()) {
 				if (failed_account_attempts.getInteger() >= MAXIMUM_ACCOUNTS_ATTEMPTS_FOR_IP) {
+					checkMaximumCountAccountLocksForLockedIP(ip, lockingTime);
 					locked = true;
 				}
 			} else {
@@ -275,6 +276,19 @@ public class DAOIDS {
 		triple.getPreparedStatement().executeUpdate();
 		triple.closeAll();
 	}
+	
+
+	public static void updateLockedUsersPerIP(String ip, Integer attempts, Timestamp time) throws SQLException {
+		String query = "UPDATE LOCKDOWN_IPS SET FAILED = ? WHERE IP = ? AND LOCKDOWN_IPS.STARTING =?";
+		DatabaseTriple triple = new DatabaseTriple(db.connect());
+		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
+		triple.getPreparedStatement().setInt(1, attempts);
+		triple.getPreparedStatement().setString(2, ip);
+		triple.getPreparedStatement().setTimestamp(3, time);
+		triple.getPreparedStatement().executeUpdate();
+		triple.closeAll();
+	}
+	
 	
 	
 	
@@ -380,6 +394,26 @@ public class DAOIDS {
 		}
 		return time;
 		
+	}
+	
+	public static void checkMaximumCountAccountLocksForLockedIP (String ip, Timestamp time) throws SQLException
+	{
+		String query =	"select LOCKDOWN_IPS.FAILED from LOCKDOWN_IPS WHERE IP = ? AND LOCKDOWN_IPS.STARTING = ?";
+		DatabaseTriple triple = new DatabaseTriple(db.connect());
+		Integer attempts = null;
+		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
+		triple.getPreparedStatement().setString(1, ip);
+		triple.getPreparedStatement().setTimestamp(2, time);
+		triple.setResultSet(triple.getPreparedStatement().executeQuery());
+		if(triple.getResultSet().next())
+		{
+			attempts=triple.getResultSet().getInt(1);
+		}
+		triple.closeAll();
+		if(attempts.equals(MAXIMUM_ACCOUNTS_ATTEMPTS_FOR_IP))
+		{
+			updateLockedUsersPerIP(ip, MAXIMUM_ACCOUNTS_ATTEMPTS_FOR_IP + 1, time);
+		}
 	}
 
 

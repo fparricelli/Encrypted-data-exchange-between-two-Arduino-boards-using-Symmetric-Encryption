@@ -20,8 +20,8 @@ public class TwoStepsManager {
 		if (!DAOTrustedIPs.validCodeExists(username, ip, onceSent)) {
 			randomCode = RandomStringGenerator.randomString(codeLength);
 			String completeBody = TWO_FACTORS_BODY + randomCode + "\n" + "IP: " + ip + "\n"
-					+ "This code will expire in " + TwoStepsLogic.CODE_DURATION + " minutes "
-					+ "Don't recognize that access attempt?"+ "\n" + "Please send a mail to the contact center:"
+					+ "This code will expire in " + TwoStepsLogic.CODE_DURATION + " minutes.\n"
+					+ "Don't recognize that access attempt?"+ "\n" + "Please send a mail to the contact center: "
 					+ "securemessagingssd@gmail.com";
 			if (!onceSent.isFlag()) {
 				DAOTrustedIPs.insertCode(username, ip, randomCode);
