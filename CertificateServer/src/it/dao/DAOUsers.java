@@ -105,6 +105,10 @@ public class DAOUsers {
 	            hash =triple.getResultSet().getString(1);
 	            
 	        }
+	        else
+	        {
+	        	throw new NoSuchUserException();
+	        }
 	        }
 	        
 	        catch (SQLException e)
