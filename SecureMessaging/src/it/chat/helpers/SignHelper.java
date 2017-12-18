@@ -20,11 +20,15 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 
 import it.sm.exception.CertificateNotFoundException;
+import it.sm.exception.MaxDelayException;
 import it.sm.exception.RedirectToLoginException;
 import it.sm.exception.ServerErrorException;
 import it.sm.messages.Messaggio;
+import it.sm.messages.Timestamp;
 
 public class SignHelper {
+	
+	private static final long MAX_DELAY = 6000; 
 	
 	private SignHelper() {};
 	
@@ -52,8 +56,10 @@ public class SignHelper {
 	    		throw new CertificateNotYetValidException();
 	    Signature sig = Signature.getInstance("MD5withRSA");
 	    sig.initVerify(cer.getPublicKey());
+	    
+	    String msgReceived = msg.getMsg() + msg.getTimestamp().getTimestamp().getTime();
 	 
-	    sig.update(msg.getMsg().getBytes());
+	    sig.update(msgReceived.getBytes());
 	    
 	   if(sig.verify(msg.getSignature())) {
 		   System.out.println("OK Firma");
@@ -65,9 +71,11 @@ public class SignHelper {
 
 	}
 	
-	public byte[] signToken(String token_to_send) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, InvalidKeyException, UnrecoverableKeyException, SignatureException {
+	public byte[] signToken(String token_to_send, Timestamp ts) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, InvalidKeyException, UnrecoverableKeyException, SignatureException {
 		
 		CertificateHelper ch = CertificateHelper.getInstance();
+		
+		String to_sign = token_to_send + ts.getTimestamp().getTime();
 		
 		String ks_path = ch.getKeystorePath();
 		
@@ -79,9 +87,17 @@ public class SignHelper {
 
 			Signature sign = Signature.getInstance("MD5withRSA");
 			sign.initSign((PrivateKey)ks.getKey(ch.extractParameters()[0], ch.extractParameters()[1].toCharArray()));
-			sign.update(token_to_send.getBytes());
+			sign.update(to_sign.getBytes());
 			
 		return sign.sign();
+		
+	}
+	
+	public void verifyTimestamp(Messaggio msg) throws MaxDelayException{
+		Date now = new Date();
+		
+		if (now.getTime() - msg.getTimestamp().getTimestamp().getTime() >  MAX_DELAY )
+			throw new MaxDelayException();
 		
 	}
 

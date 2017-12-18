@@ -13,12 +13,14 @@ public class Messaggio implements Serializable{
 	private String msg;
 	private String msg_key;
 	private byte[] signature;
+	private Timestamp ts;
 	
-	public Messaggio(int s, String sn, String m, byte[] signature) {
+	public Messaggio(int s, String sn, String m, byte[] signature, Timestamp ts) {
 		this.senderPort = s;
 		this.sender = sn;
 		this.msg = m;
 		this.signature = signature;
+		this.ts = ts;
 	}
 	
 
@@ -36,6 +38,10 @@ public class Messaggio implements Serializable{
 		this.msg_key = k;
 	}
 	
+	
+	public Timestamp getTimestamp() {
+		return this.ts;
+	}
 	public byte[] getSignature(){
 		return this.signature;
 	}
