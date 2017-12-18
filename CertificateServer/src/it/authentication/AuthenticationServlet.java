@@ -67,6 +67,7 @@ public class AuthenticationServlet extends HttpServlet {
 			MutableInteger failed_account_attempts = new MutableInteger();
 			HashMap<String,String> returnParameters = new HashMap<String,String>();
 			byte[] bytes;
+			synchronized (AuthenticationServlet.class) {
 			if(IDS.isIPLocked(request.getRemoteAddr(), needsUpdate, lockTimeout, failed_account_attempts))
 			{
 				throw new LockedIP();
@@ -96,15 +97,15 @@ public class AuthenticationServlet extends HttpServlet {
 				}
 
 			} else {
-				synchronized (AuthenticationServlet.class) {
+			
 					AuthenticationLogic.handleFailedLogin(username, request.getRemoteAddr(),needsUpdate,lockTimeout,failed_account_attempts);
-				}
+			
 				
 				httpCode = HTTP_UNAUTHORIZED;
 				HTTPCommonMethods.sendReplyHeaderOnly(response, httpCode);
 			}
 			
-		
+			}
 
 		}
 

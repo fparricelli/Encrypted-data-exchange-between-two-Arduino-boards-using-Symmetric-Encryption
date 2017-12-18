@@ -73,7 +73,7 @@ public class DAOIDS {
 
 	public static void insertLockout(String username, String ip) throws SQLException {
 		System.out.println("Inserisco un lockout (username,ip) a (" + username + "," + ip + ")");
-		String query = "INSERT INTO ACCOUNT_LOCKDOWN VALUES (?,?,?)";
+		String query = "INSERT IGNORE INTO ACCOUNT_LOCKDOWN VALUES (?,?,?)";
 		DatabaseTriple triple = new DatabaseTriple(db.connect());
 		triple.setPreparedStatement(triple.getConn().prepareStatement(query));
 		triple.getPreparedStatement().setString(1, username);

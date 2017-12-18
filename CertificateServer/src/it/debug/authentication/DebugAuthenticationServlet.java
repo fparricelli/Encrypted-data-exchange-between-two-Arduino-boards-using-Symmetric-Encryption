@@ -1,7 +1,5 @@
 package it.debug.authentication;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -9,10 +7,9 @@ import java.security.interfaces.RSAKey;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.net.ssl.HttpsURLConnection;
-
-import org.apache.commons.lang.SerializationUtils;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
@@ -33,7 +30,18 @@ public class DebugAuthenticationServlet {
 		//almostLockDown();
 	//	createFailedLogins();
 //testServlet("bob","password");
-		System.out.println("IP LOCKDOWN: " + createIPLockdownFromFailedLogins());
+		Vector<DebugThread> threads = new Vector<DebugThread>();
+		Thread thread;
+		for (int i=0; i<2; i++)
+		{
+			threads.add(new DebugThread());
+		}
+		
+		for (int i=0; i<2; i++)
+		{
+			thread = new Thread(threads.get(i));
+			thread.start();
+		}
 	//	testServlet("Luca","Pirozzi");
 	}
 	
