@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import it.exception.twofactors.NoValidCodeExists;
+import it.utility.database.DatabaseUtility;
 import it.utility.network.HTTPCodesClass;
 import it.utility.network.HTTPCommonMethods;
 
@@ -21,18 +22,19 @@ public class TwoStepsServlet extends HttpServlet {
 		try {
 			String username = request.getParameter("username");
 			String code = request.getParameter("code");
-			
-			boolean rightCode = TwoStepsLogic.handleCode(username, request.getRemoteAddr(), code);
-			if(rightCode)
-			{
-				httpCode = HTTPCodesClass.SUCCESS;
-				HTTPCommonMethods.sendReplyHeaderOnly(response, httpCode);
-			}
-			
-			else
-			{
-				httpCode = HTTPCodesClass.UNAUTHORIZED;
-				HTTPCommonMethods.sendReplyHeaderOnly(response, httpCode);
+
+			synchronized (DatabaseUtility.class) {
+
+				boolean rightCode = TwoStepsLogic.handleCode(username, request.getRemoteAddr(), code);
+				if (rightCode) {
+					httpCode = HTTPCodesClass.SUCCESS;
+					HTTPCommonMethods.sendReplyHeaderOnly(response, httpCode);
+				}
+
+				else {
+					httpCode = HTTPCodesClass.UNAUTHORIZED;
+					HTTPCommonMethods.sendReplyHeaderOnly(response, httpCode);
+				}
 			}
 		} catch (SQLException e) {
 			httpCode = HTTPCodesClass.SERVER_ERROR;
@@ -45,13 +47,13 @@ public class TwoStepsServlet extends HttpServlet {
 			e.printStackTrace();
 
 		} catch (NoValidCodeExists e) {
-		httpCode = HTTPCodesClass.NOT_FOUND;
-		try {
-			HTTPCommonMethods.sendReplyHeaderOnly(response, httpCode);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+			httpCode = HTTPCodesClass.NOT_FOUND;
+			try {
+				HTTPCommonMethods.sendReplyHeaderOnly(response, httpCode);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

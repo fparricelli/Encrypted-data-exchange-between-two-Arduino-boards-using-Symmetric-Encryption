@@ -17,6 +17,7 @@ import it.exception.authentication.LockedUser;
 import it.exception.authentication.NoSuchUserException;
 import it.utility.MutableBoolean;
 import it.utility.MutableInteger;
+import it.utility.database.DatabaseUtility;
 import it.utility.network.HTTPCodesClass;
 import it.utility.network.HTTPCommonMethods;
 
@@ -55,7 +56,6 @@ public class AuthenticationServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) {
 		Integer httpCode = null;
-		String current = null;
 
 		try {
 			OutputStream out = response.getOutputStream();
@@ -66,8 +66,7 @@ public class AuthenticationServlet extends HttpServlet {
 			MutableBoolean lockTimeout = new MutableBoolean(false);
 			MutableInteger failed_account_attempts = new MutableInteger();
 			HashMap<String,String> returnParameters = new HashMap<String,String>();
-			byte[] bytes;
-			synchronized (AuthenticationServlet.class) {
+			synchronized (DatabaseUtility.class) {
 			if(IDS.isIPLocked(request.getRemoteAddr(), needsUpdate, lockTimeout, failed_account_attempts))
 			{
 				throw new LockedIP();
@@ -79,6 +78,7 @@ public class AuthenticationServlet extends HttpServlet {
 			Boolean authenticated = AuthenticationLogic.authenticate(username, password);
 			if (authenticated) {
 				if (AuthenticationLogic.isTrusted(username, request.getRemoteAddr())) {
+					System.out.println("IP TRUSTED");
 					AuthenticationLogic.deleteFailedLogins(username, request.getRemoteAddr());
 					String authenticationToken = AuthenticationLogic.generateAuthenticationToken(username,request.getRemoteAddr());
 					System.out.println("[Server]Auth token:"+authenticationToken);
@@ -92,6 +92,7 @@ public class AuthenticationServlet extends HttpServlet {
 					response.setStatus(httpCode);
 					oos.flush();
 				} else {
+					System.out.println("IP NOT TRUSTED");
 					TwoStepsManager.sendMail(username,request.getRemoteAddr());
 					HTTPCommonMethods.sendReplyHeaderOnly(response,HTTPCodesClass.TEMPORARY_REDIRECT);
 				}

@@ -32,12 +32,12 @@ public class DebugAuthenticationServlet {
 //testServlet("bob","password");
 		Vector<DebugThread> threads = new Vector<DebugThread>();
 		Thread thread;
-		for (int i=0; i<2; i++)
+		for (int i=0; i<100; i++)
 		{
 			threads.add(new DebugThread());
 		}
 		
-		for (int i=0; i<2; i++)
+		for (int i=0; i<100; i++)
 		{
 			thread = new Thread(threads.get(i));
 			thread.start();

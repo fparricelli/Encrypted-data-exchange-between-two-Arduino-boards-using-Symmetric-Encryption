@@ -46,9 +46,11 @@ public class DAOTrustedIPs {
 		{
 			if(vector.get(i).getIp().equals(ip) && vector.get(i).getUsername().equals(username))
 			{
+				System.out.println("TROVATO MATCH: " + vector.get(i).getUsername() + " e " + vector.get(i).getIp());
 				return true;
 			}
 		}
+		System.out.println("Non ho trovato match (utente,ip) nei trusted devices");
 		return false;
 	}
 	
