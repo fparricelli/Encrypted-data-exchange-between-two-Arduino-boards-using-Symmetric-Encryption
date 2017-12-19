@@ -23,7 +23,6 @@ import javax.swing.JTextField;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.LengthRule;
-import org.passay.MatchBehavior;
 import org.passay.PasswordData;
 import org.passay.PasswordValidator;
 import org.passay.RuleResult;
@@ -42,7 +41,6 @@ public class RegistrationFrame {
 
 	private JFrame frame;
 	private JPanel centerPanel;
-	private JPanel bottomPanel;
 	private JButton btnRegister;
 	private JPasswordField passwordField;
 	private JTextField nameField;

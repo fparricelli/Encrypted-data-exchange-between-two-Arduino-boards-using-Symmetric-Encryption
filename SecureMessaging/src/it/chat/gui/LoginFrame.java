@@ -40,7 +40,6 @@ public class LoginFrame {
 	private JPasswordField passwordField;
 	private JTextField userNameField;
 	private JButton loginButton;
-	private JLabel label;
 	
 	private JLabel captchaLabel;
 	private JTextField captchaField;

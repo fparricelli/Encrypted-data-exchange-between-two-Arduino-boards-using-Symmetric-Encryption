@@ -221,6 +221,7 @@ public class ServerHelper {
 		
 			ObjectInputStream ois = new ObjectInputStream(con.getInputStream());
 			
+			@SuppressWarnings("unchecked")
 			HashMap<String,String> respParam = (HashMap<String,String>)ois.readObject();
 			
 			String token = respParam.get("token");

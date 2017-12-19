@@ -39,7 +39,8 @@ public class AESHardwareKeystore implements MyAESKeystore{
 	
 	private ArduinoSerial uno;
 	
-	private Integer client_type;
+	@SuppressWarnings("unused")
+	private int client_type;
 	
 	private static Semaphore mutex;
 	

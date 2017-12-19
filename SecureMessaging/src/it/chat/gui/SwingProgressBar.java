@@ -5,7 +5,12 @@ import javax.swing.JProgressBar;
 
 public class SwingProgressBar extends JPanel {
 
-	  JProgressBar pbar;
+	  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	JProgressBar pbar;
 
 	  static final int MY_MINIMUM = 0;
 

@@ -5,19 +5,7 @@ import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Set;
 
-/*
-     * Sets up the Subject section of the request. This Request only has
-     * one Subject section, and it uses the default category. To create a
-     * Subject with a different category, you simply specify the category
-     * when you construct the Subject object.
-     *
-     * @return a Set of Subject instances for inclusion in a Request
-     *
-     * @throws URISyntaxException if there is a problem with a URI
- * 
-     */
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -36,7 +24,8 @@ public class RequestBuilder
   static final String SUBJECT_ROLE_IDENTIFIER = "ruolo";    
    
     
-    public static Set setupSubjects(HttpServletRequest request) throws URISyntaxException {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public static Set setupSubjects(HttpServletRequest request) throws URISyntaxException {
         HashSet attributes = new HashSet();
         HashSet subjects = new HashSet();
           
@@ -62,15 +51,14 @@ public class RequestBuilder
      *
      * @throws URISyntaxException if there is a problem with a URI
      */
-    public static Set setupResource(HttpServletRequest request) throws URISyntaxException {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public static Set setupResource(HttpServletRequest request) throws URISyntaxException {
         
     	HashSet resource = new HashSet();
-        HttpSession s = request.getSession();
+       
 
         // the resource being requested : è una URI ma passata come stringa
         
-        StringAttribute requestedRes =
-            new StringAttribute("https://localhost:8443"+request.getRequestURI());
         
         
         
@@ -99,7 +87,8 @@ public class RequestBuilder
      *
      * @throws URISyntaxException if there is a problem with a URI
      */
-    public static Set setupAction() throws URISyntaxException {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public static Set setupAction() throws URISyntaxException {
         HashSet action = new HashSet();
 
         // this is a standard URI that can optionally be used to specify
@@ -115,7 +104,8 @@ public class RequestBuilder
     }
 
     
-    public static RequestCtx createXACMLRequest(HttpServletRequest request) throws Exception{
+    @SuppressWarnings("rawtypes")
+	public static RequestCtx createXACMLRequest(HttpServletRequest request) throws Exception{
         
       RequestCtx XACMLrequest = new RequestCtx(setupSubjects(request), setupResource(request),setupAction(), new HashSet());
       
