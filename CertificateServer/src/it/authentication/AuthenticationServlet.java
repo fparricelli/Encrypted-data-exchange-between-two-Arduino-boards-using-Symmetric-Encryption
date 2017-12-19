@@ -97,7 +97,7 @@ public class AuthenticationServlet extends HttpServlet {
 				}
 
 			} else {
-			
+					System.out.println("Login failed");
 					AuthenticationLogic.handleFailedLogin(username, request.getRemoteAddr(),needsUpdate,lockTimeout,failed_account_attempts);
 			
 				

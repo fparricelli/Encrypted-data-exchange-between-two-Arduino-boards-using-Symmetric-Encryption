@@ -44,7 +44,7 @@ public class DebugAuthenticationServlet {
 		} */
 	//	testServlet("Luca","Pirozzi");
 		
-		Vector<DebugThreadCorrectLogin> threads = new Vector<DebugThreadCorrectLogin>();
+/*		Vector<DebugThreadCorrectLogin> threads = new Vector<DebugThreadCorrectLogin>();
 		Thread thread;
 		for (int i=0; i<50; i++)
 		{
@@ -57,8 +57,11 @@ public class DebugAuthenticationServlet {
 		thread.start();
 		
 		}
+		*/
+		
+		createIPLockdownFromFailedLogins();
+		
 	}
-		//createIPLockdownFromFailedLogins();
 		
 		
 	
@@ -121,9 +124,13 @@ public class DebugAuthenticationServlet {
 				break;
 			}
 			}
+			Boolean debug = true;
 			for(int j=0; j<8; j++)
 			{
-				//Thread.sleep(1000);
+				if(debug)
+				{
+				Thread.sleep(1000);
+				}
 				System.out.println("I: " + i + "J :" + j);
 				System.out.println("USERNAME" + username);
 				starting = System.nanoTime();
@@ -135,6 +142,7 @@ public class DebugAuthenticationServlet {
 			}
 		}
 		return DAOIDS.isIPLocked(ip, new MutableBoolean(false), new MutableBoolean(false), new MutableInteger());
+	
 	}
 	
 	public static boolean createIPLockdownFromFailedLogins () throws Exception

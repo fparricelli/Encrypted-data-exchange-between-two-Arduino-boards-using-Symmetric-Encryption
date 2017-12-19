@@ -16,17 +16,12 @@ public class DAOIDS {
 	private static final Integer LOCKOUT_DURATION = 20;
 	private static final Integer MILLISECONDS_TO_MINUTES = 60 * 1000;
 	private static final Integer FAILED_ATTEMPTS_DURATION = 15;
-	private static final Integer MAXIMUM_FAILED_LOGINS = 5;
+	private static final Integer MAXIMUM_FAILED_LOGINS = 4;
 	private static final Integer IP_LOCKOUT = 2;
 	private static final Integer LOCKOUT_CHECK_DAYS = 1;
 	private static final Integer MILLISECONDS_TO_HOURS = 60 * MILLISECONDS_TO_MINUTES;
 	
-	//Numero massimo di account che possono essere bloccati prima di ricevere un IPBAN.
-	//Da tenere in conto che in base alla logica dell'applicazione il numero reale di login falliti
-	//massimi è questo numero + 1 quindi se vale 4 si viene bloccati al quinto login fallito
-	//(la logica è che al massimo posso avere MAXIMUM_ACCOUNTS_ATTEMPTS_FOR_IP account bloccati prima di
-	//essere bloccato. Uno stesso account bloccato più volte conta (evita attacchi ripetuti ad uno stesso
-	//account
+	//Numero massimo di account che possono essere bloccati prima di ricevere un BAN IP TEMPORANEO.
 	private static final Integer MAXIMUM_ACCOUNTS_ATTEMPTS_FOR_IP = 4;
 	private static final Integer SECONDS_TO_MINUTES = 60;
 	private static final Integer MINUTES_TO_HOURS = 60;
@@ -106,7 +101,7 @@ public class DAOIDS {
 					updateFailedLogin(username, ip, failedAttempts + 1);
 				} else {
 					System.out.println("Ho raggiunto il limite massimo di login falliti");
-					updateFailedLogin(username, ip, MAXIMUM_FAILED_LOGINS);
+					updateFailedLogin(username, ip, MAXIMUM_FAILED_LOGINS+1);
 					insertLockout(username, ip);
 					log.warn("["+ip+"] - TOO MANY ATTEMPTS FOR: "+username);
 					handleLockedUserPerIp(ip, needsUpdate, locktimeout, attempts);
@@ -230,7 +225,7 @@ public class DAOIDS {
 				{
 					attempts.setInteger(MAXIMUM_ACCOUNTS_ATTEMPTS_FOR_IP-1);
 				}
-				System.out.println("Ho aggiornato gli account bloccati a " + attempts.getInteger());
+				System.out.println("Ho aggiornato gli account bloccati a " + (attempts.getInteger()+1));
 				updateLockedUsersPerIP(ip, attempts.getInteger()+1);
 				if(attempts.getInteger() + 1 >= MAXIMUM_ACCOUNTS_ATTEMPTS_FOR_IP)
 				{

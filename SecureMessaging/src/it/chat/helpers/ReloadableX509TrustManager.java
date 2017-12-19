@@ -5,7 +5,10 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.*;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.Date;
 
 import javax.net.ssl.TrustManager;
@@ -17,9 +20,6 @@ import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
-
-import it.sm.exception.CertificateNotFoundException;
-import it.sm.exception.ServerErrorException;
 
 class ReloadableX509TrustManager implements X509TrustManager {
 
