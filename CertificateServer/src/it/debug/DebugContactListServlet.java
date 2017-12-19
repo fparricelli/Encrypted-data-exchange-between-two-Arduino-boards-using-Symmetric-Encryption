@@ -15,7 +15,6 @@ import org.w3c.dom.Document;
 
 public class DebugContactListServlet {
 
-	private byte [] hashHolder;
 	
 	public static void main(String[] args) {
 		

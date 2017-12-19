@@ -5,6 +5,10 @@ import java.util.Date;
 
 public class Timestamp implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Date timestamp;
 
 	public Timestamp(Date timestamp) {

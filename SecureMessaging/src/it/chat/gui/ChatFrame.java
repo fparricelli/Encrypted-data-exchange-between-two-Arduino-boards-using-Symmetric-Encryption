@@ -54,7 +54,7 @@ public class ChatFrame {
 	private int destPort;
 	
 	private MyAESKeystore aesKeyStore;
-	private boolean handshake_res;
+	
 	private static final int STARTER = 1; //type = 1 starter
 
 	private int client_type; //type = 1 starter

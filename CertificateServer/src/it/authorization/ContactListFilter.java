@@ -61,6 +61,7 @@ public class ContactListFilter implements Filter {
 	}
 
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		
 		//Sessioni vengono invalidate al chiudersi della risposta
@@ -228,6 +229,7 @@ public class ContactListFilter implements Filter {
 	}
 
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void init(FilterConfig fConfig) throws ServletException {
 		Set listSet = new HashSet();
 		listSet.add("listTecnici");
@@ -236,7 +238,7 @@ public class ContactListFilter implements Filter {
 		listMap = new IntegerAccessReferenceMap(listSet);
 		
 		
-		@SuppressWarnings("rawtypes")
+		
 		Set roleSet = new HashSet();
 		roleSet.add("roleTecnico");
 		roleSet.add("roleAdmin");
