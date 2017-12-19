@@ -1,6 +1,7 @@
 package it.chat.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -10,11 +11,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.xml.XMLConstants;
@@ -28,12 +27,6 @@ import org.w3c.dom.NodeList;
 
 import it.chat.gui.utility.LookAndFeelUtility;
 import it.chat.gui.utility.MessageStringUtility;
-import it.chat.helpers.CertificateHelper;
-import it.chat.helpers.MessagingHelper;
-import it.chat.helpers.ServerHelper;
-import it.sm.exception.CertificateNotFoundException;
-import it.sm.exception.ServerErrorException;
-import java.awt.Font;
 
 
 public class ContactFrame {

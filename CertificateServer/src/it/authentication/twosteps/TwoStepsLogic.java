@@ -4,7 +4,6 @@ import java.sql.SQLException;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-import it.dao.DAOIDS;
 import it.dao.DAOTrustedIPs;
 import it.exception.twofactors.NoValidCodeExists;
 

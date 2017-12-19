@@ -1,35 +1,17 @@
 package it.debug;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.security.MessageDigest;
-import java.security.Signature;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import javax.crypto.Cipher;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-
-import com.sun.org.apache.xml.internal.security.utils.Base64;
-
-import it.sm.keystore.rsakeystore.MyRSAKeystore;
-import it.sm.keystore.rsakeystore.RSASoftwareKeystore;
 
 public class DebugContactListServlet {
 
@@ -148,6 +130,7 @@ public class DebugContactListServlet {
 	}
 	
 	
+	@SuppressWarnings("unused")
 	private static void test2() {
 				//TEST #2
 				//Richiedo lista admin, sono utente (deny)
@@ -159,6 +142,7 @@ public class DebugContactListServlet {
 	}
 	
 	
+	@SuppressWarnings("unused")
 	private static void test3() {
 				//TEST #3
 				//Richiedo lista non riconosciuta, con utente riconosciuto (tramite parametri post)
@@ -168,6 +152,7 @@ public class DebugContactListServlet {
 				System.out.println("Test #3 - Response code:"+resp3+"\n");
 	}
 	
+	@SuppressWarnings("unused")
 	private static void test4() {
 				//TEST #4
 				//Richiedo lista riconosciuta, con utente non riconosciuto (tramite parametri post)
@@ -177,6 +162,7 @@ public class DebugContactListServlet {
 				System.out.println("Test #4 - Response code:"+resp4+"\n");
 	}
 	
+	@SuppressWarnings("unused")
 	private static void test5() {
 				//TEST #5
 				//Richiedo lista non riconosciuta e utente non riconosciuto (tramite parametri post)

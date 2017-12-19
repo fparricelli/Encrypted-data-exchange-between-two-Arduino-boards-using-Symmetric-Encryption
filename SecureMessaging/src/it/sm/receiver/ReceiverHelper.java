@@ -14,9 +14,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
 import org.apache.commons.io.FileUtils;
 import org.bouncycastle.util.encoders.Base64;
 

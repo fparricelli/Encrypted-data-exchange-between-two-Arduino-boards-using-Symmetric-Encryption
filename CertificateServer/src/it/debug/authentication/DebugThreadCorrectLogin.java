@@ -3,7 +3,7 @@ package it.debug.authentication;
 import java.util.Vector;
 
 public class DebugThreadCorrectLogin implements Runnable{
-	private static final Integer attempts = 2;
+	private static final Integer attempts = 20;
 	private Vector<Double> times = new Vector<Double>();
 	private Double average = new Double(0);
 
@@ -22,7 +22,7 @@ public class DebugThreadCorrectLogin implements Runnable{
 		}
 		ending = System.nanoTime();
 		interval = ending - starting;
-		times.add(average/1000000);
+		times.add((double)interval/1000000);
 		}
 		for (int i=0; i<times.size(); i++)
 		{

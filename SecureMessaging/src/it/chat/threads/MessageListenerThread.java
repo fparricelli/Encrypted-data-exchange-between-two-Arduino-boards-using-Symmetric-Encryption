@@ -1,48 +1,21 @@
 package it.chat.threads;
-import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PipedOutputStream;
-import java.net.Socket;
 import java.net.SocketException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.Signature;
-import java.security.SignatureException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 import java.util.Date;
 
-import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JProgressBar;
-
-import org.bouncycastle.asn1.x500.RDN;
-import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.asn1.x500.style.IETFUtils;
-import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 
 import it.chat.activechat.ActiveChat;
 import it.chat.gui.ChatFrame;
 import it.chat.gui.SwingProgressBar;
-import it.chat.helpers.CertificateHelper;
 import it.chat.helpers.MessagingHelper;
-import it.chat.helpers.ServerHelper;
-import it.sm.exception.CertificateNotFoundException;
+import it.chat.helpers.SignHelper;
 import it.sm.exception.MaxDelayException;
-import it.sm.exception.RedirectToLoginException;
-import it.sm.exception.ServerErrorException;
 import it.sm.keystore.aeskeystore.AESHardwareKeystore;
 import it.sm.keystore.aeskeystore.MyAESKeystore;
 import it.sm.messages.Messaggio;
 import it.sm.messages.Timestamp;
-import it.chat.helpers.SignHelper;
 
 public class MessageListenerThread extends Thread{
 	

@@ -219,16 +219,13 @@ public class DAOIDS {
 
 	public static void handleLockedUserPerIp(String ip, MutableBoolean needsUpdate, MutableBoolean locktimeout, MutableInteger attempts) throws SQLException {
 		
-			System.out.println("NEEDSUPDATE : " + needsUpdate.isFlag() + " LOCKTIMEOUT : " + locktimeout);
 		
 		
 		if (!needsUpdate.isFlag()) {
-				System.out.println("Branch 1");
 				insertLockedUsersPerIP(ip);
 			}
 
 			else {
-				System.out.println("Branch 2");
 				if(attempts.getInteger() > MAXIMUM_ACCOUNTS_ATTEMPTS_FOR_IP)
 				{
 					attempts.setInteger(MAXIMUM_ACCOUNTS_ATTEMPTS_FOR_IP-1);
@@ -294,14 +291,12 @@ public class DAOIDS {
 	
 	public static Integer countLockedUser(String ip, Timestamp lastLocked) throws SQLException
 	{
-		System.out.println("Effettuo il conteggio");
 		boolean oneDay = true;
 		Integer count;
 		if(lastLocked!=null)
-		{System.out.println("Ho confermato che l'ho già bloccato prima");
+		{
 			if(lastLocked.getTime() > System.currentTimeMillis() - 24*60*60*1000)
 			{
-				System.out.println("Non è passato un giorno");
 				oneDay = false;
 			}
 		}
@@ -337,7 +332,6 @@ public class DAOIDS {
 		}
 		}
 		Integer count = countLockedUser(ip, time);
-		System.out.println(count);
 		return count;
 	}
 	
@@ -370,7 +364,6 @@ public class DAOIDS {
 	{
 		count = triple.getResultSet().getInt(1);
 	}
-	System.out.println("LOCKEDTIMES: " + count);
 	triple.closeAll();
 	return count;
 	}
@@ -386,12 +379,8 @@ public class DAOIDS {
 		if(triple.getResultSet().next())
 		{
 			time = triple.getResultSet().getTimestamp(1);
-			System.out.println("DEBUG: Già bloccato prima il " + time);
 		}
-		else
-		{
-			System.out.println("Non l'ho bloccato prima");
-		}
+		
 		return time;
 		
 	}

@@ -2,63 +2,35 @@ package it.chat.gui;
 
 
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.SystemColor;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.util.Base64;
 import java.util.Date;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JTextPane;
-import javax.swing.JScrollPane;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-
-import java.security.InvalidKeyException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.Signature;
-import java.security.SignatureException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 
 import it.chat.gui.utility.LookAndFeelUtility;
 import it.chat.gui.utility.MessageStringUtility;
-import it.chat.helpers.CertificateHelper;
 import it.chat.helpers.MessagingHelper;
 import it.chat.helpers.SignHelper;
-import it.chat.threads.MessageListenerThread;
 import it.sm.exception.OutOfBoundEncrypt;
 import it.sm.keystore.aeskeystore.AESHardwareKeystore;
 import it.sm.keystore.aeskeystore.MyAESKeystore;
-import it.sm.keystore.rsakeystore.MyRSAKeystore;
-import it.sm.keystore.rsakeystore.RSASoftwareKeystore;
 import it.sm.messages.EncryptedMessage;
-import it.sm.messages.Messaggio;
 import it.sm.messages.Timestamp;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.Font;
-import java.awt.SystemColor;
-import javax.swing.ImageIcon;
-import javax.swing.JSeparator;
 
 
 public class ChatFrame {

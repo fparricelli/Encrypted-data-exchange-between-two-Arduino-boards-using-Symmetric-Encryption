@@ -1,11 +1,20 @@
 package it.chat.gui;
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
 
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
@@ -18,18 +27,6 @@ import it.sm.exception.AccessDeniedException;
 import it.sm.exception.PolicyConflictException;
 import it.sm.exception.RedirectToLoginException;
 import it.sm.exception.ServerErrorException;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.IOException;
-import java.awt.event.ActionEvent;
-import javax.swing.ImageIcon;
-import java.awt.Font;
-import javax.swing.JSeparator;
 public class LandingFrame {
 
 	private JFrame frame;

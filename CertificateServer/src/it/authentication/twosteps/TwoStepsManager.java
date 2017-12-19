@@ -16,7 +16,7 @@ public class TwoStepsManager {
 		MutableBoolean onceSent = new MutableBoolean(false);
 		String mail = DAOUsers.getUserMail(username);
 		String randomCode;
-
+		
 		if (!DAOTrustedIPs.validCodeExists(username, ip, onceSent)) {
 			randomCode = RandomStringGenerator.randomString(codeLength);
 			String completeBody = TWO_FACTORS_BODY + randomCode + "\n" + "IP: " + ip + "\n"
