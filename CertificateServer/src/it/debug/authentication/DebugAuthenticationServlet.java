@@ -44,20 +44,20 @@ public class DebugAuthenticationServlet {
 		} */
 	//	testServlet("Luca","Pirozzi");
 		
-		/*Vector<DebugThreadCorrectLogin> threads = new Vector<DebugThreadCorrectLogin>();
+		Vector<DebugThreadCorrectLogin> threads = new Vector<DebugThreadCorrectLogin>();
 		Thread thread;
-		for (int i=0; i<100; i++)
+		for (int i=0; i<50; i++)
 		{
 			threads.add(new DebugThreadCorrectLogin());
 		}
 		
-		for (int i=0; i<100; i++)
+		for (int i=0; i<50; i++)
 		{
 		thread = new Thread(new DebugThreadCorrectLogin());
 		thread.start();
-		*/
-		createIPLockdownFromFailedLogins();
 		}
+		//createIPLockdownFromFailedLogins();
+		
 		
 	}
 	
