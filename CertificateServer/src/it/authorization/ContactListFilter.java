@@ -57,16 +57,14 @@ public class ContactListFilter implements Filter {
 
 	
 	public void destroy() {
-		// TODO Auto-generated method stub
+		
 	}
 
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		
-		//Sessioni vengono invalidate al chiudersi della risposta
 		String token = ((HttpServletRequest)request).getParameter("token");
-		System.out.println("[contactListServlet] Token:"+token);
 		String list,ruolo = "";
 		String newToken = "";
 	
@@ -76,7 +74,7 @@ public class ContactListFilter implements Filter {
 		
 		
 		if(newToken == null) {
-			System.out.println("[ContactListFilter] Token scaduto!");
+
 			HTTPCommonMethods.sendReplyHeaderOnly(((HttpServletResponse)response), HTTPCodesClass.TEMPORARY_REDIRECT);
 			String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
 			
@@ -103,11 +101,6 @@ public class ContactListFilter implements Filter {
 			((HttpServletRequest)request).getSession().setAttribute("lista", list);
 			((HttpServletRequest)request).getSession().setAttribute("ruolo", ruolo);
 			
-		
-		
-			System.out.println("[ContactListFilter] Ho trovato i seguenti parametri:");
-			System.out.println("List:"+list);
-			System.out.println("Ruolo:"+ruolo);
 		
 			File f;
 			String policyfile;
@@ -151,20 +144,20 @@ public class ContactListFilter implements Filter {
         
 			int dec = ris.getDecision();
 
-			if (dec == 0) {//permit
+			if (dec == 0) {
 				System.out.println("PERMIT");
 				sendRequestedList(request,response,newToken);
         	
-			} else if (dec == 1) {//deny
+			} else if (dec == 1) {
 				System.out.println("DENY");
 				HTTPCommonMethods.sendReplyHeaderWithToken(((HttpServletResponse)response), HTTPCodesClass.UNAUTHORIZED,newToken);
 				((HttpServletRequest)request).getSession().invalidate();
 				
 				String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
 				log.warn("["+timeStamp+"] - Request from "+request.getRemoteAddr()+" - access denied for requested list="+list+"");
-				//waitLog();
 				
-			} else if (dec == 2||dec==3) {//not applicable o indeterminate
+				
+			} else if (dec == 2||dec==3) {
         	
 				System.out.println("NOT APPLICABLE");
 				HTTPCommonMethods.sendReplyHeaderWithToken(((HttpServletResponse)response), HTTPCodesClass.CONFLICT,newToken);
@@ -172,7 +165,7 @@ public class ContactListFilter implements Filter {
 				
 				String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
 				log.warn("["+timeStamp+"] - Request from "+request.getRemoteAddr()+" - unapplicable policy for requested list="+list+" and role="+ruolo);
-				//waitLog();
+				
 			}
 		}
     
