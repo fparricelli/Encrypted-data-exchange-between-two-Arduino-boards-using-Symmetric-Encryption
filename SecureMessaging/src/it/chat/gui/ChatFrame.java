@@ -15,6 +15,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Base64;
+import java.util.Date;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -50,6 +51,7 @@ import it.sm.keystore.rsakeystore.MyRSAKeystore;
 import it.sm.keystore.rsakeystore.RSASoftwareKeystore;
 import it.sm.messages.EncryptedMessage;
 import it.sm.messages.Messaggio;
+import it.sm.messages.Timestamp;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -335,10 +337,12 @@ public class ChatFrame {
 		
 		try {
 			String token_to_send = aesKeyStore.requireTokenToShare(client_type);
+		
+			Timestamp ts = new Timestamp(new Date());
 			
 			SignHelper sih = SignHelper.getInstance();
 			
-			byte[] token_to_send_sign = sih.signToken(token_to_send);
+			byte[] token_to_send_sign = sih.signToken(token_to_send, ts);
 						
 			System.out.println("[ChatFrame - STARTER] Avvio Handshake con token:"+token_to_send);
 
@@ -348,7 +352,7 @@ public class ChatFrame {
 			
 			//mh.sendMessage(currentIdentity,getDestPort(), token_to_send.toString(), getChatFrame());
 			
-			mh.sendHandshakeMessage(currentIdentity, getDestPort(), token_to_send, token_to_send_sign, getChatFrame());
+			mh.sendHandshakeMessage(currentIdentity, getDestPort(), token_to_send, token_to_send_sign, ts, getChatFrame());
 			
 			this.progressFrame.dispose();
 		

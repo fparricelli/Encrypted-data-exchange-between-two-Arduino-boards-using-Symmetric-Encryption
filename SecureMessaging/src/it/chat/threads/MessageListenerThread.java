@@ -16,6 +16,8 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Date;
+
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JProgressBar;
@@ -33,11 +35,13 @@ import it.chat.helpers.CertificateHelper;
 import it.chat.helpers.MessagingHelper;
 import it.chat.helpers.ServerHelper;
 import it.sm.exception.CertificateNotFoundException;
+import it.sm.exception.MaxDelayException;
 import it.sm.exception.RedirectToLoginException;
 import it.sm.exception.ServerErrorException;
 import it.sm.keystore.aeskeystore.AESHardwareKeystore;
 import it.sm.keystore.aeskeystore.MyAESKeystore;
 import it.sm.messages.Messaggio;
+import it.sm.messages.Timestamp;
 import it.chat.helpers.SignHelper;
 
 public class MessageListenerThread extends Thread{
@@ -119,12 +123,18 @@ public class MessageListenerThread extends Thread{
 							
 						}
 						SignHelper sih = SignHelper.getInstance();
+							
 
 						try {
 							
+						sih.verifyTimestamp(msg);	
 						sih.verifySign(msg);
 						
-						}catch(Exception e) {
+						}catch(MaxDelayException e) {
+							System.out.println("Verify TimeStamp Failed");
+
+						}
+						catch(Exception e) {
 							System.out.println("Verify Sign Failed");
 						}
 						
@@ -132,11 +142,13 @@ public class MessageListenerThread extends Thread{
 
 						String token_to_send = aesKeystore.requireTokenToShare(c_type);
 						
+						Timestamp ts = new Timestamp(new Date());
+						
 						first_token = msg.getMsg();
 						
-						byte[] signature = sih.signToken(token_to_send);
+						byte[] signature = sih.signToken(token_to_send, ts);
 						
-						mh.sendHandshakeMessage(this.actChat.getCurrentIdentity(), this.actChat.getDest(), token_to_send, signature,this.actChat.getFrame());
+						mh.sendHandshakeMessage(this.actChat.getCurrentIdentity(), this.actChat.getDest(), token_to_send, signature,ts, this.actChat.getFrame());
 					
 						System.out.println("[MsgListenerThread] Token "+token_to_send+" inviato");
 						
@@ -170,9 +182,14 @@ public class MessageListenerThread extends Thread{
 						
 						try {
 							
+							sih.verifyTimestamp(msg);	
 							sih.verifySign(msg);
 							
-							}catch(Exception e) {
+							}catch(MaxDelayException e) {
+								System.out.println("Verify TimeStamp Failed");
+
+							}
+							catch(Exception e) {
 								System.out.println("Verify Sign Failed");
 							}
 						

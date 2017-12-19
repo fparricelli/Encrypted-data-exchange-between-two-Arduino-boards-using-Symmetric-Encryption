@@ -42,6 +42,7 @@ public class MessageStringUtility {
 	public final static String OK_CODE = "Verification Code accepted.\nYou'll be now redirected to the Login Panel.";
 	
 	//Registration frame
-	public final static String ERR_REG = "Username already taken, please choose a different one.";
+	public final static String ERR_REG = "Username or mail already taken, please choose a different one.";
+	public final static String ERR_TEL = "Check you've inserted correctly your phone number.";
 	public final static String REG_OK = "Registration completed.\nYou'll be now redirected to the Login Panel.";
 }

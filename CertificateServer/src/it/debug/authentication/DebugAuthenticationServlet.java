@@ -59,7 +59,7 @@ public class DebugAuthenticationServlet {
 		//createIPLockdownFromFailedLogins();
 		
 		
-	}
+	
 	
 	
 	public static boolean createIPLockdownFromFailedLoginsTime () throws Exception

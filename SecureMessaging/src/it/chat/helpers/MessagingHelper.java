@@ -21,6 +21,7 @@ import it.chat.threads.MessageListenerThread;
 import it.chat.threads.UpdaterThread;
 import it.sm.exception.ActiveChatNotFoundException;
 import it.sm.messages.Messaggio;
+import it.sm.messages.Timestamp;
 
 
 /* Classe SINGLETON che si occupa di gestire la messaggistica dell'utente corrente.
@@ -194,12 +195,12 @@ public class MessagingHelper {
 		
 	}
 	
-	public boolean sendHandshakeMessage(String sender, int destinationPort, String msg, byte[] signature, ChatFrame cf) {
+	public boolean sendHandshakeMessage(String sender, int destinationPort, String msg, byte[] signature,Timestamp ts, ChatFrame cf) {
 		ActiveChat ac;
 		try {
 			
 			ac = findActiveChat(destinationPort);
-			Messaggio msgg = new Messaggio(this.listeningPort, sender, msg, signature);
+			Messaggio msgg = new Messaggio(this.listeningPort, sender, msg, signature, ts);
 			
 			ac.getOOS().reset();
 			ac.getOOS().writeObject(msgg);
@@ -248,7 +249,7 @@ public class MessagingHelper {
 				startUpdates(destinationPort);
 				
 				//Richiamo la sendMessage, ora che la active chat � presente
-				sendHandshakeMessage(sender, destinationPort, msg, signature, cf);
+				sendHandshakeMessage(sender, destinationPort, msg, signature, ts, cf);
 				
 			}catch (Exception e1) {
 				e1.printStackTrace();

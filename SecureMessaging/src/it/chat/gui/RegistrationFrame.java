@@ -21,6 +21,7 @@ import it.chat.helpers.ServerHelper;
 import it.sm.exception.AlreadyRegisteredUsernameException;
 import it.sm.exception.PasswordCheckFailedException;
 import it.sm.exception.ServerErrorException;
+import it.sm.exception.TelephoneTipingException;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -137,10 +138,12 @@ public class RegistrationFrame {
 		centerPanel.add(lblNome);
 		
 		btnRegister = new JButton("Register");
+		btnRegister.setFont(new Font("AppleGothic", Font.PLAIN, 13));
 		btnRegister.setBounds(115, 318, 89, 23);
 		centerPanel.add(btnRegister);
 		
 		passwordField = new JPasswordField();
+		passwordField.setFont(new Font("AppleGothic", Font.PLAIN, 13));
 		passwordField.setForeground(new Color(255, 255, 255));
 		passwordField.setColumns(10);
 		passwordField.setBackground(new Color(36, 47, 65));
@@ -153,6 +156,7 @@ public class RegistrationFrame {
 		centerPanel.add(separator_1);
 		
 		nameField = new JTextField();
+		nameField.setFont(new Font("AppleGothic", Font.PLAIN, 13));
 		nameField.setForeground(new Color(255, 255, 255));
 		nameField.setColumns(10);
 		nameField.setBackground(new Color(36, 47, 65));
@@ -165,6 +169,7 @@ public class RegistrationFrame {
 		centerPanel.add(separator_2);
 		
 		surnameField = new JTextField();
+		surnameField.setFont(new Font("AppleGothic", Font.PLAIN, 13));
 		surnameField.setForeground(new Color(255, 255, 255));
 		surnameField.setColumns(10);
 		surnameField.setBackground(new Color(36, 47, 65));
@@ -183,6 +188,7 @@ public class RegistrationFrame {
 		centerPanel.add(separator_3);
 		
 		emailField = new JTextField();
+		emailField.setFont(new Font("AppleGothic", Font.PLAIN, 13));
 		emailField.setForeground(new Color(255, 255, 255));
 		emailField.setColumns(10);
 		emailField.setBackground(new Color(36, 47, 65));
@@ -201,6 +207,7 @@ public class RegistrationFrame {
 		centerPanel.add(separator_4);
 		
 		telephoneField = new JTextField();
+		telephoneField.setFont(new Font("AppleGothic", Font.PLAIN, 13));
 		telephoneField.setForeground(new Color(255, 255, 255));
 		telephoneField.setColumns(10);
 		telephoneField.setBackground(new Color(36, 47, 65));
@@ -219,6 +226,7 @@ public class RegistrationFrame {
 		centerPanel.add(separator_5);
 		
 		usernameField = new JTextField();
+		usernameField.setFont(new Font("AppleGothic", Font.PLAIN, 13));
 		usernameField.setForeground(new Color(255, 255, 255));
 		usernameField.setColumns(10);
 		usernameField.setBackground(new Color(36, 47, 65));
@@ -273,6 +281,9 @@ public class RegistrationFrame {
 		try {
 				String pass = String.valueOf(passwordField.getPassword());
 				checkPassword(pass);
+				String telephone = String.valueOf(telephoneField.getText());
+				checkTelephoneRight(telephone);
+					
 				
 				//Necessario controllo sulla validit� degli parametri di input
 				
@@ -302,6 +313,9 @@ public class RegistrationFrame {
 			}catch(PasswordCheckFailedException e) {
 				System.out.println("Invalid password");
 				JOptionPane.showMessageDialog(frame.getContentPane(), e.getMessage(), MessageStringUtility.WARNING, JOptionPane.WARNING_MESSAGE);
+			
+			} catch(TelephoneTipingException e) {
+				JOptionPane.showMessageDialog(frame.getContentPane(), MessageStringUtility.ERR_TEL, MessageStringUtility.ERROR, JOptionPane.ERROR_MESSAGE);
 			
 			} catch (AlreadyRegisteredUsernameException e) {
 				System.out.println(e.getMessage());
@@ -361,6 +375,13 @@ public class RegistrationFrame {
 				 
 				}
 	
+	}
+	
+	public void checkTelephoneRight(String t) throws TelephoneTipingException {
+		
+		if (!t.matches("[0-9]+"))
+				throw new TelephoneTipingException();
+		
 	}
 	
 	public void setVisible(boolean b) {
