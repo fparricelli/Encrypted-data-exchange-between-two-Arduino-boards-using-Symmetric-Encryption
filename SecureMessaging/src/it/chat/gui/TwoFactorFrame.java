@@ -1,11 +1,17 @@
 package it.chat.gui;
 
 import java.awt.Color;
-import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
@@ -14,13 +20,6 @@ import it.chat.gui.utility.MessageStringUtility;
 import it.chat.helpers.ServerHelper;
 import it.sm.exception.CodeNotFoundException;
 import it.sm.exception.ServerErrorException;
-
-import javax.swing.JTextField;
-import javax.swing.JButton;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.Font;
-import javax.swing.JSeparator;
 
 public class TwoFactorFrame {
 

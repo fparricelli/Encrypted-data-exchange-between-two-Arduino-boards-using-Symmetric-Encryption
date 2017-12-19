@@ -3,15 +3,7 @@ package it.authorization;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.security.InvalidParameterException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,11 +24,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.owasp.esapi.AccessReferenceMap;
 import org.owasp.esapi.errors.AccessControlException;
 import org.owasp.esapi.reference.IntegerAccessReferenceMap;
 
-import com.sun.org.apache.xml.internal.security.utils.Base64;
 import com.sun.xacml.PDP;
 import com.sun.xacml.PDPConfig;
 import com.sun.xacml.ctx.RequestCtx;
@@ -49,8 +39,6 @@ import com.sun.xacml.finder.impl.FilePolicyModule;
 
 import it.authentication.AuthenticationLogic;
 import it.exception.authentication.InvalidHopException;
-import it.sm.keystore.rsakeystore.MyRSAKeystore;
-import it.sm.keystore.rsakeystore.RSASoftwareKeystore;
 import it.utility.network.HTTPCodesClass;
 import it.utility.network.HTTPCommonMethods;
 
@@ -248,6 +236,7 @@ public class ContactListFilter implements Filter {
 		listMap = new IntegerAccessReferenceMap(listSet);
 		
 		
+		@SuppressWarnings("rawtypes")
 		Set roleSet = new HashSet();
 		roleSet.add("roleTecnico");
 		roleSet.add("roleAdmin");

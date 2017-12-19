@@ -2,12 +2,26 @@ package it.chat.gui;
 
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.SystemColor;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.util.UUID;
 
+import javax.security.auth.login.FailedLoginException;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.UIManager;
-import javax.swing.border.Border;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JSeparator;
+import javax.swing.JTextField;
 
-import com.octo.captcha.service.image.AbstractManageableImageCaptchaService;
 import com.octo.captcha.service.image.DefaultManageableImageCaptchaService;
 
 import it.chat.gui.utility.LookAndFeelUtility;
@@ -17,26 +31,6 @@ import it.chat.user.AuthUser;
 import it.sm.exception.ForbiddenAccessException;
 import it.sm.exception.ServerErrorException;
 import it.sm.exception.TwoFactorRequiredException;
-
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.SwingConstants;
-import javax.swing.JTextField;
-import javax.security.auth.login.FailedLoginException;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JPasswordField;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.util.UUID;
-import java.awt.event.ActionEvent;
-import java.awt.Font;
-import javax.swing.JSeparator;
-import java.awt.SystemColor;
-import java.awt.Toolkit;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class LoginFrame {
 

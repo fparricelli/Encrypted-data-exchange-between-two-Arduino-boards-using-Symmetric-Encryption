@@ -3,7 +3,6 @@ package it.debug.registration;
 import java.sql.SQLException;
 
 import it.exception.registration.UserAlreadyExistsException;
-import it.registration.RegistrationLogic;
 
 public class DebugRegistrationLogic {
 

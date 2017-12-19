@@ -4,11 +4,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.Enumeration;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -22,7 +20,6 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 
-import it.authentication.AuthenticationLogic;
 import it.exception.certificates.CertificateNotFoundException;
 import it.utility.network.HTTPCodesClass;
 import it.utility.network.HTTPCommonMethods;

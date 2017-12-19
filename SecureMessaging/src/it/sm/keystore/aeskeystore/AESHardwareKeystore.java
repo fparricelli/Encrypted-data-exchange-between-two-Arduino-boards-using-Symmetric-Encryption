@@ -3,12 +3,10 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.concurrent.Semaphore;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
 import gnu.io.PortInUseException;
 import gnu.io.UnsupportedCommOperationException;
-import it.sm.exception.*;
+import it.sm.exception.Base64EncodedError;
+import it.sm.exception.OutOfBoundEncrypt;
 import it.sm.messages.EncryptedMessage;
 
 

@@ -2,11 +2,24 @@ package it.chat.gui;
 
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
-import org.passay.CharacterData;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.LengthRule;
@@ -22,22 +35,6 @@ import it.sm.exception.AlreadyRegisteredUsernameException;
 import it.sm.exception.PasswordCheckFailedException;
 import it.sm.exception.ServerErrorException;
 import it.sm.exception.TelephoneTipingException;
-
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPasswordField;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JComboBox;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.awt.event.ActionEvent;
-import java.awt.Font;
-import javax.swing.JSeparator;
-import javax.swing.ImageIcon;
 
 public class RegistrationFrame {
 

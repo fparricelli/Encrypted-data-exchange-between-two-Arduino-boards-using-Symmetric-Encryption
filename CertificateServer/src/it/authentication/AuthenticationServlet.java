@@ -78,10 +78,9 @@ public class AuthenticationServlet extends HttpServlet {
 			Boolean authenticated = AuthenticationLogic.authenticate(username, password);
 			if (authenticated) {
 				if (AuthenticationLogic.isTrusted(username, request.getRemoteAddr())) {
-					System.out.println("IP TRUSTED");
+					System.out.println("Successful login from trusted IP");
 					AuthenticationLogic.deleteFailedLogins(username, request.getRemoteAddr());
 					String authenticationToken = AuthenticationLogic.generateAuthenticationToken(username,request.getRemoteAddr());
-					System.out.println("[Server]Auth token:"+authenticationToken);
 					returnParameters.put("token", authenticationToken);
 					returnParameters.putAll(AuthenticationLogic.getUserDetails(username));
 					int roleNumber = extractRoleNumber(returnParameters.get("role"));

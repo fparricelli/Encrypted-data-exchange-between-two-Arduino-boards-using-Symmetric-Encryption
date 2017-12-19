@@ -1,20 +1,10 @@
 package it.authorization;
 
-import com.sun.xacml.EvaluationCtx;
-import com.sun.xacml.attr.AttributeValue;
-import com.sun.xacml.attr.IntegerAttribute;
-import com.sun.xacml.attr.StringAttribute;
-
-import com.sun.xacml.ctx.Attribute;
-import com.sun.xacml.ctx.RequestCtx;
-import com.sun.xacml.ctx.Subject;
-
-
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+
 /*
      * Sets up the Subject section of the request. This Request only has
      * one Subject section, and it uses the default category. To create a
@@ -30,7 +20,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
-import org.owasp.esapi.reference.IntegerAccessReferenceMap;
+
+import com.sun.xacml.attr.StringAttribute;
+import com.sun.xacml.ctx.Attribute;
+import com.sun.xacml.ctx.RequestCtx;
+import com.sun.xacml.ctx.Subject;
 
 
 public class RequestBuilder

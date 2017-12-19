@@ -55,7 +55,9 @@ public class DebugAuthenticationServlet {
 		{
 		thread = new Thread(new DebugThreadCorrectLogin());
 		thread.start();
+		
 		}
+	}
 		//createIPLockdownFromFailedLogins();
 		
 		

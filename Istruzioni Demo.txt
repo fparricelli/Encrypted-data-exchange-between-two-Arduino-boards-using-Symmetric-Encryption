@@ -1,0 +1,5 @@
+1) Login corretto
+2) Login corretto con 2 Steps Authentication
+3) Registrazione
+4) Blocco (utente,ip)
+5) Blocco ip

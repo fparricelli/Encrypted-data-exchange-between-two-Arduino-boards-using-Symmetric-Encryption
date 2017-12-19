@@ -2,7 +2,6 @@ package it.chat.activechat;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PipedInputStream;
-import java.net.Socket;
 import java.util.concurrent.Semaphore;
 
 import javax.net.ssl.SSLSocket;
