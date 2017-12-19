@@ -10,9 +10,11 @@ import org.passay.CharacterData;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.LengthRule;
+import org.passay.MatchBehavior;
 import org.passay.PasswordData;
 import org.passay.PasswordValidator;
 import org.passay.RuleResult;
+import org.passay.UsernameRule;
 import org.passay.WhitespaceRule;
 
 import it.chat.gui.utility.LookAndFeelUtility;
@@ -276,14 +278,14 @@ public class RegistrationFrame {
 		btnRegister.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 			
-			
+				
 			
 		try {
 				String pass = String.valueOf(passwordField.getPassword());
 				checkPassword(pass);
 				String telephone = String.valueOf(telephoneField.getText());
 				checkTelephoneRight(telephone);
-					
+				
 				
 				//Necessario controllo sulla validit� degli parametri di input
 				
@@ -352,12 +354,18 @@ public class RegistrationFrame {
 
 				  // at least one symbol (special character)
 				  new CharacterRule(EnglishCharacterData.Special, 1),
+				  
+				  new UsernameRule(true,true),
 
 				  // no whitespace
 				  new WhitespaceRule());
+		
+				 
 
+				PasswordData pd = new PasswordData(password);
+				pd.setUsername(usernameField.getText());
 				
-				RuleResult result = validator.validate(new PasswordData(password));
+				RuleResult result = validator.validate(pd);
 				if (result.isValid()) {
 				  
 				} else {
